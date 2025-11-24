@@ -1,22 +1,119 @@
-"use client";
 
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { z } from "zod";
+import { useAppDispatch } from "@/redux/hooks";
+import { authService } from "@/api/AuthServiceAndProfile";
+import { setUser } from "@/redux/slice/user.slice";
+import { useNavigate } from "react-router-dom";
+import type { LoginFormProps } from "@/interfaces/shared/auth/auth.interface";
+import { setVendor } from "@/redux/slice/vendor.slice";
+import { loginSchema, type LoginValue } from "@/utils/helpers/validation.helpers";
 
-export default function LoginForm() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+export default function LoginForm({
+  role = "user",
+  onSubmit,
+  children,
+}: LoginFormProps &{children?: React.ReactNode}) {
+  const dispatch = useAppDispatch();
+  const [formData, setFormData] = useState<LoginValue>({
+    email: "",
+    password: "",
+    role: role,
+  });
+  const [errors, setErrors] = useState({ email: "", password: "", role: "" });
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const handleInputChange = (field: string, value: string) => {
+  const navigate = useNavigate();
+
+  const handleInputChange = (field: keyof LoginValue, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateField = (field: keyof LoginValue, value: string) => {
+    const result = loginSchema.shape[field].safeParse(value);
+
+    if (!result.success) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: result.error.issues[0].message,
+      }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
-  };
 
+    const result = loginSchema.safeParse(formData);
+
+    if (!result.success) {
+      const newError = { email: "", password: "", role: "" };
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof LoginValue;
+        newError[field] = issue.message;
+      });
+      setErrors(newError);
+      return;
+    }
+
+    if(onSubmit){
+      onSubmit(formData)
+    }
+    try {
+      setLoading(true);
+      setServerError("");
+
+      // const res = await authService.login({...formData});
+
+      let res;
+      if (formData.role === "admin") {
+        res = await authService.adminLogin({
+          email: formData.email,
+          password: formData.password,
+        });
+      }else if(formData.role === "vendor"){
+        console.log("venmdor login working")
+        res = await authService.vendorLogin({
+          email:formData.email,
+          password:formData.password
+          
+        })
+      } else  {
+        res = await authService.login({
+          email: formData.email,
+          password: formData.password,
+        });
+      }
+
+      console.log("response", res);
+
+      if (res.data.success) {
+
+        if(formData.role === "vendor"){
+          dispatch(setVendor(res.data.vendor));
+          navigate("/vendor/dashboard")
+        }else{
+             dispatch(setUser(res.data.user || res.data.admin));
+             if(formData.role==="admin") navigate("/admin/dashboard");
+             else navigate("/")
+        }
+      }
+     } catch (error: any) {
+       console.error(
+         "Error during login:",
+         error.response?.data || error.message
+       );
+     }
+   };
+  
   return (
     <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md mx-auto">
       {/* Header inside the form */}
@@ -40,9 +137,15 @@ export default function LoginForm() {
             placeholder="Enter your email"
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
-            className="px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
-            required
+            onBlur={() => validateField("email", formData.email)}
+            className={`px-4 py-3 rounded-lg border ${
+              errors.email ? "border-red-500" : "border-gray-300"
+            } focus:ring-2 focus:ring-teal-500`}
           />
+
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+          )}
         </div>
 
         {/* Password */}
@@ -56,9 +159,15 @@ export default function LoginForm() {
             placeholder="Enter your password"
             value={formData.password}
             onChange={(e) => handleInputChange("password", e.target.value)}
-            className="px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500"
-            required
+            onBlur={() => validateField("password", formData.password)}
+            className={`px-4 py-3 rounded-lg border ${
+              errors.password ? "border-red-500" : "border-gray-300"
+            } focus:ring-2 focus:ring-teal-500`}
           />
+
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+          )}
         </div>
 
         {/* Forgot Password */}
@@ -71,23 +180,31 @@ export default function LoginForm() {
           </a>
         </div>
 
-        {/* Button */}
-        <Button
+        {/* <Button
           type="submit"
           size="lg"
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg font-semibold"
+          className={`w-full text-white py-3 rounded-lg font-semibold ${
+            formData.role === "admin"
+              ? "bg-green-800 hover:bg-green-900"
+              : "bg-teal-600 hover:bg-teal-700"
+          }`}
         >
-          Sign In
-        </Button>
+          {title}
+        </Button> */}
+        {children}
       </form>
 
       {/* Signup link */}
       <p className="text-center text-sm text-gray-600 mt-6">
         Don’t have an account?{" "}
-        <a href="#" className="text-teal-600 font-semibold hover:underline">
+        <a
+          href="/user/signup"
+          className="text-teal-600 font-semibold hover:underline"
+        >
           Sign up
         </a>
       </p>
     </div>
   );
-}
+  }
+

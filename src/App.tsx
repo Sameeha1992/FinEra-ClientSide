@@ -1,14 +1,23 @@
-import { useState } from 'react'
-import LoginPage from './pages/user/login.tsx'
-import './index.css'
+import User from "./User";
+import { Toaster } from "react-hot-toast";
+import Admin from "./Admin";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Vendor from "./Vendor";
 
-function App() {
-
+const App = () => {
   return (
     <>
-      <LoginPage />
-    </>
-  )
-}
+      <BrowserRouter>
+        <Toaster />
+        <Routes>
+          <Route path="/user/*" index element={<User/>} />
+          <Route path="/admin/*" element={<Admin />} />
+          <Route path="/vendor/*" element={<Vendor/>}/>
 
-export default App
+        </Routes>
+      </BrowserRouter>
+    </>
+  );
+};
+
+export default App;
