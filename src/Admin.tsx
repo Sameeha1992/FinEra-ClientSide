@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { lazy } from 'react'
 import { Route,Routes } from 'react-router-dom'
-import AdminLoginPage from './pages/admin/LoginPage'
 
+
+const AdminLoginPage = lazy(()=>import('./pages/admin/LoginPage'))
 const Admin = () => {
   return (
     <div>

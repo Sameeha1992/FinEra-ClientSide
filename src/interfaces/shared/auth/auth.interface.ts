@@ -1,4 +1,4 @@
-import type { LoginValue } from "@/utils/helpers/validation.helpers";
+import type { LoginValue } from "@/validations/shared/validation.helpers";
 import type React from "react";
 
 export type UserRole = "user"|"vendor"

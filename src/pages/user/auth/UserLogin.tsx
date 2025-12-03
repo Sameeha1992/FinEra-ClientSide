@@ -17,14 +17,15 @@ export default function LoginPage() {
   return (
     
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
-       <div className="relative">
+      <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
               <img
                 src={loginBanner}
                 alt="loginBanner"
-                className="w-full max-w-xl object-contain drop-shadow-lg mx-auto -mt-8"
+          className="w-full md:w-96 object-contain drop-shadow-lg"
               />
             </div>
-      <LoginForm role="user" onSubmit={handleUserLogin}
+ <div className="md:w-1/2 w-full">
+       <LoginForm role="user" onSubmit={handleUserLogin}
          >
         <Button
           type="submit"
@@ -34,6 +35,7 @@ export default function LoginPage() {
           Login as User
         </Button>
       </LoginForm>
+      </div>
     </div>
   );
 

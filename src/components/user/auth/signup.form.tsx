@@ -1,49 +1,8 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { authService } from "@/api/AuthServiceAndProfile";
-import {z} from "zod"
+import { registerUserSchema,type FormData } from "../../../validations/user/user.register.validation";
 
-
-
-const formSchema = z
-  .object({
-    fullName:z.string().max(20,"Should not exceed above 20 letters")
-    .min(3,"Name too short")
-    .regex(/^[A-Za-z\s]+$/, "Only letters and spaces allowed"),
-    email: z
-      .string()
-      .trim()
-      .email("Please enter a valid email address")
-      .max(25, "Email too long"),
-
-      phone:z.string().max(10,"Should not exceed above 10 numbers").regex(/[1-9]/,"please enter only numbers"),
-    password: z
-      .string()
-      .min(8, "Password must be atleast 8 characters")
-      .regex(
-        /[A-Z]/,
-        "Password must have at least one uppercase,one lowercase, one number, and one special character"
-      )
-      .regex(
-        /[a-z]/,
-        "Password must have at least one uppercase,one lowercase, one number, and one special character"
-      )
-      .regex(
-        /[0-9]/,
-        "Password must have at least one uppercase,one lowercase, one number, and one special character"
-      )
-      .regex(
-        /[\W_]/,
-        "Password must have at least one uppercase,one lowercase, one number, and one special character"
-      ),
-    confirmPassword: z.string().min(8, "Password must be atleast 8 characters"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Password do not match",
-    path: ["confirmPassword"],
-  });
-
-type FormData = z.infer<typeof formSchema>
 
 
 export function SignupForm() {
@@ -58,6 +17,7 @@ export function SignupForm() {
   })
 
 
+    const [errors, setErrors] = useState<Partial<Record<keyof FormData, string[]>>>({});
   const [loading,setLoading] = useState<boolean>(false);
   const [message,setMessage] = useState<string>("");
   const navigate = useNavigate()
@@ -74,19 +34,18 @@ export function SignupForm() {
     setLoading(true);
     setMessage('');
 
-    if(formData.password !== formData.confirmPassword){
-      setMessage("Password do not match");
+
+    const result = registerUserSchema.safeParse(formData);
+
+    if (!result.success) {
+
+      setErrors(result.error.flatten().fieldErrors);
       setLoading(false);
-      return 
+      return;
     }
 
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(!emailRegex.test(formData.email)){
-      setMessage('Please enter a valid email address');
-      setLoading(false);
-      return; 
-    }
+    setErrors({}); 
+
 
     const userData ={
       name:formData.fullName,
@@ -118,9 +77,16 @@ export function SignupForm() {
     } finally{
       setLoading(false)
     }
+  };
 
-    
-  }
+  const renderFieldErrors = (field: keyof FormData) => {
+  const fieldError = errors[field]?.[0];
+  if (!fieldError) return null;
+  return <p className="text-red-600 text-sm">{fieldError}</p>;
+};
+
+
+
   return (
     <form
       className="space-y-6"  onSubmit={handleSubmit}
@@ -144,6 +110,7 @@ export function SignupForm() {
             className="rounded-md border border-input bg-background px-3 py-3 text-base md:text-lg outline-none focus:ring-2 focus:ring-ring"
             
           />
+          {renderFieldErrors("fullName")}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -160,6 +127,7 @@ export function SignupForm() {
             className="rounded-md border border-input bg-background px-3 py-3 text-base md:text-lg outline-none focus:ring-2 focus:ring-ring"
             
           />
+          {renderFieldErrors("email")}
         </div>
 
         <div className="flex flex-col gap-1">
@@ -175,6 +143,7 @@ export function SignupForm() {
             placeholder="Phone number"
             className="rounded-md border border-input bg-background px-3 py-3 text-base md:text-lg outline-none focus:ring-2 focus:ring-ring"
           />
+           {renderFieldErrors("phone")}
         </div>
 
 
@@ -192,6 +161,8 @@ export function SignupForm() {
             className="rounded-md border border-input bg-background px-3 py-3 text-base md:text-lg outline-none focus:ring-2 focus:ring-ring"
             
           />
+                    {renderFieldErrors("password")}
+
         </div>
 
         <div className="flex flex-col gap-1">
@@ -208,6 +179,8 @@ export function SignupForm() {
             className="rounded-md border border-input bg-background px-3 py-3 text-base md:text-lg outline-none focus:ring-2 focus:ring-ring"
             
           />
+                              {renderFieldErrors("confirmPassword")}
+
         </div>
       </div>
 

@@ -1,3 +1,4 @@
+import ResetPassword from "@/components/shared/ResetPassword";
 import adminAxiosInstance from "@/config/adminAxiosInterceptor";
 import userAxiosInstance from "@/config/userAxiosInterceptor";
 import vendorAxiosInstance from "@/config/vendorAxiosInterceptors";
@@ -57,6 +58,24 @@ export const authService = {
        return await userAxiosInstance.post("/login",credentials)
   },
 
+   forgetPassword:async(email:string)=>{
+    return await userAxiosInstance.post("/forget-password",{email})
+  },
+
+  
+  verifyForgetPassword:async(email:string,otp:string)=>{
+    return await userAxiosInstance.post("/verify-forget-otp",{email,otp})
+  },
+
+  resetPassword:async(email:string,password:string)=>{
+    return await userAxiosInstance.post("/reset-password",{email,password})
+  },
+
+  
+  usergoogleLogin:async(idToken:string)=>{
+    return await userAxiosInstance.post("/auth/google",{idToken})
+  },
+
   adminLogin:async(credential:{email:string,password:string})=>{
     console.log("/login of admin");
     return await adminAxiosInstance.post('/login',credential)
@@ -103,8 +122,27 @@ export const authService = {
   },
 
   vendorLogin:async(credentials:{email:string,password:string})=>{
-    return await vendorAxiosInstance.post("/vendor-login",credentials)
-  }
+    return await vendorAxiosInstance.post("/login",credentials)
+  },
+
+  vendorGoogleLogin:async(idToken:string)=>{
+    return await vendorAxiosInstance.post("/auth/google",{idToken})
+  },
+
+
+  forgetPasswordVendor:async(email:string)=>{
+    return await vendorAxiosInstance.post("/forget-password",{email})
+  },
+
+  verifyVendorForgetOtp:async(email:string,otp:string)=>{
+  return await vendorAxiosInstance.post("/verify-forget-otp",{email,otp})
+  },
+  
+
+  
+  resetVendorPassword:async(email:string,password:string)=>{
+    return await vendorAxiosInstance.post("/reset-password",{email,password})
+  },
 
 
 };

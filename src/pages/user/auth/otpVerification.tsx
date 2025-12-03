@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Toaster, toast as sonnerToast } from "sonner";
-import OTPInput from "@/components/user/auth/otpInput";
+import { toast as sonnerToast } from "sonner";
+import OtpInput from "@/components/shared/OtpInput";
 import otpIllustration from "@/assets/logI.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/api/AuthServiceAndProfile";
@@ -9,6 +9,15 @@ import type {
   LocationState,
   UserPayload,
 } from "@/interfaces/shared/auth/auth.interface";
+import z from "zod";
+
+const otpSchema = z.object({
+  otp: z
+    .string()
+    .min(6, "OTP must be exactly 6 digits")
+    .max(6, "OTP must be exactly 6 digits")
+    .regex(/^\d{6}$/, "OTP must contain only numbers"),
+});
 
 const OtpVerification = () => {
   const [otp, setOtp] = useState<string>("");
@@ -25,7 +34,9 @@ const OtpVerification = () => {
     if (!userData?.email || !userData?.role) {
       sonnerToast.error("Session expired.Please register again.");
       navigate(
-        userData?.role === "vendor" ? "/vendor/vendor-register" : "/user/register"
+        userData?.role === "vendor"
+          ? "/vendor/vendor-register"
+          : "/user/register"
       );
     }
   }, [userData, navigate]);
@@ -55,8 +66,11 @@ const OtpVerification = () => {
 
   const handleSubmit = async () => {
     console.log("Submitting OTP:", otp);
-    if (otp.length !== 6) {
-      setMessage("Please enter all 6 digits");
+    const result = otpSchema.safeParse({ otp });
+    if (!result.success) {
+      const errorMessage = result.error.issues[0].message; // CHANGE: Extracts first error message for user-friendly display
+      setMessage(errorMessage);
+      sonnerToast.error(errorMessage); // CHANGE: Added toast for validation errors to match success/error patterns
       return;
     }
 
@@ -67,13 +81,13 @@ const OtpVerification = () => {
       if (userData.role === "vendor") {
         await authService.verifyVendorOtp({
           email: userData.email,
-          otp,
+          otp: result.data.otp,
           role: "vendor",
         });
       } else {
         await authService.verifyOtp({
           email: userData.email,
-          otp,
+          otp: result.data.otp,
           role: "user",
         });
       }
@@ -87,7 +101,7 @@ const OtpVerification = () => {
           password: userData.password,
         });
         sonnerToast.success("Vendor account created");
-        navigate("/vendor/login");
+        navigate("/vendor/login",{replace:true});
       } else {
         await authService.register({
           name: userData.name,
@@ -96,10 +110,12 @@ const OtpVerification = () => {
           password: userData.password,
         });
         sonnerToast.success("Account created successfully");
-        navigate("/user/login");
+        navigate("/user/login",{replace:true});
       }
-    } catch (error) {
-      setMessage((error as string) || "Invalid OTP");
+    } catch (error: any) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Invalid OTP";
+      setMessage(errorMessage);
       sonnerToast.error((error as string) || "Failed to verify OTP ");
     } finally {
       setLoading(false);
@@ -119,8 +135,9 @@ const OtpVerification = () => {
       setTimeLeft(120);
       setMessage("OTP send to your email");
       sonnerToast.success("OTP send to your email");
-    } catch (error) {
-      const errorMessage = (error as Error)?.message || "Failed to resend OTP";
+    } catch (error: any) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to resend OTP";
       setMessage(errorMessage);
       sonnerToast.error(errorMessage);
     } finally {
@@ -131,25 +148,25 @@ const OtpVerification = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1 bg-background">
-        <div className="container mx-auto px-4 py-12">
-          <div className="mx-auto max-w-5xl">
-            <div className="grid items-center gap-8 md:gap-12 md:grid-cols-2">
-              <div>
-                <h3 className="mb-6 text-3xl sm:text-4xl md:text-5xl font-bold text-foreground text-center md:text-left">
+        <div className="container mx-auto px-4 py-8 sm:py-12">
+          <div className="mx-auto max-w-4xl sm:max-w-5xl">
+            <div className="grid items-center gap-6 sm:gap-8 md:gap-12 md:grid-cols-2">
+              <div className="order-2 md:order-1">
+                <h3 className="mb-6 text-2xl md:text-4xl lg:text-5xl font-bold text-foreground text-center md:text-left">
                   Please enter your OTP
                 </h3>
                 <img
                   src={otpIllustration}
                   alt="Financial services illustration"
-                  className="w-full max-w-sm mx-auto md:max-w-full"
+                  className="w-full max-w-xs sm:max-w-sm mx-auto md:max-w-full md:mx-0"
                 />
               </div>
 
               <div className="flex flex-col items-center">
-                <div className="w-full max-w-md rounded-2xl bg-card p-8 shadow-lg">
+                <div className="w-full max-w-md rounded-2xl bg-card p-6 sm:p-8 shadow-lg">
                   {message && (
                     <div
-                      className={`mb-4 p-3 rounded-md text-center ${
+                      className={`mb-4 p-3 rounded-md text-center text-sm ${
                         message.includes("Failed") || message.includes("error")
                           ? "bg-destructive/10 text-destructive"
                           : "bg-green-100 text-green-800"
@@ -159,10 +176,10 @@ const OtpVerification = () => {
                     </div>
                   )}
 
-                  <OTPInput length={6} onComplete={handleOTPComplete} />
+                  <OtpInput length={6} onComplete={handleOTPComplete} />
 
                   <div className="mt-6 text-center">
-                    <p className="text-2xl font-semibold text-[hsl(var(--timer-text))]">
+                    <p className="text-xl sm:text-2xl font-semibold text-[hsl(var(--timer-text))]">
                       {formatTime(timeLeft)} Sec
                     </p>
                   </div>
@@ -170,13 +187,13 @@ const OtpVerification = () => {
                   <div className="mt-8">
                     <Button
                       onClick={handleSubmit}
-                      className="h-12 w-full bg-primary text-lg font-medium text-primary-foreground hover:bg-primary/90"
+                      className="h-12 w-full bg-primary text-base sm:text-lg font-medium text-primary-foreground hover:bg-primary/90"
                     >
                       Submit
                     </Button>
                   </div>
 
-                  <div className="mt-6 text-center text-sm">
+                  <div className="mt-6 text-center text-xs sm:text-sm">
                     <span className="text-muted-foreground">
                       Don't receive code?{" "}
                     </span>
