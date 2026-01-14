@@ -1,13 +1,12 @@
-import axios from "axios"
-
+import axios from "axios";
 import type {
   AxiosResponse,
   AxiosError,
   InternalAxiosRequestConfig,
 } from "axios";
 
-const adminAxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_ADMIN_SERVER_BASEURL,
+const axiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_SERVER_BASEURL,
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -17,10 +16,9 @@ const adminAxiosInstance = axios.create({
 });
 
 
+console.log("Base URL:",import.meta.env.VITE_SERVER_BASEURL)
 
-console.log("Base URL:",import.meta.env.VITE_ADMIN_SERVER_BASEURL)
-
-adminAxiosInstance.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     console.log("Request url:", config.url);
     return config;
@@ -34,9 +32,7 @@ adminAxiosInstance.interceptors.request.use(
 
 
 
-
-
-adminAxiosInstance.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   response=>response,
   async error=>{
     const originalRequest = error.config;
@@ -46,15 +42,15 @@ adminAxiosInstance.interceptors.response.use(
       try {
         console.log("Attempting to refresh token...");
 
-        const response = await adminAxiosInstance.post('/refresh-token');
+        const response = await axiosInstance.post('/refresh-token');
 
         const {accessToken} = response.data;
 
-        adminAxiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
         console.log("Token refreshed successfully");
 
-        return adminAxiosInstance(originalRequest)
+        return axiosInstance(originalRequest)
         
       } catch (refreshError) {
         console.error("Token refresh failed",refreshError);
@@ -67,4 +63,4 @@ adminAxiosInstance.interceptors.response.use(
  
 );
 
-export default adminAxiosInstance;
+export default axiosInstance;

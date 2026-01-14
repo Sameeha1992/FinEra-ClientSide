@@ -1,6 +1,9 @@
 import {GoogleLogin} from "@react-oauth/google";
 import { authService } from "@/api/AuthServiceAndProfile";
 import React from 'react'
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setAuth } from "@/redux/slice/auth.slice";
 
 interface Props{
     role:"user"|"vendor"
@@ -9,14 +12,25 @@ interface Props{
 
 const GoogleSignupButton:React.FC<Props> =({role}) => {
 
+    const dispatch = useDispatch();
+    const navigate = useNavigate()
+
     const handleSuccess = async(response:any)=>{
-        const idToken = response.credential;
+        const token = response.credential;
 
         try {
 
-            const res = role ==="user"? await authService.usergoogleLogin(idToken):await authService.vendorGoogleLogin(idToken);
+            const res = role ==="user"? await authService.usergoogleLogin(token):await authService.vendorGoogleLogin(token);
 
             console.log("Signup successfull:",res.data)
+
+            if(role === "user"){
+             dispatch(setAuth(res.data.user));
+             navigate("/user/home")
+            } else if(role === "vendor") {
+                dispatch(setAuth(res.data.vendor));
+                navigate("/vendor/dashboard")
+            }
             
         } catch (error:any) {
             console.error("Google signup failed:",error.response?.data || error.message)

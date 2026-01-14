@@ -4,10 +4,9 @@ import { Label } from "../ui/label";
 import toast from "react-hot-toast";
 import { useAppDispatch } from "@/redux/hooks";
 import { authService } from "@/api/AuthServiceAndProfile";
-import { setUser } from "@/redux/slice/user.slice";
+import { setAuth } from "@/redux/slice/auth.slice";
 import { useNavigate } from "react-router-dom";
 import type { LoginFormProps } from "@/interfaces/shared/auth/auth.interface";
-import { setVendor } from "@/redux/slice/vendor.slice";
 import {
   loginSchema,
   type LoginValue,
@@ -104,12 +103,12 @@ export default function LoginForm({
 
       if (res.data.success) {
         if (formData.role === "vendor") {
-          dispatch(setVendor(res.data.vendor));
+          dispatch(setAuth(res.data.vendor));
           navigate("/vendor/dashboard", { replace: true });
         } else {
-          dispatch(setUser(res.data.user || res.data.admin));
+          dispatch(setAuth(res.data.user || res.data.admin));
           if (formData.role === "admin") navigate("/admin/dashboard");
-          else navigate("/", { replace: true });
+          else navigate("/user/home", { replace: true });
         }
       }
     } catch (error: any) {
