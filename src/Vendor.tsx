@@ -9,6 +9,7 @@ const VendorHome = lazy(()=>import('./pages/vendor/vendor.home.tsx'))
 const ForgetVendorPassword = lazy(()=>import("./pages/vendor/ForgetVendorPassword.tsx"))
 const ForgetVendorOtpVerify = lazy(()=>import("./pages/vendor/ForgetOtpVendorVerify.tsx"))
 const VendorResetPassword = lazy(()=>import("./pages/vendor/VendorResetPassword.tsx"))
+
 function Vendor() {  
 
   return (

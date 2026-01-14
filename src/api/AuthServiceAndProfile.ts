@@ -1,7 +1,5 @@
-import ResetPassword from "@/components/shared/ResetPassword";
-import adminAxiosInstance from "@/config/adminAxiosInterceptor";
-import userAxiosInstance from "@/config/userAxiosInterceptor";
-import vendorAxiosInstance from "@/config/vendorAxiosInterceptors";
+import axiosInstance from "@/config/axiosInterceptor";
+import { AuthRoutes } from "@/constants/auth";
 import type {
   ApiResponse,
   OtpPayload,
@@ -17,9 +15,12 @@ interface RegisterPayload {
 }
 
 export const authService = {
+
+  //User Auth:-
+
   generateOtp: async (email: string): Promise<ApiResponse> => {
     try {
-      const response = await userAxiosInstance.post("/generate-otp", { email });
+      const response = await axiosInstance.post(AuthRoutes.GENERATE_OTP, { email });
       return response.data;
     } catch (error: any) {
       throw error.response?.data?.message || "Failed to generate OTP";
@@ -28,7 +29,7 @@ export const authService = {
 
   register: async (formData: RegisterPayload): Promise<ApiResponse> => {
     try {
-      const response = await userAxiosInstance.post("/register", {
+      const response = await axiosInstance.post(AuthRoutes.REGISTER, {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -45,7 +46,7 @@ export const authService = {
     try {
 
       console.log("Sending to /verify-otp:", data); // ADD THIS
-      const response = await userAxiosInstance.post("/verify-otp", data);
+      const response = await axiosInstance.post(AuthRoutes.VERIFY_OTP, data);
       console.log("verifies otp:",response.data)
       return response.data;
     } catch (error: any) {
@@ -55,37 +56,43 @@ export const authService = {
 
   login:async(credentials:{email:string,password:string})=>{
     console.log("/login route")
-       return await userAxiosInstance.post("/login",credentials)
+       return await axiosInstance.post(AuthRoutes.LOGIN,credentials)
   },
 
    forgetPassword:async(email:string)=>{
-    return await userAxiosInstance.post("/forget-password",{email})
+    return await axiosInstance.post(AuthRoutes.FORGET_PASSWORD,{email})
   },
 
   
   verifyForgetPassword:async(email:string,otp:string)=>{
-    return await userAxiosInstance.post("/verify-forget-otp",{email,otp})
+    return await axiosInstance.post(AuthRoutes.VERIFY_FORGET_PASSWORD,{email,otp})
   },
 
   resetPassword:async(email:string,password:string)=>{
-    return await userAxiosInstance.post("/reset-password",{email,password})
+    return await axiosInstance.post(AuthRoutes.RESET_PASSWORD,{email,password})
   },
 
   
-  usergoogleLogin:async(idToken:string)=>{
-    return await userAxiosInstance.post("/auth/google",{idToken})
+  usergoogleLogin:async(token:string)=>{
+    return await axiosInstance.post(AuthRoutes.GOOGLE_AUTH,{token})
   },
+
+
+  //Admin Auth:-
 
   adminLogin:async(credential:{email:string,password:string})=>{
     console.log("/login of admin");
-    return await adminAxiosInstance.post('/login',credential)
+    return await axiosInstance.post(AuthRoutes.ADMIN_LOGIN,credential)
   },
 
+
+
+  //Vendor Auth:-
 
   generateVendorOtp: async(email:string):Promise<ApiResponse>=>{
     
     try {
-      const response = await vendorAxiosInstance.post("/generate-otp",{email});
+      const response = await axiosInstance.post(AuthRoutes.VENDOR_GENERATE_OTP,{email});
       return response.data;
     } catch (error:any) {
       throw error.response?.data?.message || 'Failed to generate vendor OTP'
@@ -96,7 +103,7 @@ export const authService = {
 
     try {
 
-      const response = await vendorAxiosInstance.post("/vendor-register",{
+      const response = await axiosInstance.post(AuthRoutes.VENDOR_REGISTER,{
         name:formData.name,
         email:formData.email,
         registerNumber:formData.registerNumber,
@@ -113,7 +120,7 @@ export const authService = {
   verifyVendorOtp:async(data: OtpPayload):Promise<ApiResponse>=>{
 
     try {
-      const response = await vendorAxiosInstance.post("/verify-otp",data);
+      const response = await axiosInstance.post(AuthRoutes.VENDOR_VERIFY_OTP,data);
       console.log("verifies vendor OTP",response.data);
       return response.data
     } catch (error:any) {
@@ -122,27 +129,27 @@ export const authService = {
   },
 
   vendorLogin:async(credentials:{email:string,password:string})=>{
-    return await vendorAxiosInstance.post("/login",credentials)
+    return await axiosInstance.post(AuthRoutes.VENDOR_LOGIN,credentials)
   },
 
-  vendorGoogleLogin:async(idToken:string)=>{
-    return await vendorAxiosInstance.post("/auth/google",{idToken})
+  vendorGoogleLogin:async(token:string)=>{
+    return await axiosInstance.post(AuthRoutes.VENDOR_GOOGLE_AUTH,{token})
   },
 
 
   forgetPasswordVendor:async(email:string)=>{
-    return await vendorAxiosInstance.post("/forget-password",{email})
+    return await axiosInstance.post(AuthRoutes.VENDOR_FORGET_PASSWORD,{email})
   },
 
   verifyVendorForgetOtp:async(email:string,otp:string)=>{
-  return await vendorAxiosInstance.post("/verify-forget-otp",{email,otp})
+  return await axiosInstance.post(AuthRoutes.VENDOR_VERIFY_FORGET_PASSWORD,{email,otp})
   },
   
 
   
   resetVendorPassword:async(email:string,password:string)=>{
-    return await vendorAxiosInstance.post("/reset-password",{email,password})
-  },
+    return await axiosInstance.post(AuthRoutes.VENDOR_RESET_PASSWORD,{email,password})
+  }
 
 
 };

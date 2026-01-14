@@ -28,7 +28,7 @@ export default function ResetPassword() {
 
   if(!emailValue){
     toast.error("Email is missing. Cannot reset password.");
-    navigate("/")
+    navigate("/user/home")
     return
   }
 
