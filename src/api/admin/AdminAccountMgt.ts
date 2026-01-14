@@ -9,7 +9,7 @@ export const fetchAccounts = async (query:AccountQuery)=>{
     })
     return response.data
 }catch(error:any){
-  throw error?.response?.data
+  throw error?.response?.data 
 }
 }
 
