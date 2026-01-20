@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from 'react'
 import { Route,Routes } from 'react-router-dom'
-import AdminProtectedRoute from './protected/isAdminLogin'
-import AdminPublicRoute from './protected/isAdminPublicRoute'
+import ProtectedRoutes from './protected/ProtectedRoutes'
+import UnprotectedRoute from './protected/UnprotectedRoute'
 
 
 const AdminLoginPage = lazy(()=>import('./pages/admin/LoginPage'))
@@ -15,30 +15,30 @@ const Admin = () => {
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           {/* Public admin login route */}
-          <Route path="/login" element={<AdminPublicRoute>
+          <Route path="/login" element={<UnprotectedRoute restrictedRole='admin'>
             <AdminLoginPage />
-            </AdminPublicRoute>} />
+            </UnprotectedRoute>} />
 
           {/* Protected admin routes */}
 
           <Route
-          path='/dashboard' element={<AdminProtectedRoute>
+          path='/dashboard' element={<ProtectedRoutes allowedRoles={["admin"]}loginRedirect='/admin/login'>
                 <AdminDashBoard />
-              </AdminProtectedRoute>}/>
+              </ProtectedRoutes>}/>
           <Route
             path="/vendor"
             element={
-              <AdminProtectedRoute>
+              <ProtectedRoutes allowedRoles={["admin"]} loginRedirect='/admin/login'>
                 <VendorManagement />
-              </AdminProtectedRoute>
+              </ProtectedRoutes>
             }
           />
           <Route
             path="/user"
             element={
-              <AdminProtectedRoute>
+              <ProtectedRoutes allowedRoles={["admin"]} loginRedirect='/admin/login'>
                 <UserManagement />
-              </AdminProtectedRoute>
+              </ProtectedRoutes>
             }
           />
         </Routes>

@@ -9,7 +9,8 @@ const OtpVerification=lazy(()=>import('./pages/user/auth/OtpVerification.tsx'))
 const UserForgetPassword=lazy(()=>import("./pages/user/auth/UserForgetPassword.tsx"))
 const ForgetOtpVerify = lazy(()=>import('./pages/user/auth/ForgetOtpVerify.tsx'))
 const UserResetPassword = lazy(()=>import("./pages/user/auth/UserResetPassword.tsx"))
-const LandingPage = lazy(()=>import("./pages/user/LadingPage.tsx"))
+const LandingPage = lazy(()=>import("./pages/user/userProfile/LadingPage.tsx"))
+const UserProfile = lazy(()=>import("./pages/user/userProfile/UserProfile.tsx"))
 function User() {  
 
   return (
@@ -23,6 +24,7 @@ function User() {
       <Route path="/forget-password" element={<UserForgetPassword/>}/>
       <Route path='/verify-forget-otp' element={<ForgetOtpVerify/>}/>
       <Route path='/reset-password' element={<UserResetPassword/>}/>
+      <Route path="/user-profile" element={<UserProfile/>}/>
      
     </Routes>
     </Suspense>
