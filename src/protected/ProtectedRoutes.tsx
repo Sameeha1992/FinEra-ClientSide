@@ -1,33 +1,35 @@
-import type { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/redux/store";
+import type { RootState } from "@/redux/store"
+import { useSelector } from "react-redux"
+import { Navigate, Outlet } from "react-router-dom"
 
-interface ProtectedRouteProps {
-  children: ReactNode;
-  allowedRoles: ("admin" | "user" | "vendor")[];
-  loginRedirect?: string;
+
+//User
+export const ClientProtectRoute = ()=>{
+ const {isAuthenticated,role} = useSelector((state:RootState)=>state.auth);
+
+ if(!isAuthenticated || role !== "user"){
+  return <Navigate to="/user/login" replace/>
+ }
+
+ return <Outlet/>
 }
 
-const ProtectedRoute = ({
-  children,
-  allowedRoles,
-  loginRedirect = "/login",
-}: ProtectedRouteProps) => {
-  const auth = useSelector((state: RootState) => state.auth);
+//Vendor
+export const VendorProtectRoute = ()=>{
+    const {isAuthenticated,role} = useSelector((state:RootState)=>state.auth);
 
-  // Not logged in
-  if (!auth.isAuthenticated || !auth.role) {
-    return <Navigate to={loginRedirect} replace />;
-  }
+    if(!isAuthenticated || role !== "vendor"){
+        return <Navigate to="/vendor/login" replace/>
+    }
+    return <Outlet/>
+}
 
-  // Role not allowed
-  if (!allowedRoles.includes(auth.role)) {
-    return <Navigate to="/unauthorized" replace />;
-  }
+//Admin
 
-  // Allowed
-  return <>{children}</>;
-};
-
-export default ProtectedRoute;
+export const AdminProtectRoute = ()=>{
+    const {isAuthenticated,role} = useSelector((state:RootState)=>state.auth)
+        if(!isAuthenticated || role !== "admin"){
+            return <Navigate to="/admin/login" replace/>
+        }
+        return <Outlet/>
+    }

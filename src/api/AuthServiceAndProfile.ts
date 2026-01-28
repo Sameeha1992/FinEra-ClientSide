@@ -77,6 +77,10 @@ export const authService = {
     return await axiosInstance.post(AuthRoutes.GOOGLE_AUTH,{token})
   },
 
+  logout:async()=>{
+    return await axiosInstance.post(AuthRoutes.LOGOUT)
+  },
+
 
   //Admin Auth:-
 

@@ -1,22 +1,41 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, LayoutDashboard } from "lucide-react";
+import { LogOut, LayoutDashboard, User } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
+import { authService } from "@/api/AuthServiceAndProfile";
+import { clearAuth } from "@/redux/slice/auth.slice";
 
 export default function Header() {
   const navigate = useNavigate();
+  const dispatch = useDispatch()
   const [open, setOpen] = useState(false);
 
-  // Temporary user (later replace with backend data / context)
-  const user = {
-    name: "Sameeha Ansari",
+
+  const {name,role,isAuthenticated} = useSelector((state:RootState)=>state.auth);
+
+  if(!isAuthenticated) return null;
+
+  const firstLetter = name ? name.charAt(0).toUpperCase():"U"
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout()
+    } catch (error) {
+      console.log("Logout failed",error)
+    }finally{
+      dispatch(clearAuth());
+
+      navigate("/user/login");
+    }
   };
 
-  const firstLetter = user.name.charAt(0).toUpperCase();
-
-  const handleLogout = () => {
-    // later: clear token / user state
-    navigate("/login");
-  };
+  
+    const goToProfile =()=>{
+      navigate("/user/user-profile");
+      setOpen(false)
+    }
 
   return (
     <header className="bg-white border-b border-gray-200">
@@ -47,16 +66,16 @@ export default function Header() {
                 
                 <div className="px-4 py-3 border-b">
                   <p className="text-sm font-semibold text-gray-800">
-                    {user.name}
+                    {name}
                   </p>
                 </div>
 
                 <button
-                  onClick={() => navigate("/dashboard")}
+                  onClick={goToProfile}
                   className="flex items-center gap-3 w-full px-4 py-2 text-sm hover:bg-gray-100"
                 >
-                  <LayoutDashboard size={16} />
-                  Dashboard
+                  <User size={16} />
+                  Profile
                 </button>
 
                 <button

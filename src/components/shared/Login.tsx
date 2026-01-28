@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { useAppDispatch } from "@/redux/hooks";
 import { authService } from "@/api/AuthServiceAndProfile";
 import { setAuth } from "@/redux/slice/auth.slice";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { LoginFormProps } from "@/interfaces/shared/auth/auth.interface";
 import {
   loginSchema,
@@ -32,6 +32,9 @@ export default function LoginForm({
   const [serverError, setServerError] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const isLoginPage = location.pathname.includes("/login");
+
 
   const handleInputChange = (field: keyof LoginValue, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -214,7 +217,7 @@ export default function LoginForm({
         {children}
 
         <div className="mt-4 flex justify-center">
-        {role !== "admin" && <GoogleSignupButton role={role} />}
+        {role !== "admin" && isLoginPage && (<GoogleSignupButton role={role} />)}
         </div>
       </form>
 

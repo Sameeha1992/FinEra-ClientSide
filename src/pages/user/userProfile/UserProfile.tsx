@@ -6,14 +6,7 @@ import TopNav from "@/components/shared/user/TopNav";
 import ProfilePage from "./ProfilePage";
 
 export default function Dashboard() {
-  const sidebarItems = [
-    { icon: User, label: "User Profile", route: "/profile" },
-    { icon: FileText, label: "Loans", route: "/loans" },
-    { icon: FileText, label: "Applications", route: "/applications" },
-    { icon: ArrowRightLeft, label: "Transactions", route: "/transactions" },
-    { icon: MessageCircle, label: "Chat Support", route: "/chat" },
-    { icon: BellIcon, label: "Notifications", route: "/notifications" },
-  ];
+  
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -21,7 +14,7 @@ export default function Dashboard() {
       <TopNav />
 
       {/* Sidebar */}
-      <Sidebar items={sidebarItems} />
+      <Sidebar/>
         
         
       {/* Main Content */}

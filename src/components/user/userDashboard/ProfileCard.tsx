@@ -14,7 +14,7 @@ const ProfileCard: FC<ProfileCardProps> = ({ name, customerId, email, status }) 
       {/* Teal Header */}
       <div className="h-32 bg-teal-600 relative flex items-end justify-center pb-16">
         <div className="absolute -bottom-12 w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-gray-100">
-          <span className="text-2xl font-bold text-teal-600">{name.split(" ").map(n => n[0]).join("")}</span>
+          <span className="text-2xl font-bold text-teal-600">{(name ? name.split(" ").map(n => n[0]).join(""):"NA")}</span>
         </div>
       </div>
 

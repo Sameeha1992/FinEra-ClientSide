@@ -7,6 +7,7 @@ const initialState:AuthState = {
   role:null,
   Id:null,
   isAuthenticated:false,
+  status:null
 
 };
 
@@ -21,6 +22,8 @@ export const authSlice = createSlice({
       state.role = action.payload.role;
       state.Id = action.payload.Id ?? null;
       state.isAuthenticated = true
+      state.status = action.payload.status ?? "not_verified"
+      
     },
     clearAuth:(state)=>{
       Object.assign(state,initialState)

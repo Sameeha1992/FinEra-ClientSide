@@ -4,4 +4,5 @@ export interface AuthState{
     role:"admin"|"user"|"vendor"|null;
     Id?:string|null;
     isAuthenticated:boolean;
+    status:"verified" |"not_verified" |"blocked"|null
 }
