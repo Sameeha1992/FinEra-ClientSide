@@ -7,10 +7,11 @@ import { VendorUnProtectRoute } from './protected/UnprotectedRoute.tsx'
 const RegisterPage = lazy(() => import('./pages/vendor/vendorRegister.tsx'))
 const OtpVerification = lazy(() => import('./pages/user/auth/OtpVerification.tsx'))
 const VendorLoginPage = lazy(() => import('./pages/vendor/vendorLogin.tsx'))
-const VendorHome = lazy(() => import('./pages/vendor/vendor.home.tsx'))
 const ForgetVendorPassword = lazy(() => import('./pages/vendor/ForgetVendorPassword.tsx'))
 const ForgetVendorOtpVerify = lazy(() => import('./pages/vendor/ForgetOtpVendorVerify.tsx'))
 const VendorResetPassword = lazy(() => import('./pages/vendor/VendorResetPassword.tsx'))
+const VendorDashboard = lazy(()=>import("@/pages/vendor/dashboard/DashboardPage.tsx"))
+const VendorProfile = lazy(()=>import("./pages/vendor/dashboard/ProfilePage.tsx"))
 
 function Vendor() {
   return (
@@ -29,7 +30,8 @@ function Vendor() {
 
         {/* 🔐 PROTECTED ROUTES */}
         <Route element={<VendorProtectRoute />}>
-          <Route path="/dashboard" element={<VendorHome />} />
+          <Route path="/vendor-dashboard" element={<VendorDashboard />} />
+          <Route path="/vendor-profile" element={<VendorProfile/>}/>
         </Route>
 
       </Routes>

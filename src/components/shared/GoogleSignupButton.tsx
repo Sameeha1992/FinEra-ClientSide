@@ -29,7 +29,7 @@ const GoogleSignupButton:React.FC<Props> =({role}) => {
              navigate("/user/home")
             } else if(role === "vendor") {
                 dispatch(setAuth(res.data.vendor));
-                navigate("/vendor/dashboard")
+                navigate("/vendor/vendor-dashboard")
             }
             
         } catch (error:any) {

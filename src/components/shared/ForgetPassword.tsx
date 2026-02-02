@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import {AxiosError} from "axios"
 
 export default function ForgotPassword({role}:{role:"user"|"vendor"}) {
   const [email, setEmail] = useState("")
@@ -27,19 +28,21 @@ export default function ForgotPassword({role}:{role:"user"|"vendor"}) {
     }
 
     try {
-      let res
 
       if(role === "user"){
-        res = await authService.forgetPassword(email)
+        await authService.forgetPassword(email)
       }else if(role === "vendor"){
-        res = await authService.forgetPasswordVendor(email)
+         await authService.forgetPasswordVendor(email)
       }
 
       navigate(`/${role}/verify-forget-otp`,{state:{email,role}})
       
-    } catch (error) {
+    } catch (err) {
+      const error = err as AxiosError<{message:string}>
       console.log(error)
-      return
+
+      setError(error.response?.data?.message || "Email does not exist")
+      
     }
 
     // Show success message

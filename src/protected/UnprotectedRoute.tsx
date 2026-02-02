@@ -29,7 +29,7 @@ export const UserUnProtectRoute = () => {
 export const VendorUnProtectRoute = () => {
   const { isAuthenticated, role } = useSelector((state: RootState) => state.auth);
 
-  if (isAuthenticated && role === "vendor") return <Navigate to="/vendor/dashboard" replace />;
+  if (isAuthenticated && role === "vendor") return <Navigate to="/vendor/vendor-dashboard" replace />;
 
   return <Outlet />;
 };

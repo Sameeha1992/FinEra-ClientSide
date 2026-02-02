@@ -107,7 +107,7 @@ export default function LoginForm({
       if (res.data.success) {
         if (formData.role === "vendor") {
           dispatch(setAuth(res.data.vendor));
-          navigate("/vendor/dashboard", { replace: true });
+          navigate("/vendor/vendor-dashboard", { replace: true });
         } else {
           dispatch(setAuth(res.data.user || res.data.admin));
           if (formData.role === "admin") navigate("/admin/dashboard");
