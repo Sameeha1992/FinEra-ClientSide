@@ -6,6 +6,8 @@ interface ProfileCardProps {
   customerId: string;
   email: string;
   status: "VERIFIED" | "NOT_VERIFIED";
+  isProfileComplete:boolean;
+  onCompleteProfile?: ()=>void;
 }
 
 const ProfileCard: FC<ProfileCardProps> = ({
@@ -13,6 +15,8 @@ const ProfileCard: FC<ProfileCardProps> = ({
   customerId,
   email,
   status,
+  isProfileComplete,
+  onCompleteProfile
 }) => {
   const isVerified = status === "VERIFIED";
   return (
@@ -43,8 +47,9 @@ const ProfileCard: FC<ProfileCardProps> = ({
         </div>
 
         <div className="flex flex-col items-center gap-4 mt-6">
-          {!isVerified && (
-            <button className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold py-3 px-8 rounded-lg transition">
+          {!isProfileComplete && (
+            <button onClick={()=>onCompleteProfile?.()}
+            className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-semibold py-3 px-8 rounded-lg transition">
               Complete the Profile Upload Documents
             </button>
           )}

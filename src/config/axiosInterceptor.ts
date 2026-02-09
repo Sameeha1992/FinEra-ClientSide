@@ -115,45 +115,82 @@
 
 
 
-import axios from "axios";
+
+
+// axiosInstance.ts
+import axios, { AxiosError } from "axios";
+import type {InternalAxiosRequestConfig } from "axios";
 import { store } from "@/redux/store";
-// import { logout } from "@/redux/slice/auth.slice"; // adjust if needed
+import { removeToken, setAccessToken } from "@/redux/slice/tokenSlice";
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_SERVER_BASEURL,
-  withCredentials: true,
+  withCredentials: true, // sends cookies automatically
 });
 
-axiosInstance.interceptors.response.use(
-  response => response,
-  async error => {
-    const originalRequest = error.config;
+// Optional: log requests
+axiosInstance.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry
-    ) {
+    const accessToken = store.getState().token.accessToken;
+
+    if(accessToken){
+      config.headers.Authorization = `Bearer ${accessToken}`
+    }
+
+     console.log(
+      "[Axios] Request:",
+      config.method?.toUpperCase(),
+      config.url,
+      accessToken ? "Token attached ✅" : "No token ❌"
+    );
+
+    return config;
+  },
+  (error: AxiosError) => {
+    console.error("[Axios] Request error:", error.message);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor: refresh token on 401
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest: any = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
+        // Read role from Redux store
         const role = store.getState().auth.role;
 
-        let refreshUrl = "";
-
+        let refreshUrl = "/refresh-token";
         if (role === "user") refreshUrl = "/user/refresh-token";
         else if (role === "vendor") refreshUrl = "/vendor/refresh-token";
-        else throw new Error("Invalid role");
+        else if (role === "admin") refreshUrl = "/admin/refresh-token";
 
-        console.log("Refreshing token for:", role);
+        console.log("[Axios] Refreshing token...");
 
-        await axiosInstance.post(refreshUrl);
+        const refreshRes = await axiosInstance.post(refreshUrl,{},{withCredentials:true})
+        const newAccessToken = refreshRes.data.accessToken
 
+
+        store.dispatch(setAccessToken(newAccessToken))
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        console.log("[Axios] Retrying original request with new token ✅");
+
+        
+        // Retry original request; cookies automatically sent
         return axiosInstance(originalRequest);
       } catch (err) {
-        console.error("Refresh token failed");
-
-        // store.dispatch(logout());
-        return Promise.reject(err);
+        console.error("[Axios] Refresh token failed:", err);
+        // Optionally clear auth state if refresh fails
+        // store.dispatch(clearAuth());
+        store.dispatch(removeToken())
+        return Promise.reject(err)
       }
     }
 

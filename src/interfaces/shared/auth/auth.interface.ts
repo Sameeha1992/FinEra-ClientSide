@@ -48,6 +48,12 @@ export interface ApiResponse{
     role:"vendor"|"user"
 }
 
+export interface ApiResponsnes<T>{
+    success:boolean;
+    message:string;
+    data:T;
+}
+
 export interface FormData{
   fullName:string,
   email:string,

@@ -13,8 +13,7 @@ import {
 } from "@/validations/shared/validation.helpers";
 import { Link } from "react-router-dom";
 import GoogleSignupButton from "./GoogleSignupButton";
-
-
+import { setAccessToken } from "@/redux/slice/tokenSlice";
 
 export default function LoginForm({
   role = "user",
@@ -34,7 +33,6 @@ export default function LoginForm({
   const navigate = useNavigate();
   const location = useLocation();
   const isLoginPage = location.pathname.includes("/login");
-
 
   const handleInputChange = (field: keyof LoginValue, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -106,12 +104,38 @@ export default function LoginForm({
 
       if (res.data.success) {
         if (formData.role === "vendor") {
-          dispatch(setAuth(res.data.vendor));
+          const vendorData = res.data.vendor;
+          dispatch(
+            setAuth({
+              ...vendorData,
+              isAuthenticated: true,
+            }),
+          );
+
+          dispatch(setAccessToken(res.data.accessToken))
+
           navigate("/vendor/vendor-dashboard", { replace: true });
-        } else {
-          dispatch(setAuth(res.data.user || res.data.admin));
-          if (formData.role === "admin") navigate("/admin/dashboard");
-          else navigate("/user/home", { replace: true });
+        } else if(formData.role === "admin"){
+          const adminData = res.data.admin;
+          console.log(adminData,"admindata")
+          dispatch(setAuth({...adminData,isAuthenticated:true}))
+          dispatch(setAccessToken(res.data.accessToken))
+          navigate("/admin/dashboard")
+        }
+        
+        
+        else {
+          const userData = res.data.user || res.data.admin;
+          dispatch(
+            setAuth({
+              ...userData,
+              isAuthenticated: true,
+            }),
+          );
+
+          dispatch(setAccessToken(res.data.accessToken));
+
+          navigate("/user/home", { replace: true });
         }
       }
     } catch (error: any) {
@@ -186,16 +210,14 @@ export default function LoginForm({
             Forgot password?
           </a>
         </div> */}
-       {role !== "admin" &&(
-        <Link
-        
-          to={`/${role}/forget-password`}
-          className="text-sm text-teal-600 hover:underline hover:text-teal-700"
-        >
-          Forget Password
-        </Link>
-       )}
-        
+        {role !== "admin" && (
+          <Link
+            to={`/${role}/forget-password`}
+            className="text-sm text-teal-600 hover:underline hover:text-teal-700"
+          >
+            Forget Password
+          </Link>
+        )}
 
         {serverError && (
           <p className="text-red-600 text-sm font-medium bg-red-100 p-2 rounded-md border border-red-300">
@@ -217,7 +239,9 @@ export default function LoginForm({
         {children}
 
         <div className="mt-4 flex justify-center">
-        {role !== "admin" && isLoginPage && (<GoogleSignupButton role={role} />)}
+          {role !== "admin" && isLoginPage && (
+            <GoogleSignupButton role={role} />
+          )}
         </div>
       </form>
 

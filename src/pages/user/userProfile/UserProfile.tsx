@@ -3,7 +3,8 @@ import { User, FileText, ArrowRightLeft, MessageCircle, BellIcon } from "lucide-
 import { Outlet } from "react-router-dom";
 import {Sidebar} from "@/components/shared/user/Sidebar";
 import TopNav from "@/components/shared/user/TopNav";
-import ProfilePage from "./ProfilePage";
+// import ProfilePage from "./ProfilePage";
+// import CompleteProfilePage from "./CompleteProfilePage";
 
 export default function Dashboard() {
   
@@ -20,7 +21,8 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="flex-1 ml-64 mt-20 p-8">
         <Outlet /> {/* Render the active route here */}
-        <ProfilePage/>
+        {/* <ProfilePage/>
+        <CompleteProfilePage/> */}
       </div>
     </div>
   );

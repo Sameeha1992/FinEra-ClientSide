@@ -10,9 +10,10 @@ const OtpVerification = lazy(() => import("./pages/user/auth/OtpVerification"));
 const UserForgetPassword = lazy(() => import("./pages/user/auth/UserForgetPassword"));
 const ForgetOtpVerify = lazy(() => import("./pages/user/auth/ForgetOtpVerify"));
 const UserResetPassword = lazy(() => import("./pages/user/auth/UserResetPassword"));
-const LandingPage = lazy(() => import("./pages/user/userProfile/LadingPage"));
+const LandingPage = lazy(() => import("./pages/user/LadingPage"));
 const UserProfile = lazy(() => import("./pages/user/userProfile/UserProfile"));
-
+const ProfileCompleteionForm = lazy(()=>import("./components/user/userDashboard/ProfileCompletionForm"))
+const CompleteProfile = lazy(()=>import("@/pages/user/userProfile/CompleteProfilePage"))
 function User() {
   return (
     <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
@@ -34,6 +35,9 @@ function User() {
         {/* 🔐 PROTECTED USER ROUTES */}
         <Route element={<ClientProtectRoute />}>
           <Route path="user-profile" element={<UserProfile />} />
+          <Route path="user-complete-form" element={<ProfileCompleteionForm/>}/>
+          <Route path="user-complete-profile" element={<CompleteProfile/>}/>
+
         </Route>
 
       </Routes>
