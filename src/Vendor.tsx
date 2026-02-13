@@ -11,7 +11,9 @@ const ForgetVendorPassword = lazy(() => import('./pages/vendor/ForgetVendorPassw
 const ForgetVendorOtpVerify = lazy(() => import('./pages/vendor/ForgetOtpVendorVerify.tsx'))
 const VendorResetPassword = lazy(() => import('./pages/vendor/VendorResetPassword.tsx'))
 const VendorDashboard = lazy(()=>import("@/pages/vendor/dashboard/DashboardPage.tsx"))
-const VendorProfile = lazy(()=>import("./pages/vendor/dashboard/ProfilePage.tsx"))
+const VendorProfile = lazy(()=>import("./pages/vendor/dashboard/profile/ProfilePage.tsx"))
+const VendorProfileFormPage = lazy(()=>import("./pages/vendor/dashboard/profile/VendorCompleteProfileForm.tsx"))
+const VendorCompleteProfilePage = lazy(()=>import("./pages/vendor/dashboard/profile/VendorCompleteProfilePage.tsx"))
 
 function Vendor() {
   return (
@@ -32,6 +34,9 @@ function Vendor() {
         <Route element={<VendorProtectRoute />}>
           <Route path="/vendor-dashboard" element={<VendorDashboard />} />
           <Route path="/vendor-profile" element={<VendorProfile/>}/>
+          <Route path="/vendor-complete-form" element={<VendorProfileFormPage/>}/>
+          <Route path="/vendor-complete-profile" element={<VendorCompleteProfilePage/>}/>
+
         </Route>
 
       </Routes>

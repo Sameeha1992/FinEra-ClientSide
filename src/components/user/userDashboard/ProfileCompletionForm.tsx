@@ -131,7 +131,7 @@ export default function VerificationForm() {
       console.log("Profile submitted successfully:", response);
       dispatch(setProfileComplete(true));
       alert("Profile submitted successfully!");
-      navigate("/user/user-profile");
+      navigate("/user/user-complete-profile");
     } catch (error) {
       console.error("Submission failed:", error);
       alert("Failed to submit profile!");

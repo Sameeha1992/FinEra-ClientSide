@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 
 interface ProfileCardProps {
   bankName?: string;
@@ -14,6 +15,8 @@ export default function ProfileCard({
   registrationNumber = 'HB123456',
   isVerified = false,
 }: ProfileCardProps) {
+
+  const navigate = useNavigate()
   return (
     <div className="w-full max-w-lg mx-4 rounded-2xl overflow-hidden shadow-2xl border border-slate-600 bg-white">
       {/* Header */}
@@ -38,7 +41,7 @@ export default function ProfileCard({
 
         {/* Buttons */}
         <div className="space-y-3">
-          <button className="w-full px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors">
+          <button onClick={()=>navigate("/vendor/vendor-complete-form")}     className="w-full px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors">
             Complete Verification Form
           </button>
 

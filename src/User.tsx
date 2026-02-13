@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { ClientProtectRoute } from "./protected/ProtectedRoutes";
 import { UserUnProtectRoute } from "./protected/UnprotectedRoute";
+import ProfilePage from "./pages/user/userProfile/ProfilePage";
 
 const UserLogin = lazy(() => import("./pages/user/auth/UserLogin"));
 const SignUpPage = lazy(() => import("./pages/user/auth/Signup"));
@@ -12,8 +13,8 @@ const ForgetOtpVerify = lazy(() => import("./pages/user/auth/ForgetOtpVerify"));
 const UserResetPassword = lazy(() => import("./pages/user/auth/UserResetPassword"));
 const LandingPage = lazy(() => import("./pages/user/LadingPage"));
 const UserProfile = lazy(() => import("./pages/user/userProfile/UserProfile"));
-const ProfileCompleteionForm = lazy(()=>import("./components/user/userDashboard/ProfileCompletionForm"))
-const CompleteProfile = lazy(()=>import("@/pages/user/userProfile/CompleteProfilePage"))
+const ProfileCompleteionForm = lazy(() => import("./components/user/userDashboard/ProfileCompletionForm"))
+const CompleteProfile = lazy(() => import("@/pages/user/userProfile/CompleteProfilePage"))
 function User() {
   return (
     <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
@@ -34,10 +35,11 @@ function User() {
 
         {/* 🔐 PROTECTED USER ROUTES */}
         <Route element={<ClientProtectRoute />}>
-          <Route path="user-profile" element={<UserProfile />} />
-          <Route path="user-complete-form" element={<ProfileCompleteionForm/>}/>
-          <Route path="user-complete-profile" element={<CompleteProfile/>}/>
-
+          <Route element={<UserProfile />}>
+            <Route path="user-profile" element={<ProfilePage />} />
+            <Route path="user-complete-form" element={<ProfileCompleteionForm />} />
+            <Route path="user-complete-profile" element={<CompleteProfile />} />
+          </Route>
         </Route>
 
       </Routes>

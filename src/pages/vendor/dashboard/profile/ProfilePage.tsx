@@ -1,6 +1,6 @@
 
 import Sidebar from "@/components/vendor/dashboard/shared/Sidebar";
-import ProfileCard from "@/components/vendor/dashboard/shared/ProfileCard";
+import ProfileCard from "@/components/vendor/dashboard/VendorProfile/ProfileCard";
 import { FileText } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { vendorProfile } from "@/api/vendor/vendorProfile";
