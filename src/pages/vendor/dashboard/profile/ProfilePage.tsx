@@ -3,7 +3,8 @@ import Sidebar from "@/components/vendor/dashboard/shared/Sidebar";
 import ProfileCard from "@/components/vendor/dashboard/VendorProfile/ProfileCard";
 import { FileText } from 'lucide-react';
 import { useEffect, useState } from "react";
-import { vendorProfile } from "@/api/vendor/vendorProfile";
+import { vendorProfile, type vendorData } from "@/api/vendor/vendorProfile";
+import { CompleteProfileDetails } from "@/components/vendor/dashboard/VendorProfile/CompleteProfileDetails";
 
 
 interface vendorProfile{
@@ -15,7 +16,7 @@ interface vendorProfile{
 }
 const ProfilePage = () => {
 
-    const [vendor,setVendor] = useState<vendorProfile |null>(null);
+    const [vendor,setVendor] = useState<vendorData |null>(null);
     const [loading,setLoading] = useState(true);
     const [error,setError] = useState<string |null>(null);
 
@@ -28,10 +29,11 @@ const ProfilePage = () => {
                 const data = await vendorProfile.getVendorProfile();
 
                 setVendor({
-                    bankName:data.name,
+                    name:data.name,
                     vendorId:data.vendorId,
                     email:data.email,
-                    registerationNumber:data.registrationNumber,
+                    registrationNumber:data.registrationNumber,
+                    isProfileComplete:data.isProfileComplete,
                     isVerified:data.isVerified ?? false
                 })
                 
@@ -82,13 +84,17 @@ const ProfilePage = () => {
         {/* Centered Profile Card */}
         <div className="flex justify-center">
           <ProfileCard
-            bankName={vendor.bankName}
+            bankName={vendor.name}
             vendorId={vendor.vendorId}
             email={vendor.email}
-            registrationNumber={vendor.registerationNumber}
-            isVerified={vendor.isVerified} 
+            registrationNumber={vendor.registrationNumber}
+            isVerified={vendor.isVerified}
+            isProfileComplete={vendor.isProfileComplete} 
           />
         </div>
+        {vendor.isProfileComplete &&(
+          <CompleteProfileDetails profileData={vendor}/>
+        )}
       </main>
     </div>
   );

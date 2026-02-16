@@ -15,6 +15,7 @@ const LandingPage = lazy(() => import("./pages/user/LadingPage"));
 const UserProfile = lazy(() => import("./pages/user/userProfile/UserProfile"));
 const ProfileCompleteionForm = lazy(() => import("./components/user/userDashboard/ProfileCompletionForm"))
 const CompleteProfile = lazy(() => import("@/pages/user/userProfile/CompleteProfilePage"))
+const UserChangePassword = lazy(()=>import("./pages/user/auth/ChangePassword"))
 function User() {
   return (
     <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
@@ -39,6 +40,7 @@ function User() {
             <Route path="user-profile" element={<ProfilePage />} />
             <Route path="user-complete-form" element={<ProfileCompleteionForm />} />
             <Route path="user-complete-profile" element={<CompleteProfile />} />
+            <Route path="change-password" element={<UserChangePassword/>}/>
           </Route>
         </Route>
 

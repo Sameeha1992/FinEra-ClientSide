@@ -38,7 +38,7 @@ export default function VendorProfileForm() {
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: "registration" | "licence"
+    type: "registration" | "licence" 
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;

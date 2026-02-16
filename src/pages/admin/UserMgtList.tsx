@@ -7,12 +7,27 @@ import AdminLayout from "@/components/layout/Adminlayout";
 import StatusBadge from "@/components/ui/StatusBadge";
 import ActionButton from "@/components/ui/ActionButton";
 import { updateAccountStatus } from "@/api/admin/AdminAccountMgt";
+import toast from "react-hot-toast";
+
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
 
 const UserManagement = () => {
    const [accounts, setAccounts] = useState<Account[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
   const [search, setSearch] = useState("");
+
+  const [selectedAccount,setSelectedAccount] = useState<{id:string;status:"active" | "blocked";name:string} |null>(null)
 
   const itemsPerPage = 5;
   const totalPages = Math.ceil(totalResults / itemsPerPage);
@@ -39,29 +54,60 @@ const UserManagement = () => {
   }, [currentPage,search]);
 
 
-  const handleToggleStatus = async (accountId: string, currentStatus: "active"|"blocked") => {
-  try {
-    const newStatus = currentStatus === "active" ? "blocked" : "active";
+//   const handleToggleStatus = async (accountId: string, currentStatus: "active"|"blocked") => {
+//   try {
+//     const newStatus = currentStatus === "active" ? "blocked" : "active";
 
-    await updateAccountStatus(
-      accountId,
-      newStatus,
-      "user" 
-    );
+//     await updateAccountStatus(
+//       accountId,
+//       newStatus,
+//       "user" 
+//     );
 
    
-    setAccounts(prev =>
-      prev.map(acc =>
-        acc.id === accountId
+//     setAccounts(prev =>
+//       prev.map(acc =>
+//         acc.id === accountId
+//           ? { ...acc, status: newStatus }
+//           : acc
+//       )
+//     );
+//   } catch (error) {
+//     console.error("Failed to update status", error);
+//   }
+// };
+
+
+const confirmStatusChange = async(): Promise<void>=>{
+  if(!selectedAccount) return 
+
+  const newStatus:"active" |"blocked"=
+  selectedAccount.status === "active" ?"blocked":"active";
+
+  try {
+
+    await updateAccountStatus(selectedAccount.id, newStatus,
+    "user")
+   
+    setAccounts((prev) =>
+      prev.map((acc) =>
+        acc.id === selectedAccount.id
           ? { ...acc, status: newStatus }
           : acc
       )
     );
-  } catch (error) {
-    console.error("Failed to update status", error);
-  }
-};
 
+    toast.success(
+      `${selectedAccount.name} has been ${newStatus} successfully`
+    );
+    
+  } catch (error) {
+        toast.error("Failed to update status");
+
+  }
+    setSelectedAccount(null);
+
+}
 
   
 
@@ -107,7 +153,7 @@ const UserManagement = () => {
                   </td>
                   <td className="px-4 py-4">
                     <ActionButton
-                    onClick={() => handleToggleStatus(account.id,account.status)}
+                    onClick={() => setSelectedAccount({id:account.id,status:account.status,name:account.name})}
                       label={account.status === "active" ? "Block" : "Unblock"}
                       icon={
                         account.status === "active" ? (
@@ -133,6 +179,49 @@ const UserManagement = () => {
           onPageChange={setCurrentPage}
         />
       </div>
+
+      <AlertDialog
+  open={!!selectedAccount}
+  onOpenChange={(open) => {
+    if (!open) setSelectedAccount(null);
+  }}
+>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>
+        Confirm Action
+      </AlertDialogTitle>
+      <AlertDialogDescription>
+        Are you sure you want to{" "}
+        <span className="font-semibold">
+          {selectedAccount?.status === "active"
+            ? "block"
+            : "unblock"}
+        </span>{" "}
+        <span className="font-semibold text-teal-600">
+          {selectedAccount?.name}
+        </span>
+        ?
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+      <AlertDialogAction
+        onClick={confirmStatusChange}
+        className={
+          selectedAccount?.status === "active"
+            ? "bg-red-600 hover:bg-red-700"
+            : "bg-green-600 hover:bg-green-700"
+        }
+      >
+        Yes, Confirm
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+
     </AdminLayout>
   );
 };

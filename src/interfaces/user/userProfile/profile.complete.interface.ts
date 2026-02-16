@@ -15,6 +15,7 @@ export interface CompleteProfileForm {
   panDoc?: File;
   cibilDoc?: File;
   profileImage?: File;
+  isCompleteProfile:boolean
 }
 
 export interface  CompleteProfileData {
@@ -30,6 +31,7 @@ export interface  CompleteProfileData {
   adhaarNumber?: string;
   panNumber?: string;
   cibilScore?: string;
+  isCompleteProfile?:boolean;
   documents?: {
     adhaarDocUrl: string;
     panDocUrl: string;
@@ -48,6 +50,7 @@ export interface UserProfileDisplayProps {
     gender?: string;
     phone?: string;
     customerId?: string;
+    isCompleteProfile?:boolean
   };
   financialInfo?: {
     occupation?: string;

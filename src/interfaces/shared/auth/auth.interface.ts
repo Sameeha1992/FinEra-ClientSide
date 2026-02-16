@@ -78,3 +78,11 @@ export interface LoginFormProps{
     onSubmit?:(formData:LoginValue)=>Promise<void>
     children?: React.ReactNode;
 }
+
+
+export interface ChangePasswordProps{
+    onSubmit:(
+        currentPassword:string,
+        newPassword:string
+    )=>Promise<void>
+}

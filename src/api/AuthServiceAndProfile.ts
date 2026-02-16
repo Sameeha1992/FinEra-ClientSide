@@ -81,6 +81,10 @@ export const authService = {
     return await axiosInstance.post(AuthRoutes.LOGOUT)
   },
 
+  changePassword:async(data:{currentPassword:string,newPassword:string})=>{
+    return await axiosInstance.patch("/user/change-password",data)
+  },
+
 
   //Admin Auth:-
 
@@ -153,7 +157,11 @@ export const authService = {
   
   resetVendorPassword:async(email:string,password:string)=>{
     return await axiosInstance.post(AuthRoutes.VENDOR_RESET_PASSWORD,{email,password})
-  }
+  },
+
+  vendorChangePassword:async(data:{currentPassword:string,newPassword:string})=>{
+    return await axiosInstance.patch(AuthRoutes.VENDOR_CHANGE_PASSWORD,data)
+  },
 
 
 };

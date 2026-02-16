@@ -5,7 +5,8 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { authService } from "@/api/AuthServiceAndProfile";
-import { clearAuth } from "@/redux/slice/auth.slice";
+import { clearAuth,setAuth} from "@/redux/slice/auth.slice";
+import { userProfile } from "@/api/user/userProfile";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -31,11 +32,31 @@ export default function Header() {
     }
   };
 
-  
-    const goToProfile =()=>{
-      navigate("/user/user-profile");
-      setOpen(false)
+  const { isProfileComplete } = useSelector((state: RootState) => state.auth);
+console.log("Redux profile completed:", isProfileComplete);
+
+   const goToProfile = async () => {
+    setOpen(false);
+
+    try {
+      const profileRes = await userProfile.getCompleteProfile();
+      const profile = profileRes;
+      console.log(profile,"profile user from backend")
+
+      // Optionally update Redux with latest profile
+     
+      // Redirect based on backend value
+      navigate(
+        profile.isCompleteProfile
+          ?  "/user/user-complete-profile":"/user/user-profile"
+          
+      );
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
+      // Optional: show a toast
+      alert("Unable to load profile. Please try again.");
     }
+  };
 
   return (
     <header className="bg-white border-b border-gray-200">

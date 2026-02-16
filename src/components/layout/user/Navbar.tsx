@@ -7,6 +7,8 @@ import type { RootState } from "@/redux/store";
 import { authService } from "@/api/AuthServiceAndProfile";
 import { clearAuth } from "@/redux/slice/auth.slice";
 import { AuthRoutes } from "@/constants/auth";
+import { userProfile } from "@/api/user/userProfile";
+import toast from "react-hot-toast";
 
 interface NavbarProps {
   logo?: React.ReactNode;
@@ -29,6 +31,22 @@ export function Navbar({ logo }: NavbarProps) {
       dispatch(clearAuth());
       if(role === "user") navigate(AuthRoutes.LOGIN)
         else if(role === "vendor") navigate(AuthRoutes.VENDOR_LOGIN)
+    }
+  }
+
+
+  const handleProfileClick = async()=>{
+    try {
+
+      const profileRes = await userProfile.getCompleteProfile();
+      const profile = profileRes;
+
+      const redirectPath = profile.isCompleteProfile ? "/user/complete-profile" : "/user/user-profile"
+
+      navigate(redirectPath)
+    } catch (error) {
+      console.error("Failed to fetch profile", error);
+    toast.error("Unable to load profile. Please try again.");
     }
   }
   return (
@@ -78,9 +96,7 @@ export function Navbar({ logo }: NavbarProps) {
         <button className="relative p-2 text-secondary hover:text-secondary/80 transition-colors">
           <Bell className="w-5 h-5 fill-current" />
         </button>
-        <Button variant="default" size="sm" className="rounded-full px-6">
-          Login/Signup
-        </Button>
+        
       </div>
     </header>
   );

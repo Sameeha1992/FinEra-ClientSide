@@ -6,6 +6,7 @@ interface ProfileCardProps {
   email?: string;
   registrationNumber?: string;
   isVerified?: boolean;
+  isProfileComplete?:boolean
 }
 
 export default function ProfileCard({
@@ -14,6 +15,7 @@ export default function ProfileCard({
   email = 'federalbank@gmail.com',
   registrationNumber = 'HB123456',
   isVerified = false,
+  isProfileComplete = false
 }: ProfileCardProps) {
 
   const navigate = useNavigate()
@@ -41,10 +43,14 @@ export default function ProfileCard({
 
         {/* Buttons */}
         <div className="space-y-3">
-          <button onClick={()=>navigate("/vendor/vendor-complete-form")}     className="w-full px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors">
+
+          {!isProfileComplete &&(
+            <button onClick={()=>navigate("/vendor/vendor-complete-form")}     className="w-full px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-colors">
             Complete Verification Form
           </button>
 
+          )}
+          
           {!isVerified && (
             <button className="w-full px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors">
               Not Verified

@@ -10,7 +10,8 @@ export interface VendorCompleteProfileData{
     email?:string,
     vendorId?:string,
     registrationNumber?:string,
-    licenceNumber?:string
+    licenceNumber?:string,
+    isProfileComplete?:boolean,
     
     documents?:{
       registrationDocUrl?:string,

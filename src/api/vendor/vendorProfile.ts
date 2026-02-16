@@ -12,6 +12,7 @@ export interface vendorData{
     licenceNumber?:string,
     registrationDoc?:string;
     licenceDoc?:string;
+    isProfileComplete?:boolean
 
 }
 

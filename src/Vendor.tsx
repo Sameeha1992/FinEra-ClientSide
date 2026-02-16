@@ -3,6 +3,8 @@ import { Route, Routes } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import { VendorProtectRoute} from './protected/ProtectedRoutes'
 import { VendorUnProtectRoute } from './protected/UnprotectedRoute.tsx'
+import AddLoanForm from './components/loanProduct/AddLoanForm.tsx'
+import LoanAddForm from './pages/vendor/dashboard/loanProduct/Loan/LoanAddForm.tsx'
 
 const RegisterPage = lazy(() => import('./pages/vendor/vendorRegister.tsx'))
 const OtpVerification = lazy(() => import('./pages/user/auth/OtpVerification.tsx'))
@@ -14,7 +16,9 @@ const VendorDashboard = lazy(()=>import("@/pages/vendor/dashboard/DashboardPage.
 const VendorProfile = lazy(()=>import("./pages/vendor/dashboard/profile/ProfilePage.tsx"))
 const VendorProfileFormPage = lazy(()=>import("./pages/vendor/dashboard/profile/VendorCompleteProfileForm.tsx"))
 const VendorCompleteProfilePage = lazy(()=>import("./pages/vendor/dashboard/profile/VendorCompleteProfilePage.tsx"))
-
+const VendorChangePassword = lazy(()=>import("./pages/vendor/VendorChnagePassword.tsx"))
+const LoanListing = lazy(()=>import("./pages/vendor/dashboard/loanProduct/Loan/LoanListing.tsx"))
+const LoanEditForm = lazy(()=>import("./pages/vendor/dashboard/loanProduct/Loan/LoanEditForm.tsx"))
 function Vendor() {
   return (
     <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
@@ -36,6 +40,13 @@ function Vendor() {
           <Route path="/vendor-profile" element={<VendorProfile/>}/>
           <Route path="/vendor-complete-form" element={<VendorProfileFormPage/>}/>
           <Route path="/vendor-complete-profile" element={<VendorCompleteProfilePage/>}/>
+          <Route path='/vendor-change-password' element={<VendorChangePassword/>}/>
+          <Route path='/loan-details' element={<LoanAddForm/>}/>
+          <Route path='/loans' element={<LoanListing/>}/>
+          <Route path='/edit-loans' element={<LoanEditForm/>}/>
+
+
+
 
         </Route>
 

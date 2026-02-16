@@ -1,10 +1,7 @@
 // pages/Dashboard.tsx
-import { User, FileText, ArrowRightLeft, MessageCircle, BellIcon } from "lucide-react";
 import { Outlet } from "react-router-dom";
 import {Sidebar} from "@/components/shared/user/Sidebar";
 import TopNav from "@/components/shared/user/TopNav";
-import ProfilePage from "./ProfilePage";
-import CompleteProfilePage from "./CompleteProfilePage";
 
 export default function Dashboard() {
   

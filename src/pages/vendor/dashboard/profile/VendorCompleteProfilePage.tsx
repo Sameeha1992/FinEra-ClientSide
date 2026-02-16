@@ -53,7 +53,7 @@ const VendorCompleteProfilePage = () => {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-700 bg-white border border-zinc-300 rounded-lg hover:bg-zinc-50 transition">
+              <button onClick={()=>navigate("/vendor/vendor-change-password")}className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-700 bg-white border border-zinc-300 rounded-lg hover:bg-zinc-50 transition">
                 <Lock className="w-4 h-4" />
                 Change Password
               </button>

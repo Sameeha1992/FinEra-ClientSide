@@ -1,13 +1,13 @@
-'use client';
 
 import React, { useEffect, useState } from 'react';
 import UserProfileDisplay from '@/components/user/userDashboard/CompleteProfile';
 import { userProfile } from '@/api/user/userProfile';
+import { useNavigate } from 'react-router-dom';
 
 const CompleteProfilePage = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
+ const navigate = useNavigate()
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -49,7 +49,7 @@ const CompleteProfilePage = () => {
         panDocument: profile.documents.panDocUrl,
       }}
       onEditDetails={() => console.log('Edit clicked')}
-      onChangePassword={() => console.log('Change password')}
+      onChangePassword={() => navigate("/user/change-password")}
     />
   );
 };

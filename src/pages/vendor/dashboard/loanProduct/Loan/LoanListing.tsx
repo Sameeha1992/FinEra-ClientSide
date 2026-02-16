@@ -1,0 +1,244 @@
+import React, { useEffect, useState } from "react";
+import Sidebar from "../../../../../components/vendor/dashboard/shared/Sidebar";
+import {
+  Search,
+  Plus,
+  Eye,
+  Edit,
+  ChevronDown,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
+import { loanProduct } from "@/api/loanProduct/loanProduct.service";
+
+interface Loan {
+  id: string;
+  loanId: string;
+  loanType: string;
+  minAmount: string;
+  maxAmount: string;
+  interest: string;
+  tenure: string;
+  status: "Active" | "Inactive";
+}
+
+export default function LoanListing() {
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const fetchLoans = async () => {
+    setLoading(true);
+
+    try {
+      const response = await loanProduct.getVendorLoans(
+        searchTerm,
+        page,
+        limit
+      );
+
+      console.log(response,"responses of list")
+
+      const formattedLoans: Loan[] = response.loans.map((loan) => ({
+        id: loan.loanId,
+        loanId: loan.loanId,
+        loanType: loan.name,
+        minAmount: loan.amount,
+        maxAmount: loan.amount,
+        interest: loan.interestRate,
+        tenure: loan.tenure,
+        status: loan.status === "ACTIVE" ? "Active" : "Inactive",
+      }));
+
+      console.log(formattedLoans,"this are the formatred loans")
+      setLoans(formattedLoans);
+      setTotal(response.total);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+  setPage(1);
+}, [searchTerm]);
+
+
+  useEffect(() => {
+  const handler = setTimeout(() => {
+    fetchLoans();
+  }, 500); 
+
+  return () => clearTimeout(handler);
+}, [searchTerm, page, limit]);
+
+  return (
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar />
+
+      <main className="flex-1 ml-56 p-8">
+        {/* Top Controls */}
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-6">
+          <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+            {/* Search */}
+            <div className="relative flex-1 w-full md:max-w-md">
+              <input
+                type="text"
+                placeholder="Search by Application"
+                className="w-full pl-4 pr-10 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-slate-600"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Search
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                size={18}
+              />
+            </div>
+
+            <button className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2.5 rounded-lg transition-colors flex items-center gap-2 font-medium shadow-sm shadow-teal-500/20">
+              <Plus size={18} />
+              Add Loan
+            </button>
+          </div>
+        </div>
+
+        {/* Table Section */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    LoanId
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Loan Type
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Min Amount
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Max Amount
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Interest
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Tenure (month)
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {loading ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-4 text-slate-600">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : loans.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="text-center py-4 text-slate-600">
+                      No loans found
+                    </td>
+                  </tr>
+                ) : (
+                  loans.map((loan) => (
+                    <tr
+                      key={loan.id}
+                      className="hover:bg-slate-50/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-sm font-medium text-slate-600">
+                        {loan.loanId}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-semibold text-slate-800">
+                        {loan.loanType}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600">
+                        {loan.minAmount}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600">
+                        {loan.maxAmount}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600">
+                        {loan.interest}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600">
+                        {loan.tenure}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            loan.status === "Active"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-slate-100 text-slate-800"
+                          }`}
+                        >
+                          {loan.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <button className="flex items-center gap-1 px-3 py-1.5 bg-teal-500 hover:bg-teal-600 text-white rounded-md text-sm font-medium">
+                            <Eye size={16} /> View
+                          </button>
+                          <button className="flex items-center gap-1 px-3 py-1.5 bg-teal-500 hover:bg-teal-600 text-white rounded-md text-sm font-medium">
+                            <Edit size={16} /> Edit
+                          </button>
+                          {loan.status === "Active" ? (
+                            <button className="flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm font-medium">
+                              <XCircle size={16} /> Deactivate
+                            </button>
+                          ) : (
+                            <button className="flex items-center gap-1 px-3 py-1.5 bg-teal-500 hover:bg-teal-600 text-white rounded-md text-sm font-medium">
+                              <CheckCircle size={16} /> Activate
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+            <div className="text-sm text-slate-500">
+              Showing {(page - 1) * limit + 1} to{" "}
+              {Math.min(page * limit, total)} of {total} results
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                className="px-3 py-1 rounded hover:bg-slate-100 text-slate-600 text-sm font-medium"
+                disabled={page === 1}
+                onClick={() => setPage((prev) => prev - 1)}
+              >
+                Previous
+              </button>
+              <span className="px-3 py-1 text-sm font-medium">{page}</span>
+
+              <button
+                className="px-3 py-1 rounded hover:bg-slate-100 text-slate-600 text-sm font-medium"
+                disabled={page * limit >= total}
+                onClick={() => setPage((prev) => prev + 1)}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

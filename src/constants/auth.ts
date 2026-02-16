@@ -20,6 +20,7 @@ export const AuthRoutes={
     VENDOR_VERIFY_FORGET_PASSWORD:"/vendor/verify-forget-otp",
     VENDOR_RESET_PASSWORD:"/vendor/reset-password",
     VENDOR_GOOGLE_AUTH:"/vendor/auth/google",
+    VENDOR_CHANGE_PASSWORD:"/vendor/change-password",
 
 
     //Admin:
