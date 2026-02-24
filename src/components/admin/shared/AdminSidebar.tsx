@@ -1,4 +1,9 @@
-import { NavLink } from "react-router-dom";
+import { authService } from "@/api/AuthServiceAndProfile";
+import { clearAuth } from "@/redux/slice/auth.slice";
+import type { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 interface SidebarItem {
   label: string;
@@ -14,6 +19,23 @@ const sidebarItems: SidebarItem[] = [
 ];
 
 const AdminSidebar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { role } = useSelector((state: RootState) => state.auth);
+
+  const handleLogout = async () => {
+    try {
+      await authService.adminLogout();
+    } catch (error) {
+      console.log("Logout failed", error);
+    } finally {
+      dispatch(clearAuth());
+      if (role === "admin") {
+        navigate("/admin/login");
+      }
+    }
+  };
   return (
     <aside className="w-56 bg-gray-900 text-white min-h-screen">
       <div className="p-4">
@@ -37,7 +59,10 @@ const AdminSidebar = () => {
           </NavLink>
         ))}
 
-        <button className="block w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 mt-8">
+        <button
+          onClick={handleLogout}
+          className="block w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-800 mt-8"
+        >
           Logout
         </button>
       </nav>

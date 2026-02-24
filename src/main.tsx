@@ -16,8 +16,10 @@ createRoot(document.getElementById("root")!).render(
       <PersistGate loading={null} persistor={persistor}>
   <Suspense fallback={<div>Loading...</div>}>
     <GoogleOAuthProvider clientId={clientId}>
+      
       <App />
     </GoogleOAuthProvider>
+
   </Suspense>
 </PersistGate>
     </Provider>

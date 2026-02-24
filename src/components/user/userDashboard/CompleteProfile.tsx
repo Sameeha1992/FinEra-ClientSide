@@ -22,7 +22,7 @@ export default function UserProfileDisplay({
             {/* Full Name */}
             <div>
               <label className="text-xs text-gray-600 uppercase tracking-wide">Full Name</label>
-              <p className="text-base font-medium text-gray-900">{personalInfo?.fullName}</p>
+              <p className="text-base font-medium text-gray-900">{personalInfo?.name}</p>
             </div>
             {/* Date of Birth */}
             <div>

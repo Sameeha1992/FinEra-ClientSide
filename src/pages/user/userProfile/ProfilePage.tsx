@@ -3,9 +3,7 @@ import { userProfile, type userData } from "@/api/user/userProfile";
 import ProfileCard from "@/components/user/userDashboard/ProfileCard";
 import type { RootState } from "@/redux/store";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import VerificationForm from "@/components/user/userDashboard/ProfileCompletionForm";
 import { Navigate, useNavigate } from "react-router-dom";
 
 export default function ProfilePage() {
@@ -14,7 +12,6 @@ export default function ProfilePage() {
   // const dispatch = useDispatch();
   const [user, setUserData] = useState<userData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showCompleteForm, setShowCompleteForm] = useState(false);
 
 
   const navigate = useNavigate()

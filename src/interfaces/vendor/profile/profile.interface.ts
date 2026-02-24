@@ -18,3 +18,12 @@ export interface VendorCompleteProfileData{
       licenceDocUrl?:string
     }
 }
+
+export interface UpdateVendorProfileForm {
+  name?: string;
+  email?: string;
+  registrationNumber?: string;
+  licenceNumber?: string;
+  licenceDoc?: File;
+  registrationDoc?: File;
+}

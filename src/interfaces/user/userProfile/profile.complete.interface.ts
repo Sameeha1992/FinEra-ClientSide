@@ -1,7 +1,7 @@
 import type { Gender } from "@/components/user/userDashboard/ProfileCompletionForm";
 
 export interface CompleteProfileForm {
-  fullName: string;
+  name: string;
   email:string
   phone: string;
   dob?: string;
@@ -15,11 +15,10 @@ export interface CompleteProfileForm {
   panDoc?: File;
   cibilDoc?: File;
   profileImage?: File;
-  isCompleteProfile:boolean
 }
 
 export interface  CompleteProfileData {
-  fullName?:string;
+  name?:string;
   email?:string
   phone?: string;
   status: "VERIFIED" | "NOT_VERIFIED";
@@ -44,7 +43,7 @@ export interface  CompleteProfileData {
 
 export interface UserProfileDisplayProps {
   personalInfo?: {
-    fullName?: string;
+    name?: string;
     dateOfBirth?: string;
     email?: string;
     gender?: string;

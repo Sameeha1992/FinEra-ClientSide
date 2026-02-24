@@ -93,6 +93,11 @@ export const authService = {
     return await axiosInstance.post(AuthRoutes.ADMIN_LOGIN,credential)
   },
 
+  
+
+  adminLogout:async()=>{
+    return await axiosInstance.post(AuthRoutes.ADMIN_LOGOUT)
+  },
 
 
   //Vendor Auth:-
@@ -164,4 +169,8 @@ export const authService = {
   },
 
 
+
+  vendorLogout:async()=>{
+    return await axiosInstance.post(AuthRoutes.VENDOR_LOGOUT)
+  },
 };

@@ -1,15 +1,12 @@
-
-
 import React, { useState } from 'react';
-import { Eye, EyeOff, CheckCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { registrationSchema, type RegistrationFormData } from '@/components/pages/validation/vendorAuthSchema';
-import {authService} from '@/api/AuthServiceAndProfile';
+import { authService } from '@/api/AuthServiceAndProfile';
 
-const VendorRegistrationPage: React.FC = () => {
+const VendorRegistrationForm: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const [formData, setFormData] = useState<RegistrationFormData>({
     name: '',
@@ -34,7 +31,6 @@ const VendorRegistrationPage: React.FC = () => {
     setErrors({});
     setLoading(true);
 
-    // Zod Validation
     const result = registrationSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -47,171 +43,171 @@ const VendorRegistrationPage: React.FC = () => {
       return;
     }
 
-    const registerPayload = {
-        name: formData.name,
-        email: formData.email,
-        registerNumber: formData.registerNumber,
-        password: formData.password,
-      };
-
-
     try {
-      
-      const response = await authService.generateVendorOtp(registerPayload.email);
-      console.log("Otp genertaed for vendor",response)
-      navigate("/vendor/verify-otp",{
-        state:{
-          userData:{
-          name:formData.name,
-          email:formData.email,
-          registerNumber:formData.registerNumber,
-          password:formData.password,
-          role:"vendor" as const
-          }
-          
-        }
+      const response = await authService.generateVendorOtp(formData.email);
+      console.log('OTP generated for vendor', response);
+      navigate('/vendor/verify-otp', {
+        state: {
+          userData: {
+            name: formData.name,
+            email: formData.email,
+            registerNumber: formData.registerNumber,
+            password: formData.password,
+            role: 'vendor' as const,
+          },
+        },
       });
-
-      // await authService.vendorRegister(registerPayload);
-
-      setSuccess(true);
     } catch (err: any) {
       alert(err.message || 'Failed to generate OTP');
-       
     } finally {
       setLoading(false);
     }
   };
 
-  // Success Screen
-  // if (success) {
-  //   return (
-  //     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-6">
-  //       <div className="bg-white rounded-3xl shadow-2xl p-12 text-center max-w-md w-full">
-  //         <CheckCircle className="w-24 h-24 text-green-600 mx-auto mb-6" />
-  //         <h1 className="text-4xl font-bold text-gray-900 mb-4">Registration Successful!</h1>
-  //         <p className="text-lg text-gray-600 mb-8">
-  //           Welcome, <span className="font-bold">{formData.name}</span>! Your vendor account is ready.
-  //         </p>
-  //         <button
-  //           onClick={() => navigate('/vendor/login')}
-  //           className="w-full bg-blue-900 hover:bg-blue-950 text-white font-bold py-5 rounded-xl text-lg transition"
-  //         >
-  //           Go to Login
-  //         </button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-6">
-      <div className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-2xl">
-        <h1 className="text-4xl font-bold text-center mb-2 text-gray-900">Vendor Registration</h1>
-        <p className="text-center text-gray-600 mb-10">Fill in your details to get started</p>
+    <form className="space-y-6" onSubmit={handleSubmit} aria-labelledby="vendor-register-heading">
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="John Doe"
-              className={`w-full px-5 py-4 rounded-xl border ${errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300'} focus:outline-none focus:ring-4 focus:ring-blue-100 transition`}
-            />
-            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="john@business.com"
-              className={`w-full px-5 py-4 rounded-xl border ${errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300'} focus:outline-none focus:ring-4 focus:ring-blue-100 transition`}
-            />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-          </div>
-
-          {/* Register Number */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Register Number</label>
-            <input
-              type="text"
-              name="registerNumber"
-              value={formData.registerNumber}
-              onChange={handleChange}
-              placeholder="REG-2025-001"
-              className={`w-full px-5 py-4 rounded-xl border ${errors.registerNumber ? 'border-red-500 bg-red-50' : 'border-gray-300'} focus:outline-none focus:ring-4 focus:ring-blue-100 transition`}
-            />
-            {errors.registerNumber && <p className="text-red-500 text-sm mt-1">{errors.registerNumber}</p>}
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className={`w-full px-5 py-4 rounded-xl border pr-14 ${errors.password ? 'border-red-500 bg-red-50' : 'border-gray-300'} focus:outline-none focus:ring-4 focus:ring-blue-100 transition`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              >
-                {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
-              </button>
-            </div>
-            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-          </div>
-
-          {/* Confirm Password */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
-            <div className="relative">
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className={`w-full px-5 py-4 rounded-xl border pr-14 ${errors.confirmPassword ? 'border-red-500 bg-red-50' : 'border-gray-300'} focus:outline-none focus:ring-4 focus:ring-blue-100 transition`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              >
-                {showConfirmPassword ? <EyeOff size={22} /> : <Eye size={22} />}
-              </button>
-            </div>
-            {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-900 to-indigo-900 hover:from-blue-950 hover:to-indigo-950 text-white font-bold py-5 rounded-xl text-lg shadow-lg transition transform hover:scale-[1.02] disabled:opacity-70"
-          >
-            {loading ? 'Creating Account...' : 'Register as Vendor'}
-          </button>
-        </form>
+      {/* Heading */}
+      <div>
+        <h2 id="vendor-register-heading" className="text-3xl md:text-4xl font-semibold tracking-tight">
+          Sign up
+        </h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Create your vendor account to get started
+        </p>
       </div>
-    </div>
+
+      <div className="space-y-4">
+
+        {/* Full Name */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="name" className="text-base md:text-lg">
+            Full Name
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Enter your full name"
+            className={`rounded-md border px-3 py-3 text-base md:text-lg outline-none focus:ring-2 focus:ring-ring bg-background ${errors.name ? 'border-red-500 bg-red-50' : 'border-input'
+              }`}
+          />
+          {errors.name && <p className="text-red-600 text-sm">{errors.name}</p>}
+        </div>
+
+        {/* Email */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="email" className="text-base md:text-lg">
+            Enter your email address
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Username or email address"
+            className={`rounded-md border px-3 py-3 text-base md:text-lg outline-none focus:ring-2 focus:ring-ring bg-background ${errors.email ? 'border-red-500 bg-red-50' : 'border-input'
+              }`}
+          />
+          {errors.email && <p className="text-red-600 text-sm">{errors.email}</p>}
+        </div>
+
+        {/* Register Number */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="registerNumber" className="text-base md:text-lg">
+            Register Number
+          </label>
+          <input
+            id="registerNumber"
+            name="registerNumber"
+            type="text"
+            value={formData.registerNumber}
+            onChange={handleChange}
+            placeholder="REG-2025-001"
+            className={`rounded-md border px-3 py-3 text-base md:text-lg outline-none focus:ring-2 focus:ring-ring bg-background ${errors.registerNumber ? 'border-red-500 bg-red-50' : 'border-input'
+              }`}
+          />
+          {errors.registerNumber && <p className="text-red-600 text-sm">{errors.registerNumber}</p>}
+        </div>
+
+        {/* Password */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="password" className="text-base md:text-lg">
+            Enter your Password
+          </label>
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Password"
+              className={`w-full rounded-md border px-3 py-3 pr-11 text-base md:text-lg outline-none focus:ring-2 focus:ring-ring bg-background ${errors.password ? 'border-red-500 bg-red-50' : 'border-input'
+                }`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(prev => !prev)}
+              className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+          {errors.password && <p className="text-red-600 text-sm">{errors.password}</p>}
+        </div>
+
+        {/* Confirm Password */}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="confirmPassword" className="text-base md:text-lg">
+            Confirm Password
+          </label>
+          <div className="relative">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm password"
+              className={`w-full rounded-md border px-3 py-3 pr-11 text-base md:text-lg outline-none focus:ring-2 focus:ring-ring bg-background ${errors.confirmPassword ? 'border-red-500 bg-red-50' : 'border-input'
+                }`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(prev => !prev)}
+              className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+            >
+              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+          {errors.confirmPassword && <p className="text-red-600 text-sm">{errors.confirmPassword}</p>}
+        </div>
+
+      </div>
+
+      {/* Bottom row: login link + submit */}
+      <div className="flex items-center justify-between gap-4 pt-2">
+        <p className="text-sm text-muted-foreground">
+          Already have an account?{' '}
+          <Link to="/vendor/login" className="underline underline-offset-2">
+            Log in
+          </Link>
+        </p>
+        <button
+          type="submit"
+          disabled={loading}
+          className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-2 text-primary-foreground text-sm font-medium disabled:opacity-60 transition"
+        >
+          {loading ? 'Creating Account...' : 'Sign up'}
+        </button>
+      </div>
+
+    </form>
   );
 };
 
-export default VendorRegistrationPage;
+export default VendorRegistrationForm;

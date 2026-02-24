@@ -4,6 +4,7 @@ import { lazy, Suspense } from "react";
 import { ClientProtectRoute } from "./protected/ProtectedRoutes";
 import { UserUnProtectRoute } from "./protected/UnprotectedRoute";
 import ProfilePage from "./pages/user/userProfile/ProfilePage";
+import LoanListingPage from "./pages/user/LoanListingPage";
 
 const UserLogin = lazy(() => import("./pages/user/auth/UserLogin"));
 const SignUpPage = lazy(() => import("./pages/user/auth/Signup"));
@@ -15,7 +16,8 @@ const LandingPage = lazy(() => import("./pages/user/LadingPage"));
 const UserProfile = lazy(() => import("./pages/user/userProfile/UserProfile"));
 const ProfileCompleteionForm = lazy(() => import("./components/user/userDashboard/ProfileCompletionForm"))
 const CompleteProfile = lazy(() => import("@/pages/user/userProfile/CompleteProfilePage"))
-const UserChangePassword = lazy(()=>import("./pages/user/auth/ChangePassword"))
+const UserChangePassword = lazy(() => import("./pages/user/auth/ChangePassword"))
+const UpdateProfileForm = lazy(() => import("./pages/user/userProfile/UpdateProfileForm"))
 function User() {
   return (
     <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
@@ -36,11 +38,16 @@ function User() {
 
         {/* 🔐 PROTECTED USER ROUTES */}
         <Route element={<ClientProtectRoute />}>
+          {/* Standalone full-page routes (no sidebar) */}
+          <Route path="loans" element={<LoanListingPage />} />
+
+          {/* Dashboard routes (with sidebar layout) */}
           <Route element={<UserProfile />}>
             <Route path="user-profile" element={<ProfilePage />} />
             <Route path="user-complete-form" element={<ProfileCompleteionForm />} />
             <Route path="user-complete-profile" element={<CompleteProfile />} />
-            <Route path="change-password" element={<UserChangePassword/>}/>
+            <Route path="change-password" element={<UserChangePassword />} />
+            <Route path="update-profile" element={<UpdateProfileForm />} />
           </Route>
         </Route>
 

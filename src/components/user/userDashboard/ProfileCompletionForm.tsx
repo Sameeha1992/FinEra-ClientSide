@@ -12,7 +12,7 @@ import { verificationSchema } from "@/validations/user/user.profileForm.validati
 export type Gender = "male" | "female" | "other";
 
 interface VerificationData {
-  fullName: string;
+  name: string;
   phoneNumber: string;
   email: string;
   gender: Gender | "";
@@ -35,7 +35,7 @@ export default function VerificationForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<VerificationData>({
-    fullName: "",
+    name: "",
     phoneNumber: "",
     email: "",
     gender: "",
@@ -112,7 +112,7 @@ export default function VerificationForm() {
       setErrors({});
 
       const data: CompleteProfileForm = {
-        fullName: user.name || "",
+        name: user.name || "",
         email: user.email || "",
         phone: formData.phoneNumber,
         dob: formData.dateOfBirth,
@@ -147,7 +147,7 @@ export default function VerificationForm() {
         <div className="grid grid-cols-2 gap-4">
           <input
             type="text"
-            name="fullName"
+            name="name"
             value={user.name || ""}
             onChange={handleInputChange}
             placeholder="Full Name"

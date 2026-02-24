@@ -37,8 +37,6 @@ export const Sidebar: React.FC = () => {
       dispatch(clearAuth())
       if( role === "user"){
         navigate("/user/logout")
-      }else{
-        navigate("/vendor/logout")
       }
     }
   }

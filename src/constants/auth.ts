@@ -21,10 +21,12 @@ export const AuthRoutes={
     VENDOR_RESET_PASSWORD:"/vendor/reset-password",
     VENDOR_GOOGLE_AUTH:"/vendor/auth/google",
     VENDOR_CHANGE_PASSWORD:"/vendor/change-password",
+    VENDOR_LOGOUT:"/vendor/logout",
 
 
     //Admin:
-    ADMIN_LOGIN:"/admin/login"
+    ADMIN_LOGIN:"/admin/login",
+    ADMIN_LOGOUT:"/admin/logout"
 
 
         

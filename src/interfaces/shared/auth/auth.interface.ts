@@ -55,7 +55,7 @@ export interface ApiResponsnes<T>{
 }
 
 export interface FormData{
-  fullName:string,
+  name:string,
   email:string,
   phone:string,
   password:string,

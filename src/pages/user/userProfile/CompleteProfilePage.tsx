@@ -30,7 +30,7 @@ const CompleteProfilePage = () => {
   return (
     <UserProfileDisplay
       personalInfo={{
-        fullName: profile.name,
+        name: profile.name,
         dateOfBirth: profile.dob,
         email: profile.email,
         gender: profile.gender,
@@ -48,7 +48,7 @@ const CompleteProfilePage = () => {
         panNumber: profile.panNumber,
         panDocument: profile.documents.panDocUrl,
       }}
-      onEditDetails={() => console.log('Edit clicked')}
+      onEditDetails={() => navigate("/user/update-profile")}
       onChangePassword={() => navigate("/user/change-password")}
     />
   );

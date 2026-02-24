@@ -42,7 +42,7 @@ async completeUserProfile(formData:CompleteProfileForm):Promise<ApiResponsnes<us
     const data = new FormData();
 
       // Append all text fields dynamically
-      (["fullName", "phone", "dob", "job", "income", "gender", "adhaarNumber", "panNumber", "cibilScore"] as const).forEach(
+      (["name", "phone", "dob", "job", "income", "gender", "adhaarNumber", "panNumber", "cibilScore"] as const).forEach(
         key => {
           const value = formData[key];
           if (value) data.append(key, value);
@@ -77,6 +77,41 @@ async getCompleteProfile():Promise<CompleteProfileData>{
     
   } catch (error) {
     console.error("failed to fetch complete profile",error);
+    throw error
+  }
+},
+
+async updateUserProfile(formData:Partial<CompleteProfileForm>):Promise<ApiResponsnes<userData>>{
+
+  try {
+    const data = new FormData();
+
+     (
+      ["name","email","phone", "dob", "job", "income", "gender", "adhaarNumber", "panNumber", "cibilScore"] as const
+    ).forEach((key) => {
+      const value = formData[key];
+      if (value !== undefined && value !== null) {
+        data.append(key, value as string);
+      }
+    });
+
+    (
+      ["adhaarDoc", "panDoc","profileImage"] as const
+    ).forEach((key) => {
+      const file = formData[key];
+      if (file) {
+        data.append(key, file);
+      }
+    });
+    
+    const response = await axiosInstance.put<ApiResponsnes<userData>>("/user/user-profile",data,{headers:{"Content-Type":"multipart/form-data"}});
+
+    console.log("Update profile response",response.data)
+
+    return response.data
+    
+  } catch (error) {
+    console.error("Failed to update profile",error);
     throw error
   }
 }

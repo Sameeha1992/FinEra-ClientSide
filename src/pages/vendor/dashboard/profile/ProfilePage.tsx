@@ -5,6 +5,7 @@ import { FileText } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { vendorProfile, type vendorData } from "@/api/vendor/vendorProfile";
 import { CompleteProfileDetails } from "@/components/vendor/dashboard/VendorProfile/CompleteProfileDetails";
+import { Navigate } from "react-router-dom";
 
 
 interface vendorProfile{
@@ -56,6 +57,9 @@ const ProfilePage = () => {
     return <div className="p-10 text-red-500">{error}</div>;
   }
 
+  if(vendor?.isProfileComplete){
+    return <Navigate to="/vendor/vendor-complete-profile" replace/>
+  }
   if (!vendor) return null;
 
 

@@ -8,29 +8,33 @@ import type { ILoanProductDto } from "@/interfaces/addLoan/loanProduct.dto";
 import { loanProduct } from "@/api/loanProduct/loanProduct.service";
 import { loanProductSchema } from "@/validations/loanProduct.validation";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function AddLoanForm() {
   const [formData, setFormData] = useState<ILoanProductDto>({
     name: "",
+    loanType: "",
     description: "",
     status: "ACTIVE",
     amount: { minimum: 0, maximum: 0 },
     tenure: { minimum: 0, maximum: 0 },
     interestRate: 0,
     duePenalty: 0,
+    processingFee: 0,
     features: [],
     eligibility: {
       minAge: 0,
       maxAge: 0,
       minSalary: 0,
-      cibilScore: 0,
+      minCibilScore: 0,
     },
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const navigate = useNavigate();
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     field: keyof ILoanProductDto,
     nestedField?: string,
   ) => {
@@ -61,7 +65,9 @@ export default function AddLoanForm() {
       setFormData((prev) => ({
         ...prev,
         [field]:
-          field === "interestRate" || field === "duePenalty"
+          field === "interestRate" ||
+          field === "duePenalty" ||
+          field === "processingFee"
             ? Number(value)
             : value,
       }));
@@ -71,7 +77,7 @@ export default function AddLoanForm() {
   const handleSubmit = async () => {
     const result = loanProductSchema.safeParse(formData);
 
-    console.log("nammude data",result)
+    console.log("nammude data", result);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
 
@@ -90,11 +96,16 @@ export default function AddLoanForm() {
       setErrors({});
     } catch (error) {
       console.error("Error creating loan product", error);
-      toast.error("Error creating loan product")
+      toast.error("Error creating loan product");
     }
+
+    navigate("/vendor/loans");
   };
 
   const getError = (path: string) => errors[path];
+
+  const loanTypes = ["HOME", "PERSONAL", "AGRICULTURAL", "GOLD", "EDUCATION"];
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4 font-sans">
       <Card className="w-full max-w-5xl shadow-xl rounded-2xl border-none">
@@ -109,11 +120,8 @@ export default function AddLoanForm() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
               <div className="space-y-2">
-                <Label
-                  htmlFor="loanType1"
-                  className="text-gray-600 font-semibold"
-                >
-                  Loan Type
+                <Label htmlFor="name" className="text-gray-600 font-semibold">
+                  Loan Name
                 </Label>
                 <Input
                   id="name"
@@ -126,6 +134,37 @@ export default function AddLoanForm() {
                 {getError("name") && (
                   <p className="text-red-500 text-sm mt-1">
                     {getError("name")}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="loanType"
+                  className="text-gray-600 font-semibold"
+                >
+                  Loan Type
+                </Label>
+                <select
+                  id="loanType"
+                  value={formData.loanType}
+                  onChange={(e) => handleChange(e, "loanType")}
+                  className={`flex h-12 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${
+                    getError("loanType") ? "border-red-500" : "border-gray-200"
+                  }`}
+                >
+                  <option value="" disabled>
+                    Select Loan Type
+                  </option>
+                  {loanTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+                {getError("loanType") && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {getError("loanType")}
                   </p>
                 )}
               </div>
@@ -288,6 +327,58 @@ export default function AddLoanForm() {
                   )}
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="duePenalty"
+                  className="text-gray-600 font-semibold"
+                >
+                  Due Penalty (%)
+                </Label>
+                <Input
+                  id="duePenalty"
+                  type="number"
+                  value={formData.duePenalty}
+                  onChange={(e) => handleChange(e, "duePenalty")}
+                  className={`h-12 ${
+                    getError("duePenalty")
+                      ? "border-red-500"
+                      : "border-gray-200"
+                  }`}
+                />
+
+                {getError("duePenalty") && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {getError("duePenalty")}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="processingFee"
+                  className="text-gray-600 font-semibold"
+                >
+                  Processing Fee (%)
+                </Label>
+                <Input
+                  id="processingFee"
+                  type="number"
+                  value={formData.processingFee}
+                  onChange={(e) => handleChange(e, "processingFee")}
+                  className={`h-12 ${
+                    getError("processingFee")
+                      ? "border-red-500"
+                      : "border-gray-200"
+                  }`}
+                />
+
+                {getError("processingFee") && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {getError("processingFee")}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -306,20 +397,18 @@ export default function AddLoanForm() {
                   id="minAge"
                   value={formData.eligibility!.minAge}
                   onChange={(e) => handleChange(e, "eligibility", "minAge")}
-className={`h-12 ${
-                      getError("eligibility.minAge")
-                        ? "border-red-500"
-                        : "border-gray-200"
-                    }`}       
-                             />
+                  className={`h-12 ${
+                    getError("eligibility.minAge")
+                      ? "border-red-500"
+                      : "border-gray-200"
+                  }`}
+                />
 
-                             {getError("eligibility.minAge") && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {getError("eligibility.minAge")}
-                    </p>
-                  )}
-
-
+                {getError("eligibility.minAge") && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {getError("eligibility.minAge")}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="maxAge" className="text-gray-600 font-semibold">
@@ -331,17 +420,17 @@ className={`h-12 ${
                   value={formData.eligibility!.maxAge}
                   onChange={(e) => handleChange(e, "eligibility", "maxAge")}
                   className={`h-12 ${
-                      getError("eligibility.maxAge")
-                        ? "border-red-500"
-                        : "border-gray-200"
-                    }`}       
-                             />
+                    getError("eligibility.maxAge")
+                      ? "border-red-500"
+                      : "border-gray-200"
+                  }`}
+                />
 
-                             {getError("eligibility.maxAge") && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {getError("eligibility.maxAge")}
-                    </p>
-                  )}
+                {getError("eligibility.maxAge") && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {getError("eligibility.maxAge")}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label
@@ -356,17 +445,17 @@ className={`h-12 ${
                   value={formData.eligibility!.minSalary}
                   onChange={(e) => handleChange(e, "eligibility", "minSalary")}
                   className={`h-12 ${
-                      getError("eligibility.minSalary")
-                        ? "border-red-500"
-                        : "border-gray-200"
-                    }`}       
-                             />
+                    getError("eligibility.minSalary")
+                      ? "border-red-500"
+                      : "border-gray-200"
+                  }`}
+                />
 
-                             {getError("eligibility.minSalary") && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {getError("eligibility.minSalary")}
-                    </p>
-                  )}
+                {getError("eligibility.minSalary") && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {getError("eligibility.minSalary")}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -379,31 +468,29 @@ className={`h-12 ${
                 <Input
                   id="cibilScore"
                   type="number"
-                  value={formData.eligibility!.cibilScore}
+                  value={formData.eligibility!.minCibilScore}
                   onChange={(e) => handleChange(e, "eligibility", "cibilScore")}
                   className={`h-12 ${
-                      getError("eligibility.cibilScore")
-                        ? "border-red-500"
-                        : "border-gray-200"
-                    }`}       
-                             />
+                    getError("eligibility.cibilScore")
+                      ? "border-red-500"
+                      : "border-gray-200"
+                  }`}
+                />
 
-                             {getError("eligibility.cibilScore") && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {getError("eligibility.cibilScore")}
-                    </p>
-                  )}
+                {getError("eligibility.cibilScore") && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {getError("eligibility.cibilScore")}
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Status Toggle */}
-          {/* Status Toggle */}
           <div className="flex gap-4">
             <Button
               variant={formData.status === "ACTIVE" ? "default" : "outline"}
               onClick={() =>
-                setFormData((prev) => ({ ...prev, status:"ACTIVE" }))
+                setFormData((prev) => ({ ...prev, status: "ACTIVE" }))
               }
             >
               Active
@@ -411,7 +498,7 @@ className={`h-12 ${
             <Button
               variant={formData.status === "INACTIVE" ? "default" : "outline"}
               onClick={() =>
-                setFormData((prev) => ({ ...prev, status:"INACTIVE" }))
+                setFormData((prev) => ({ ...prev, status: "INACTIVE" }))
               }
             >
               Inactive

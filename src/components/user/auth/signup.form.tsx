@@ -8,7 +8,7 @@ import { registerUserSchema,type FormData } from "../../../validations/user/user
 export function SignupForm() {
 
   const [formData,setFormData] = useState<FormData>({
-    fullName:'',
+    name:'',
     email:'',
     phone:'',
     password:'',
@@ -48,7 +48,7 @@ export function SignupForm() {
 
 
     const userData ={
-      name:formData.fullName,
+      name:formData.name,
       email:formData.email,
       phone:formData.phone,
       password:formData.password,
@@ -63,7 +63,7 @@ export function SignupForm() {
       console.log("OTP generated:",response);
 
       navigate("/user/verify-otp", {state:{userData:{
-        name:formData.fullName,
+        name:formData.name,
         email:formData.email,
         phone:formData.phone,
         password:formData.password,
@@ -98,19 +98,19 @@ export function SignupForm() {
 
       <div className="space-y-4">
         <div className="flex flex-col gap-1">
-          <label htmlFor="fullName" className="text-base md:text-lg">
+          <label htmlFor="name" className="text-base md:text-lg">
             Full Name
           </label>
           <input
-            id="fullName"
-            name="fullName"
-            value={formData.fullName}
+            id="name"
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             placeholder="Enter your full name"
             className="rounded-md border border-input bg-background px-3 py-3 text-base md:text-lg outline-none focus:ring-2 focus:ring-ring"
             
           />
-          {renderFieldErrors("fullName")}
+          {renderFieldErrors("name")}
         </div>
 
         <div className="flex flex-col gap-1">
