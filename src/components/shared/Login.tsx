@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import toast from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react";
 import { useAppDispatch } from "@/redux/hooks";
 import { authService } from "@/api/AuthServiceAndProfile";
 import { setAuth } from "@/redux/slice/auth.slice";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import type { LoginFormProps } from "@/interfaces/shared/auth/auth.interface";
 import {
   loginSchema,
@@ -13,8 +14,7 @@ import {
 } from "@/validations/shared/validation.helpers";
 import { Link } from "react-router-dom";
 import GoogleSignupButton from "./GoogleSignupButton";
-
-
+import { setAccessToken } from "@/redux/slice/tokenSlice";
 
 export default function LoginForm({
   role = "user",
@@ -30,8 +30,12 @@ export default function LoginForm({
   const [errors, setErrors] = useState({ email: "", password: "", role: "" });
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const isLoginPage = location.pathname.includes("/login");
 
   const handleInputChange = (field: keyof LoginValue, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -75,8 +79,7 @@ export default function LoginForm({
 
     let toastId: string | undefined;
     try {
-      setLoading(true);
-      toastId = toast.loading("Logging in...");
+      
 
       // const res = await authService.login({...formData});
 
@@ -103,12 +106,38 @@ export default function LoginForm({
 
       if (res.data.success) {
         if (formData.role === "vendor") {
-          dispatch(setAuth(res.data.vendor));
-          navigate("/vendor/dashboard", { replace: true });
-        } else {
-          dispatch(setAuth(res.data.user || res.data.admin));
-          if (formData.role === "admin") navigate("/admin/dashboard");
-          else navigate("/user/home", { replace: true });
+          const vendorData = res.data.vendor;
+          dispatch(
+            setAuth({
+              ...vendorData,
+              isAuthenticated: true,
+            }),
+          );
+
+          dispatch(setAccessToken(res.data.accessToken))
+
+          navigate("/vendor/vendor-dashboard", { replace: true });
+        } else if(formData.role === "admin"){
+          const adminData = res.data.admin;
+          console.log(adminData,"admindata")
+          dispatch(setAuth({...adminData,isAuthenticated:true}))
+          dispatch(setAccessToken(res.data.accessToken))
+          navigate("/admin/dashboard")
+        }
+        
+        
+        else {
+          const userData = res.data.user || res.data.admin;
+          dispatch(
+            setAuth({
+              ...userData,
+              isAuthenticated: true,
+            }),
+          );
+
+          dispatch(setAccessToken(res.data.accessToken));
+
+          navigate("/user/home", { replace: true });
         }
       }
     } catch (error: any) {
@@ -157,9 +186,10 @@ export default function LoginForm({
           <Label htmlFor="password" className="text-gray-700 font-medium">
             Password
           </Label>
+          <div className="relative"> 
           <Input
             id="password"
-            type="password"
+            type={showPassword ? "text"  :"password"}
             placeholder="Enter your password"
             value={formData.password}
             onChange={(e) => handleInputChange("password", e.target.value)}
@@ -168,6 +198,15 @@ export default function LoginForm({
               errors.password ? "border-red-500" : "border-gray-300"
             } focus:ring-2 focus:ring-teal-500`}
           />
+
+           <button
+      type="button"
+      onClick={() => setShowPassword((prev) => !prev)}
+      className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+    >
+      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+    </button>
+  </div>
 
           {errors.password && (
             <p className="text-red-500 text-sm mt-1">{errors.password}</p>
@@ -183,16 +222,14 @@ export default function LoginForm({
             Forgot password?
           </a>
         </div> */}
-       {role !== "admin" &&(
-        <Link
-        
-          to={`/${role}/forget-password`}
-          className="text-sm text-teal-600 hover:underline hover:text-teal-700"
-        >
-          Forget Password
-        </Link>
-       )}
-        
+        {role !== "admin" && (
+          <Link
+            to={`/${role}/forget-password`}
+            className="text-sm text-teal-600 hover:underline hover:text-teal-700"
+          >
+            Forget Password
+          </Link>
+        )}
 
         {serverError && (
           <p className="text-red-600 text-sm font-medium bg-red-100 p-2 rounded-md border border-red-300">
@@ -214,7 +251,9 @@ export default function LoginForm({
         {children}
 
         <div className="mt-4 flex justify-center">
-        {role !== "admin" && <GoogleSignupButton role={role} />}
+          {role !== "admin" && isLoginPage && (
+            <GoogleSignupButton role={role} />
+          )}
         </div>
       </form>
 

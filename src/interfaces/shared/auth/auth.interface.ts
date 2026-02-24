@@ -48,8 +48,14 @@ export interface ApiResponse{
     role:"vendor"|"user"
 }
 
+export interface ApiResponsnes<T>{
+    success:boolean;
+    message:string;
+    data:T;
+}
+
 export interface FormData{
-  fullName:string,
+  name:string,
   email:string,
   phone:string,
   password:string,
@@ -71,4 +77,12 @@ export interface LoginFormProps{
     role?:"admin"| "vendor"|"user";
     onSubmit?:(formData:LoginValue)=>Promise<void>
     children?: React.ReactNode;
+}
+
+
+export interface ChangePasswordProps{
+    onSubmit:(
+        currentPassword:string,
+        newPassword:string
+    )=>Promise<void>
 }

@@ -1,50 +1,33 @@
-import React, { lazy, Suspense } from 'react'
-import { Route,Routes } from 'react-router-dom'
-import ProtectedRoutes from './protected/ProtectedRoutes'
-import UnprotectedRoute from './protected/UnprotectedRoute'
+import { lazy, Suspense } from "react";
+import { Route, Routes } from "react-router-dom";
+import { AdminProtectRoute } from "./protected/ProtectedRoutes";
+import { AdminUnprotectRoute } from "./protected/UnprotectedRoute";
 
+const AdminLoginPage = lazy(() => import("./pages/admin/LoginPage"));
+const VendorManagement = lazy(() => import("./pages/admin/VendorMgtList"));
+const UserManagement = lazy(() => import("./pages/admin/UserMgtList"));
+const AdminDashBoard = lazy(() => import("./pages/admin/Dashboard"));
 
-const AdminLoginPage = lazy(()=>import('./pages/admin/LoginPage'))
-const VendorManagement = lazy(()=>import('./pages/admin/VendorMgtList'))
-const UserManagement = lazy(()=>import('./pages/admin/UserMgtList'))
-const AdminDashBoard = lazy(()=>import('./pages/admin/Dashboard'))
 const Admin = () => {
   return (
-    <div>
-      
-      <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          {/* Public admin login route */}
-          <Route path="/login" element={<UnprotectedRoute restrictedRole='admin'>
-            <AdminLoginPage />
-            </UnprotectedRoute>} />
+    <Suspense fallback={<div>Loading...</div>}>
+      <Routes>
 
-          {/* Protected admin routes */}
+        {/* 🔓 UNPROTECTED (Login) */}
+        <Route element={<AdminUnprotectRoute />}>
+          <Route path="/login" element={<AdminLoginPage />} />
+        </Route>
 
-          <Route
-          path='/dashboard' element={<ProtectedRoutes allowedRoles={["admin"]}loginRedirect='/admin/login'>
-                <AdminDashBoard />
-              </ProtectedRoutes>}/>
-          <Route
-            path="/vendor"
-            element={
-              <ProtectedRoutes allowedRoles={["admin"]} loginRedirect='/admin/login'>
-                <VendorManagement />
-              </ProtectedRoutes>
-            }
-          />
-          <Route
-            path="/user"
-            element={
-              <ProtectedRoutes allowedRoles={["admin"]} loginRedirect='/admin/login'>
-                <UserManagement />
-              </ProtectedRoutes>
-            }
-          />
-        </Routes>
-      </Suspense>
-    </div>
-  )
-}
+        {/* 🔐 PROTECTED ADMIN ROUTES */}
+        <Route element={<AdminProtectRoute />}>
+          <Route path="/dashboard" element={<AdminDashBoard />} />
+          <Route path="/vendor" element={<VendorManagement />} />
+          <Route path="/user" element={<UserManagement />} />
+        </Route>
 
-export default Admin
+      </Routes>
+    </Suspense>
+  );
+};
+
+export default Admin;

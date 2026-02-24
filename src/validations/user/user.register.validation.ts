@@ -2,7 +2,7 @@ import z from "zod";
 
 export const registerUserSchema = z
   .object({
-    fullName:z.string().max(20,"Should not exceed above 20 letters")
+    name:z.string().max(20,"Should not exceed above 20 letters")
     .min(3,"Name too short")
     .regex(/^[A-Za-z\s]+$/, "Only letters and spaces allowed"),
     email: z

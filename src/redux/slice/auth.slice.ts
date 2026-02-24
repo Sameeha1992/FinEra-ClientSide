@@ -7,8 +7,12 @@ const initialState:AuthState = {
   role:null,
   Id:null,
   isAuthenticated:false,
+  status:null,
+  isProfileComplete:false,
+  accessToken:null
 
 };
+
 
 
 export const authSlice = createSlice({
@@ -21,7 +25,16 @@ export const authSlice = createSlice({
       state.role = action.payload.role;
       state.Id = action.payload.Id ?? null;
       state.isAuthenticated = true
+      state.status = action.payload.status ?? "not_verified"
+      
+      state.isProfileComplete = action.payload.isProfileComplete ?? false
+      
     },
+
+      setProfileComplete: (state, action: PayloadAction<boolean>) => {
+      state.isProfileComplete = action.payload;
+    },
+
     clearAuth:(state)=>{
       Object.assign(state,initialState)
     }
@@ -29,5 +42,5 @@ export const authSlice = createSlice({
 })
 
 
-export const {setAuth,clearAuth} = authSlice.actions;
+export const {setAuth,clearAuth,setProfileComplete} = authSlice.actions;
 export default authSlice.reducer;

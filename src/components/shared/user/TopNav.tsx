@@ -33,9 +33,7 @@ const TopNav: FC = () => {
         {/* Right Actions */}
         <div className="flex items-center gap-6">
           <Bell className="w-6 h-6 text-gray-600 cursor-pointer" />
-          <button className="bg-teal-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-teal-700 transition">
-            Login/Signup
-          </button>
+          
         </div>
       </div>
     </div>

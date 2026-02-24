@@ -77,6 +77,14 @@ export const authService = {
     return await axiosInstance.post(AuthRoutes.GOOGLE_AUTH,{token})
   },
 
+  logout:async()=>{
+    return await axiosInstance.post(AuthRoutes.LOGOUT)
+  },
+
+  changePassword:async(data:{currentPassword:string,newPassword:string})=>{
+    return await axiosInstance.patch("/user/change-password",data)
+  },
+
 
   //Admin Auth:-
 
@@ -85,6 +93,11 @@ export const authService = {
     return await axiosInstance.post(AuthRoutes.ADMIN_LOGIN,credential)
   },
 
+  
+
+  adminLogout:async()=>{
+    return await axiosInstance.post(AuthRoutes.ADMIN_LOGOUT)
+  },
 
 
   //Vendor Auth:-
@@ -149,7 +162,15 @@ export const authService = {
   
   resetVendorPassword:async(email:string,password:string)=>{
     return await axiosInstance.post(AuthRoutes.VENDOR_RESET_PASSWORD,{email,password})
-  }
+  },
+
+  vendorChangePassword:async(data:{currentPassword:string,newPassword:string})=>{
+    return await axiosInstance.patch(AuthRoutes.VENDOR_CHANGE_PASSWORD,data)
+  },
 
 
+
+  vendorLogout:async()=>{
+    return await axiosInstance.post(AuthRoutes.VENDOR_LOGOUT)
+  },
 };

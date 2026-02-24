@@ -1,17 +1,19 @@
 import { useState } from "react";
-import { Home, Briefcase, GraduationCap, Leaf, Building2, CreditCard, ChevronDown, ChevronUp, Phone, Mail, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Home, Coins, GraduationCap, Leaf, Building2, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
 import heroIllustration from "@/assets/logI.png";
 
 const Landingpage = () => {
+  const navigate = useNavigate();
   const [openAccordion, setOpenAccordion] = useState<number | null>(0);
 
   const products = [
-    { icon: Home, title: "Home Loan" },
-    { icon: CreditCard, title: "Personal Loan" },
-    { icon: GraduationCap, title: "Education Loan" },
-    { icon: Leaf, title: "Agriculture Loan" },
-    { icon: Building2, title: "Business Loan" },
-    { icon: Briefcase, title: "Commercial Loan" },
+    { icon: Home, title: "Home Loan", type: "home" },
+    { icon: CreditCard, title: "Personal Loan", type: "personal" },
+    { icon: GraduationCap, title: "Education Loan", type: "education" },
+    { icon: Leaf, title: "Agriculture Loan", type: "agriculture" },
+    { icon: Building2, title: "Business Loan", type: "business" },
+    { icon: Coins, title: "Gold Loan", type: "gold" },
   ];
 
   const howItWorks = [
@@ -47,9 +49,9 @@ const Landingpage = () => {
               </button>
             </div>
             <div className="flex justify-center">
-              <img 
-                src={heroIllustration} 
-                alt="Financial services illustration" 
+              <img
+                src={heroIllustration}
+                alt="Financial services illustration"
                 className="w-full max-w-md"
               />
             </div>
@@ -63,7 +65,11 @@ const Landingpage = () => {
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Our Products</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
             {products.map((product, index) => (
-              <div key={index} className="flex flex-col items-center text-center group cursor-pointer">
+              <div
+                key={index}
+                onClick={() => navigate(`/user/loans?type=${product.type}`)}
+                className="flex flex-col items-center text-center group cursor-pointer"
+              >
                 <div className="w-20 h-20 rounded-full bg-teal-100 flex items-center justify-center mb-4 group-hover:bg-teal-600 transition-colors">
                   <product.icon className="w-10 h-10 text-teal-600 group-hover:text-white transition-colors" />
                 </div>

@@ -9,6 +9,7 @@ export const AuthRoutes={
     VERIFY_FORGET_PASSWORD:"/user/verify-forget-otp",
     RESET_PASSWORD:"/user/reset-password",
     GOOGLE_AUTH:"/user/auth/google",
+    LOGOUT:"/user/logout",
 
     //Vendor Side:
     VENDOR_REGISTER:"/vendor/vendor-register",
@@ -19,10 +20,13 @@ export const AuthRoutes={
     VENDOR_VERIFY_FORGET_PASSWORD:"/vendor/verify-forget-otp",
     VENDOR_RESET_PASSWORD:"/vendor/reset-password",
     VENDOR_GOOGLE_AUTH:"/vendor/auth/google",
+    VENDOR_CHANGE_PASSWORD:"/vendor/change-password",
+    VENDOR_LOGOUT:"/vendor/logout",
 
 
     //Admin:
-    ADMIN_LOGIN:"/admin/login"
+    ADMIN_LOGIN:"/admin/login",
+    ADMIN_LOGOUT:"/admin/logout"
 
 
         
