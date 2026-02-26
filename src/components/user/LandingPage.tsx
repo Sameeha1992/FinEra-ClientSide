@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home, Coins, GraduationCap, Leaf, Building2, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
+import { Home, Coins, Building2, CreditCard, ChevronDown, ChevronUp } from "lucide-react";
 import heroIllustration from "@/assets/logI.png";
 
 const Landingpage = () => {
@@ -10,8 +10,6 @@ const Landingpage = () => {
   const products = [
     { icon: Home, title: "Home Loan", type: "home" },
     { icon: CreditCard, title: "Personal Loan", type: "personal" },
-    { icon: GraduationCap, title: "Education Loan", type: "education" },
-    { icon: Leaf, title: "Agriculture Loan", type: "agriculture" },
     { icon: Building2, title: "Business Loan", type: "business" },
     { icon: Coins, title: "Gold Loan", type: "gold" },
   ];
@@ -63,7 +61,7 @@ const Landingpage = () => {
       <section className="bg-gray-50 py-16">
         <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Our Products</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-4xl mx-auto">
             {products.map((product, index) => (
               <div
                 key={index}

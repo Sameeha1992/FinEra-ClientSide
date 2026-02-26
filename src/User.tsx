@@ -5,6 +5,10 @@ import { ClientProtectRoute } from "./protected/ProtectedRoutes";
 import { UserUnProtectRoute } from "./protected/UnprotectedRoute";
 import ProfilePage from "./pages/user/userProfile/ProfilePage";
 import LoanListingPage from "./pages/user/LoanListingPage";
+import PersonalLoanPage from "./pages/loans/PersonalLoanPage";
+import GoldLoanPage from "./pages/loans/GoldLoanPage";
+import HomeLoanPage from "./pages/loans/HomeLoanPage";
+import BusinessLoanPage from "./pages/loans/BusinessLoanPage";
 
 const UserLogin = lazy(() => import("./pages/user/auth/UserLogin"));
 const SignUpPage = lazy(() => import("./pages/user/auth/Signup"));
@@ -41,6 +45,12 @@ function User() {
           {/* Standalone full-page routes (no sidebar) */}
           <Route path="loans" element={<LoanListingPage />} />
 
+          {/* ── Loan Application Pages (standalone, no sidebar) ── */}
+          <Route path="personal-loan" element={<PersonalLoanPage />} />
+          <Route path="gold-loan" element={<GoldLoanPage />} />
+          <Route path="home-loan" element={<HomeLoanPage />} />
+          <Route path="business-loan" element={<BusinessLoanPage />} />
+
           {/* Dashboard routes (with sidebar layout) */}
           <Route element={<UserProfile />}>
             <Route path="user-profile" element={<ProfilePage />} />
@@ -48,6 +58,8 @@ function User() {
             <Route path="user-complete-profile" element={<CompleteProfile />} />
             <Route path="change-password" element={<UserChangePassword />} />
             <Route path="update-profile" element={<UpdateProfileForm />} />
+
+
           </Route>
         </Route>
 

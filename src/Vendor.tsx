@@ -5,6 +5,7 @@ import { VendorProtectRoute } from './protected/ProtectedRoutes'
 import { VendorUnProtectRoute } from './protected/UnprotectedRoute.tsx'
 import LoanAddForm from './pages/vendor/dashboard/loanProduct/Loan/LoanAddForm.tsx'
 import EditVendorProfileForm from './pages/vendor/dashboard/profile/EditVendorProfileForm.tsx'
+import LoanDetailPage from './pages/vendor/dashboard/loanProduct/Loan/LoanDetailPage.tsx'
 
 const RegisterPage = lazy(() => import('./pages/vendor/vendorRegister.tsx'))
 const OtpVerification = lazy(() => import('./pages/user/auth/OtpVerification.tsx'))
@@ -20,7 +21,6 @@ const VendorChangePassword = lazy(() => import("./pages/vendor/VendorChnagePassw
 const LoanListing = lazy(() => import("./pages/vendor/dashboard/loanProduct/Loan/LoanListing.tsx"))
 const AddLoanForm = lazy(() => import('./components/loanProduct/AddLoanForm.tsx'))
 const LoanEditForm = lazy(() => import("./pages/vendor/dashboard/loanProduct/Loan/LoanEditForm.tsx"))
-const LoanDetailPage = lazy(() => import("./pages/vendor/dashboard/loanProduct/Loan/LoanDetailPage.tsx"))
 function Vendor() {
   return (
     <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>

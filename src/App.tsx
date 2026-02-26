@@ -10,10 +10,10 @@ const App = () => {
       <BrowserRouter>
         <Toaster />
         <Routes>
-          <Route path="/user/*" index element={<User/>} />
+          <Route path="/user/*" index element={<User />} />
           <Route path="/admin/*" element={<Admin />} />
-          <Route path="/vendor/*" element={<Vendor/>}/>
-
+          <Route path="/vendor/*" element={<Vendor />} />
+          
         </Routes>
       </BrowserRouter>
     </>

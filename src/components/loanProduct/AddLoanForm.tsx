@@ -104,7 +104,7 @@ export default function AddLoanForm() {
 
   const getError = (path: string) => errors[path];
 
-  const loanTypes = ["HOME", "PERSONAL", "AGRICULTURAL", "GOLD", "EDUCATION"];
+  const loanTypes = ["HOME", "PERSONAL", "AGRICULTURAL", "GOLD", "EDUCATION","BUSINESS"];
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4 font-sans">
@@ -469,7 +469,7 @@ export default function AddLoanForm() {
                   id="cibilScore"
                   type="number"
                   value={formData.eligibility!.minCibilScore}
-                  onChange={(e) => handleChange(e, "eligibility", "cibilScore")}
+                  onChange={(e) => handleChange(e, "eligibility", "minCibilScore")}
                   className={`h-12 ${
                     getError("eligibility.cibilScore")
                       ? "border-red-500"
