@@ -14,7 +14,7 @@ export const fetchAccounts = async (query:AccountQuery)=>{
 }
 
 
-export const updateAccountStatus = async(accountId:string,status:"active"|"blocked",role:"user"|"vendor")=>{
-  const response = await axiosInstance.patch(`/admin/accounts/${accountId}/status`,{status,role})
+export const updateAccountStatus = async(accountId:string,accountStatus:"blocked"|"unblocked",role:"user"|"vendor")=>{
+  const response = await axiosInstance.patch(`/admin/accounts/${accountId}/accountStatus`,{accountStatus,role})
   return response.data
 }

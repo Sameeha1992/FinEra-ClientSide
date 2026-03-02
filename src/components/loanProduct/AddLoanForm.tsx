@@ -104,7 +104,7 @@ export default function AddLoanForm() {
 
   const getError = (path: string) => errors[path];
 
-  const loanTypes = ["HOME", "PERSONAL", "AGRICULTURAL", "GOLD", "EDUCATION","BUSINESS"];
+  const loanTypes = ["HOME", "PERSONAL", "GOLD","BUSINESS"];
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4 font-sans">

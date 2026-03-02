@@ -29,7 +29,7 @@ const UserManagement = () => {
 
   const [selectedAccount, setSelectedAccount] = useState<{
     id: string;
-    status: "active" | "blocked";
+    accountStatus: "blocked" | "unblocked";
     name: string;
   } | null>(null)
 
@@ -85,15 +85,15 @@ const UserManagement = () => {
   const confirmStatusChange = async (): Promise<void> => {
     if (!selectedAccount) return;
 
-    const newStatus: "active" | "blocked" =
-      selectedAccount.status === "active" ? "blocked" : "active";
+    const newStatus: "blocked" | "unblocked" =
+      selectedAccount.accountStatus === "unblocked" ? "blocked" : "unblocked";
 
     try {
       await updateAccountStatus(selectedAccount.id, newStatus, "user");
 
       setAccounts((prev) =>
         prev.map((acc) =>
-          acc.id === selectedAccount.id ? { ...acc, status: newStatus } : acc
+          acc.id === selectedAccount.id ? { ...acc, accountStatus: newStatus } : acc
         )
       );
 
@@ -141,25 +141,25 @@ const UserManagement = () => {
             <tbody>
               {accounts.map(account => (
                 <tr key={account.id} className="border-b">
-                  <td className="px-4 py-4">{account.id}</td>
+                  <td className="px-4 py-4">{account.customerId}</td>
                   <td className="px-4 py-4">{account.name}</td>
                   <td className="px-4 py-4">{account.email}</td>
 
                   <td className="px-4 py-4">
-                    <StatusBadge status={account.status} />
+                    <StatusBadge status={account.accountStatus} />
                   </td>
                   <td className="px-4 py-4">
                     <ActionButton
-                      onClick={() => setSelectedAccount({ id: account.id, status: account.status, name: account.name })}
-                      label={account.status === "active" ? "Block" : "Unblock"}
+                      onClick={() => setSelectedAccount({ id: account.id, accountStatus: account.accountStatus, name: account.name })}
+                      label={account.accountStatus === "unblocked" ? "Block" : "Unblock"}
                       icon={
-                        account.status === "active" ? (
+                        account.accountStatus === "unblocked" ? (
                           <Lock size={14} />
                         ) : (
                           <Unlock size={14} />
                         )
                       }
-                      variant={account.status === "active" ? "danger" : "success"}
+                      variant={account.accountStatus === "unblocked" ? "danger" : "success"}
                     />
                   </td>
                 </tr>
@@ -189,7 +189,7 @@ const UserManagement = () => {
             <AlertDialogDescription>
               Are you sure you want to{" "}
               <span className="font-semibold">
-                {selectedAccount?.status === "active" ? "block" : "unblock"}
+                {selectedAccount?.accountStatus === "unblocked" ? "block" : "unblock"}
               </span>{" "}
               <span className="font-semibold text-teal-600">
                 {selectedAccount?.name}
@@ -204,7 +204,7 @@ const UserManagement = () => {
             <AlertDialogAction
               onClick={confirmStatusChange}
               className={
-                selectedAccount?.status === "active"
+                selectedAccount?.accountStatus === "unblocked"
                   ? "bg-red-600 hover:bg-red-700"
                   : "bg-green-600 hover:bg-green-700"
               }

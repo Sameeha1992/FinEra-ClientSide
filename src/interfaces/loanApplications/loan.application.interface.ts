@@ -37,9 +37,9 @@ export interface CreateLoanApplicationPayload {
 
 
 export interface LoanApplicationFiles {
-  goldImageDoc?: File;
+  goldImage?: File;
   propertyDoc?: File;
-  registrationDoc?: File;
+  registerationDoc?: File;
   salarySlipDoc?: File;
-  
+
 }                         

@@ -35,16 +35,16 @@ export const LoanApplication = {
   }
 
   // Append files
-  if (files.goldImageDoc) {
-    formData.append("goldImageDoc", files.goldImageDoc);
+  if (files.goldImage) {
+    formData.append("goldImage", files.goldImage);
   }
 
   if (files.propertyDoc) {
     formData.append("propertyDoc", files.propertyDoc);
   }
 
-  if (files.registrationDoc) {
-    formData.append("registrationDoc", files.registrationDoc);
+  if (files.registerationDoc) {
+    formData.append("registerationDoc", files.registerationDoc);
   }
 
   if (files.salarySlipDoc) {

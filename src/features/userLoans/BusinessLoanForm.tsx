@@ -85,7 +85,7 @@ const BusinessLoanForm = () => {
                     },
                 },
                 {
-                    registrationDoc: data.businessRegistrationDoc,
+                    registerationDoc: data.businessRegistrationDoc,
                 },
             );
 

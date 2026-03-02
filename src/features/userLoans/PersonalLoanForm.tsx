@@ -1,11 +1,13 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
-import { useSearchParams } from "react-router-dom";
-import type { RootState } from "@/redux/store";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
+import type { RootState } from "@/redux/store";
 import { personalLoanSchema } from "./personalLoanSchema";
 import type { PersonalLoanFormValues } from "./personalLoanSchema";
+import { LoanApplication } from "@/api/loanApplication/loan.application";
 
 import CommonLoanFields from "@/components/loanForms/CommonLoanFields";
 import InputField from "@/components/loanForms/InputField";
@@ -19,9 +21,16 @@ import SubmitButton from "@/components/loanForms/SubmitButton";
 // ---------------------------------------------------------------------------
 
 const PersonalLoanForm = () => {
-    const { name, email } = useSelector((state: RootState) => state.auth);
+    // ── Auth & Route params ──────────────────────────────────────────────────
+    const { name, email, Id: userId } = useSelector((state: RootState) => state.auth);
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
 
+    const loanProductId = searchParams.get("loanId") ?? "";
+    const vendorId = searchParams.get("vendorId") ?? "";
+    const loanType = (searchParams.get("loanType") ?? "PERSONAL") as "PERSONAL";
+
+    // ── Loan Product Limits (from listing page) ──────────────────────────────
     const limits = {
         minAmount: Number(searchParams.get("minAmount")) || undefined,
         maxAmount: Number(searchParams.get("maxAmount")) || undefined,
@@ -30,6 +39,7 @@ const PersonalLoanForm = () => {
         minSalary: Number(searchParams.get("minSalary")) || undefined,
     };
 
+    // ── Form Setup ───────────────────────────────────────────────────────────
     const {
         register,
         control,
@@ -39,13 +49,46 @@ const PersonalLoanForm = () => {
         resolver: zodResolver(personalLoanSchema),
     });
 
-    // ── Submit Handler ─────────────────────────────────────────────────────────
-    const onSubmit = (data: PersonalLoanFormValues) => {
-        console.log("✅ Personal Loan Form — Validated Data:", data);
-        // TODO: Dispatch to API or state when backend is ready
+    // ── Submit Handler ───────────────────────────────────────────────────────
+    const onSubmit = async (data: PersonalLoanFormValues) => {
+        if (!userId) {
+            toast.error("User session expired. Please log in again.");
+            return;
+        }
+
+        try {
+            await LoanApplication.createLoanApplication(
+                {
+                    userId,
+                    vendorId,
+                    loanProductId,
+                    loanType,
+                    phoneNumber: data.phoneNumber,
+                    employmentType: data.employmentType,
+                    monthlyIncome: data.monthlyIncome,
+                    loanAmount: data.loanAmount,
+                    loanTenure: data.loanTenure,
+                    personalDetails: {
+                        employerName: data.employerName,
+                        yearsOfExperience: data.yearsOfExperience,
+                        purpose: data.purpose,
+                    },
+                },
+                {
+                    salarySlipDoc: data.salarySlip,
+                },
+            );
+
+            toast.success("Personal loan application submitted successfully!");
+            navigate("/user/loans");
+        } catch (error: any) {
+            const message =
+                error?.response?.data?.message ?? "Failed to submit application. Please try again.";
+            toast.error(message);
+        }
     };
 
-    // ── Render ─────────────────────────────────────────────────────────────────
+    // ── Render ───────────────────────────────────────────────────────────────
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
