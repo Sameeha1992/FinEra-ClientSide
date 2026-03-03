@@ -387,11 +387,17 @@ const LoanListingPage = () => {
                     {loan.tenure.minimum}–{loan.tenure.maximum} months
                   </span>
 
-                  {/* Apply */}
-                  <div>
+                  {/* Action: Details + Apply */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => navigate(`/user/loans/${loan._id}`)}
+                      className="border border-teal-600 text-teal-600 text-sm px-4 py-1.5 rounded-md font-medium hover:bg-teal-50 transition-colors"
+                    >
+                      Details
+                    </button>
                     <button
                       onClick={() => handleApply(loan)}
-                      className="bg-teal-600 text-white text-sm px-5 py-1.5 rounded-md font-medium hover:bg-teal-700 transition-colors"
+                      className="bg-teal-600 text-white text-sm px-4 py-1.5 rounded-md font-medium hover:bg-teal-700 transition-colors"
                     >
                       Apply
                     </button>

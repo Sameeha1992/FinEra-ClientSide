@@ -94,9 +94,15 @@ export default function AddLoanForm() {
       await loanProduct.addLoan(result.data);
       toast.success("Loan Product Created Successfully");
       setErrors({});
-    } catch (error) {
+    } catch (error:unknown) {
       console.error("Error creating loan product", error);
-      toast.error("Error creating loan product");
+
+      if(error instanceof Error){
+        toast.error(error.message);
+      }else{
+        toast.error("Something went wrong")
+      }
+      return;
     }
 
     navigate("/vendor/loans");

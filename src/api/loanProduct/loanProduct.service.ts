@@ -1,4 +1,5 @@
 import axiosInstance from "@/config/axiosInterceptor";
+import type { LoanDetailForUserDto } from "@/interfaces/addLoan/loan.detail.dto";
 import type {
   ILoanProductDto,
   LoanListing,
@@ -14,10 +15,10 @@ export const loanProduct = {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const message = error.response?.data?.message || "Something went wrong";
-        throw message;
+        throw new Error(message);
       }
 
-      throw "Something went wrong";
+      throw new Error("Something went wrong");
     }
   },
 
@@ -86,9 +87,9 @@ export const loanProduct = {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const message = error.response?.data?.message || "Something went wrong";
-        throw new Error(message)
+        throw new Error(message);
       }
-      throw "Something went wrong"
+      throw "Something went wrong";
     }
   },
 
@@ -105,6 +106,11 @@ export const loanProduct = {
       }
       throw "Something went wrong";
     }
-  }
+  },
 
+  async getLoanDetailsForUser(loanId: string): Promise<LoanDetailForUserDto> {
+    const response = await axiosInstance.get(`/user/loans/${loanId}`);
+
+    return response.data.data;
+  },
 };

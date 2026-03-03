@@ -5,6 +5,7 @@ import { ClientProtectRoute } from "./protected/ProtectedRoutes";
 import { UserUnProtectRoute } from "./protected/UnprotectedRoute";
 import ProfilePage from "./pages/user/userProfile/ProfilePage";
 import LoanListingPage from "./pages/user/LoanListingPage";
+import LoanDetailPage from "./pages/user/LoanDetailPage";
 import PersonalLoanPage from "./pages/loans/PersonalLoanPage";
 import GoldLoanPage from "./pages/loans/GoldLoanPage";
 import HomeLoanPage from "./pages/loans/HomeLoanPage";
@@ -44,6 +45,7 @@ function User() {
         <Route element={<ClientProtectRoute />}>
           {/* Standalone full-page routes (no sidebar) */}
           <Route path="loans" element={<LoanListingPage />} />
+          <Route path="loans/:loanId" element={<LoanDetailPage />} />
 
           {/* ── Loan Application Pages (standalone, no sidebar) ── */}
           <Route path="personal-loan" element={<PersonalLoanPage />} />
