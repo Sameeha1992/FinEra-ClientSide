@@ -132,11 +132,17 @@ const VendorDetailsVerification = () => {
         type: "success" | "error";
     } | null>(null);
 
-    // Confirm modal state
+    // Confirm modal state (for verify / reset-to-pending)
     const [confirmModal, setConfirmModal] = useState<{
         open: boolean;
         action: VendorStatus | null;
     }>({ open: false, action: null });
+
+    // Rejection reason modal state
+    const [rejectionModal, setRejectionModal] = useState<{
+        open: boolean;
+        reason: string;
+    }>({ open: false, reason: "" });
 
     // ── Fetch vendor + admin on mount ───────────
     useEffect(() => {
@@ -169,7 +175,7 @@ const VendorDetailsVerification = () => {
         setTimeout(() => setToast(null), 3000);
     };
 
-    // ── Confirm + call verify API ────────────────
+    // ── Confirm + call verify/pending API ─────────
     const handleConfirmAction = async () => {
         if (!vendorId || !confirmModal.action) return;
         const action = confirmModal.action;
@@ -197,6 +203,27 @@ const VendorDetailsVerification = () => {
         }
     };
 
+    // ── Handle rejection with reason ───────────────
+    const handleRejectWithReason = async () => {
+        if (!vendorId) return;
+        const reason = rejectionModal.reason.trim();
+        if (!reason) return; // guard – button is also disabled
+        setActionLoading(true);
+        setRejectionModal({ open: false, reason: "" });
+        try {
+            await vendorVerificationList.updateVendorStatus(vendorId, "rejected", reason);
+            setVendor((prev) =>
+                prev ? { ...prev, status: "rejected" } : prev
+            );
+            showToast("Vendor has been rejected.", "error");
+        } catch (err) {
+            console.error("Reject action failed", err);
+            showToast("Action failed. Please try again.", "error");
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
     // ─────────────────────────────────────────────
     // Render
     // ─────────────────────────────────────────────
@@ -205,7 +232,7 @@ const VendorDetailsVerification = () => {
             {/* Toast */}
             {toast && <Toast message={toast.message} type={toast.type} />}
 
-            {/* ── Confirm Modal ── */}
+            {/* ── Confirm Modal (Verify / Reset-to-Pending) ── */}
             {confirmModal.open && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center">
                     <div
@@ -215,10 +242,8 @@ const VendorDetailsVerification = () => {
                     <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 flex flex-col items-center gap-5">
                         <div
                             className={`flex items-center justify-center w-16 h-16 rounded-full ${confirmModal.action === "verified"
-                                ? "bg-green-100"
-                                : confirmModal.action === "notVerified"
-                                    ? "bg-yellow-100"
-                                    : "bg-red-100"
+                                    ? "bg-green-100"
+                                    : "bg-yellow-100"
                                 }`}
                         >
                             <AlertTriangle
@@ -226,9 +251,7 @@ const VendorDetailsVerification = () => {
                                 className={
                                     confirmModal.action === "verified"
                                         ? "text-green-500"
-                                        : confirmModal.action === "notVerified"
-                                            ? "text-yellow-500"
-                                            : "text-red-500"
+                                        : "text-yellow-500"
                                 }
                             />
                         </div>
@@ -236,16 +259,12 @@ const VendorDetailsVerification = () => {
                             <h3 className="text-lg font-bold text-slate-800 mb-2">
                                 {confirmModal.action === "verified"
                                     ? "Verify this vendor?"
-                                    : confirmModal.action === "notVerified"
-                                        ? "Reset vendor to Pending?"
-                                        : "Reject this vendor?"}
+                                    : "Reset vendor to Pending?"}
                             </h3>
                             <p className="text-slate-500 text-sm leading-relaxed">
                                 {confirmModal.action === "verified"
                                     ? "This will mark the vendor as verified and grant them access to the platform."
-                                    : confirmModal.action === "notVerified"
-                                        ? "This will reset the vendor's status back to pending review."
-                                        : "This will reject the vendor's application. They will be notified."}
+                                    : "This will reset the vendor's status back to pending review."}
                             </p>
                         </div>
                         <div className="flex items-center gap-3 w-full">
@@ -258,17 +277,75 @@ const VendorDetailsVerification = () => {
                             <button
                                 onClick={handleConfirmAction}
                                 className={`flex-1 px-4 py-2.5 rounded-lg text-white font-medium transition-colors ${confirmModal.action === "verified"
-                                    ? "bg-teal-500 hover:bg-teal-600"
-                                    : confirmModal.action === "notVerified"
-                                        ? "bg-yellow-500 hover:bg-yellow-600"
-                                        : "bg-red-500 hover:bg-red-600"
+                                        ? "bg-teal-500 hover:bg-teal-600"
+                                        : "bg-yellow-500 hover:bg-yellow-600"
                                     }`}
                             >
-                                {confirmModal.action === "verified"
-                                    ? "Yes, Verify"
-                                    : confirmModal.action === "notVerified"
-                                        ? "Yes, Reset"
-                                        : "Yes, Reject"}
+                                {confirmModal.action === "verified" ? "Yes, Verify" : "Yes, Reset"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Rejection Reason Modal ── */}
+            {rejectionModal.open && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    <div
+                        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                        onClick={() => setRejectionModal({ open: false, reason: "" })}
+                    />
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 flex flex-col gap-5">
+                        {/* Header */}
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 shrink-0">
+                                <XCircle size={24} className="text-red-500" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-800">Reject this vendor?</h3>
+                                <p className="text-slate-400 text-xs mt-0.5">
+                                    Please provide a reason so the vendor is informed.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Reason textarea */}
+                        <div className="flex flex-col gap-1.5">
+                            <label
+                                htmlFor="rejection-reason"
+                                className="text-sm font-medium text-slate-700"
+                            >
+                                Rejection Reason <span className="text-red-500">*</span>
+                            </label>
+                            <textarea
+                                id="rejection-reason"
+                                rows={4}
+                                placeholder="e.g. Documents are invalid or incomplete…"
+                                value={rejectionModal.reason}
+                                onChange={(e) =>
+                                    setRejectionModal((prev) => ({ ...prev, reason: e.target.value }))
+                                }
+                                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent resize-none transition"
+                            />
+                            {rejectionModal.reason.trim() === "" && (
+                                <p className="text-xs text-red-400">A reason is required to reject the vendor.</p>
+                            )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-3 w-full">
+                            <button
+                                onClick={() => setRejectionModal({ open: false, reason: "" })}
+                                className="flex-1 px-4 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-medium hover:bg-slate-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleRejectWithReason}
+                                disabled={rejectionModal.reason.trim() === ""}
+                                className="flex-1 px-4 py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                Yes, Reject
                             </button>
                         </div>
                     </div>
@@ -377,7 +454,7 @@ const VendorDetailsVerification = () => {
                                 <button
                                     disabled={vendor.status === "rejected" || actionLoading}
                                     onClick={() =>
-                                        setConfirmModal({ open: true, action: "rejected" })
+                                        setRejectionModal({ open: true, reason: "" })
                                     }
                                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                 >

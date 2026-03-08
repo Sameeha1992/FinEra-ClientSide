@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
-import heroIllustration from "@/assets/logI.png";
+import { Home, CreditCard, Building2, Coins } from "lucide-react";
 import { loanService } from "@/api/user/userLoanService";
 import type { LoanListingItem } from "@/interfaces/user/loans/user.loan.listing";
 import { useQuery } from "@tanstack/react-query";
@@ -88,8 +87,16 @@ const loanTypeToRoute: Record<string, string> = {
   home: "home-loan",
   business: "business-loan",
   gold: "gold-loan",
-
 };
+
+// All loan types for the tab bar
+const loanTypes = [
+  { key: "personal", label: "Personal", Icon: CreditCard },
+  { key: "home", label: "Home", Icon: Home },
+  { key: "business", label: "Business", Icon: Building2 },
+  { key: "gold", label: "Gold", Icon: Coins },
+
+];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatAmount = (val: number) => {
@@ -101,21 +108,29 @@ const formatAmount = (val: number) => {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 const LoanListingPage = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const rawType = searchParams.get("type")?.toLowerCase() || "personal";
   const loanType = rawType.toUpperCase(); // for API call
   const loanLabel = loanLabels[rawType] ?? "Personal Loans"; // lowercase key lookup
   const [currentPage, setCurrentPage] = useState(1);
+
   // Filter inputs (controlled separately so filter only fires on button click)
   const [salaryInput, setSalaryInput] = useState("");
   const [searchInput, setSearchInput] = useState("");
 
   // Applied filter values (sent to API)
-  const [appliedSalary, setAppliedSalary] = useState<number | undefined>(
-    undefined,
-  );
+  const [appliedSalary, setAppliedSalary] = useState<number | undefined>(undefined);
   const [appliedSearch, setAppliedSearch] = useState("");
+
+  const handleTabChange = (typeKey: string) => {
+    setSearchParams({ type: typeKey });
+    setCurrentPage(1);
+    setSalaryInput("");
+    setSearchInput("");
+    setAppliedSalary(undefined);
+    setAppliedSearch("");
+  };
 
   const handleApply = (loan: LoanListingItem) => {
     const route = loanTypeToRoute[rawType];
@@ -224,46 +239,44 @@ const LoanListingPage = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Header />
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="py-14 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-800 leading-tight mb-4">
-                {loanLabel}
-              </h1>
-              <p className="text-gray-500 text-base leading-relaxed mb-6">
-                {(() => {
-                  const key = rawType.toLowerCase();
-                  const meta = loanMeta[key];
-                  if (!meta) return null;
-                  return (
-                    <>
-                      Discover the best {loanLabel.toLowerCase()} on Finera with
-                      options to compare and apply. Interest rates start from{" "}
-                      <strong>{meta.highlight1}</strong>, with loan amounts up
-                      to <strong>{meta.highlight2}</strong> and repayment
-                      tenures of up to <strong>{meta.highlight3}</strong>. Check
-                      eligibility, explore terms, and calculate EMIs to find the
-                      perfect fit. Use it for {meta.useCase}.
-                    </>
-                  );
-                })()}
+      {/* ── Hero Banner ─────────────────────────────────────────────────────── */}
+      <section className="bg-gradient-to-br from-teal-600 to-teal-700 py-10 px-4">
+        <div className="max-w-6xl mx-auto text-center text-white">
+          <h1 className="text-3xl font-bold mb-2">{loanLabel}</h1>
+          {(() => {
+            const meta = loanMeta[rawType];
+            if (!meta) return null;
+            return (
+              <p className="text-white/75 text-sm max-w-2xl mx-auto">
+                Interest from <strong className="text-white">{meta.highlight1}</strong>
+                {" · "}Up to <strong className="text-white">{meta.highlight2}</strong>
+                {" · "}Tenure up to <strong className="text-white">{meta.highlight3}</strong>
               </p>
-            </div>
-
-            <div className="flex justify-center">
-              <div className="w-72 h-72 rounded-full bg-teal-50 border border-teal-100 flex items-center justify-center overflow-hidden">
-                <img
-                  src={heroIllustration}
-                  alt="Loan illustration"
-                  className="w-56 h-56 object-contain"
-                />
-              </div>
-            </div>
-          </div>
+            );
+          })()}
         </div>
       </section>
+
+      {/* ── Loan Type Tabs ──────────────────────────────────────────────────── */}
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide py-1">
+            {loanTypes.map(({ key, label, Icon }) => (
+              <button
+                key={key}
+                onClick={() => handleTabChange(key)}
+                className={`flex items-center gap-1.5 whitespace-nowrap px-4 py-3 text-sm font-medium border-b-2 transition-colors ${rawType === key
+                  ? "border-teal-600 text-teal-700"
+                  : "border-transparent text-gray-500 hover:text-teal-600 hover:border-teal-300"
+                  }`}
+              >
+                <Icon size={15} />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* ── Banks Section ─────────────────────────────────────────────────── */}
       <section className="pb-16 bg-white">

@@ -7,22 +7,19 @@ export const loanService = {
     userSalary?: number,
     page: number = 1,
     limit: number = 10,
-    search?: string
+    search?: string,
   ): Promise<LoanListingResponse> {
     try {
-      // ✅ Build params safely
       const params: any = {
         loanType,
         page,
         limit,
       };
 
-      // ✅ Only add salary if it exists
       if (userSalary !== undefined) {
         params.userSalary = userSalary;
       }
 
-      // ✅ Only add search if it exists
       if (search) {
         params.search = search;
       }

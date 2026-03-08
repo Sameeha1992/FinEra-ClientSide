@@ -38,8 +38,8 @@ export const vendorVerificationList = {
     }
   },
 
-  async updateVendorStatus(vendorId:string,status:VendorStatus):Promise<UpdateVendorStatusPayload>{
-    const response = await axiosInstance.patch(`/admin/vendors/${vendorId}/status`,{status});
+  async updateVendorStatus(vendorId:string,status:VendorStatus,rejectionReason?:string):Promise<UpdateVendorStatusPayload>{
+    const response = await axiosInstance.patch(`/admin/vendors/${vendorId}/status`,{status,rejectionReason});
 
     return response.data
   }

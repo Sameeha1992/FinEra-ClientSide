@@ -6,6 +6,8 @@ import { VendorUnProtectRoute } from './protected/UnprotectedRoute.tsx'
 import LoanAddForm from './pages/vendor/dashboard/loanProduct/Loan/LoanAddForm.tsx'
 import EditVendorProfileForm from './pages/vendor/dashboard/profile/EditVendorProfileForm.tsx'
 import LoanDetailPage from './pages/vendor/dashboard/loanProduct/Loan/LoanDetailPage.tsx'
+import UserList from './pages/vendor/dashboard/userApplications/UserList.tsx'
+import UserVerificationDetail from './pages/vendor/dashboard/userApplications/UserVerificationDetail.tsx'
 
 const RegisterPage = lazy(() => import('./pages/vendor/vendorRegister.tsx'))
 const OtpVerification = lazy(() => import('./pages/user/auth/OtpVerification.tsx'))
@@ -49,6 +51,8 @@ function Vendor() {
           <Route path='/loans' element={<LoanListing />} />
           <Route path='/edit-loans/:loanId' element={<LoanEditForm />} />
           <Route path='/loan-detail/:loanId' element={<LoanDetailPage />} />
+          <Route path='/user-loans' element={<UserList />} />
+          <Route path='/user-application/:applicationId' element={<UserVerificationDetail />} />
 
 
 

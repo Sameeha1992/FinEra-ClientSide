@@ -6,6 +6,9 @@ import { Eye, EyeOff } from "lucide-react";
 import { useAppDispatch } from "@/redux/hooks";
 import { authService } from "@/api/AuthServiceAndProfile";
 import { setAuth } from "@/redux/slice/auth.slice";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { LoginFormProps } from "@/interfaces/shared/auth/auth.interface";
 import {
@@ -36,6 +39,19 @@ export default function LoginForm({
   const navigate = useNavigate();
   const location = useLocation();
   const isLoginPage = location.pathname.includes("/login");
+
+  const { isAuthenticated, role: authRole } = useSelector((state: RootState) => state.auth);
+
+  // If already authenticated, replace-navigate away so back button never returns to login
+  useEffect(() => {
+    if (isAuthenticated) {
+      const dest =
+        authRole === "admin" ? "/admin/dashboard" :
+          authRole === "vendor" ? "/vendor/vendor-dashboard" :
+            "/user/home";
+      navigate(dest, { replace: true });
+    }
+  }, [isAuthenticated, authRole, navigate]);
 
   const handleInputChange = (field: keyof LoginValue, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -79,7 +95,7 @@ export default function LoginForm({
 
     let toastId: string | undefined;
     try {
-      
+
 
       // const res = await authService.login({...formData});
 
@@ -117,15 +133,15 @@ export default function LoginForm({
           dispatch(setAccessToken(res.data.accessToken))
 
           navigate("/vendor/vendor-dashboard", { replace: true });
-        } else if(formData.role === "admin"){
+        } else if (formData.role === "admin") {
           const adminData = res.data.admin;
-          console.log(adminData,"admindata")
-          dispatch(setAuth({...adminData,isAuthenticated:true}))
+          console.log(adminData, "admindata")
+          dispatch(setAuth({ ...adminData, isAuthenticated: true }))
           dispatch(setAccessToken(res.data.accessToken))
-          navigate("/admin/dashboard")
+          navigate("/admin/dashboard", { replace: true })
         }
-        
-        
+
+
         else {
           const userData = res.data.user || res.data.admin;
           dispatch(
@@ -175,9 +191,8 @@ export default function LoginForm({
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
             onBlur={() => validateField("email", formData.email)}
-            className={`px-4 py-3 rounded-lg border ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            } focus:ring-2 focus:ring-teal-500`}
+            className={`px-4 py-3 rounded-lg border ${errors.email ? "border-red-500" : "border-gray-300"
+              } focus:ring-2 focus:ring-teal-500`}
           />
         </div>
 
@@ -186,27 +201,26 @@ export default function LoginForm({
           <Label htmlFor="password" className="text-gray-700 font-medium">
             Password
           </Label>
-          <div className="relative"> 
-          <Input
-            id="password"
-            type={showPassword ? "text"  :"password"}
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={(e) => handleInputChange("password", e.target.value)}
-            onBlur={() => validateField("password", formData.password)}
-            className={`px-4 py-3 rounded-lg border ${
-              errors.password ? "border-red-500" : "border-gray-300"
-            } focus:ring-2 focus:ring-teal-500`}
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={(e) => handleInputChange("password", e.target.value)}
+              onBlur={() => validateField("password", formData.password)}
+              className={`px-4 py-3 rounded-lg border ${errors.password ? "border-red-500" : "border-gray-300"
+                } focus:ring-2 focus:ring-teal-500`}
+            />
 
-           <button
-      type="button"
-      onClick={() => setShowPassword((prev) => !prev)}
-      className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
-    >
-      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-    </button>
-  </div>
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
 
           {errors.password && (
             <p className="text-red-500 text-sm mt-1">{errors.password}</p>

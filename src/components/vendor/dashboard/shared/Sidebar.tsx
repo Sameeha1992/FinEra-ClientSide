@@ -61,37 +61,25 @@ export default function Sidebar() {
           icon={<DollarSign size={20} />}
           label="Loan"
         />
-        <SidebarLink to="/users" icon={<Users size={20} />} label="Users" />
-        <SidebarLink
-          to="/user-verification"
-          icon={<UserCheck size={20} />}
-          label="User Verification"
-        />
+        <SidebarLink to="/vendor/user-loans" icon={<Users size={20} />} label="Users" />
+
 
         <SidebarLink
           to="/applications"
           icon={<FileText size={20} />}
           label="Applications"
         />
-        <SidebarLink
-          to="/loan-info"
-          icon={<BarChart3 size={20} />}
-          label="Loan Info"
-        />
+
         <SidebarLink
           to="/notifications"
           icon={<Bell size={20} />}
           label="Notifications"
         />
-        <SidebarLink
-          to="/chat-support"
-          icon={<MessageSquare size={20} />}
-          label="Chat Support"
-        />
+
         <SidebarLink
           to="/transactions"
           icon={<ArrowRightLeft size={20} />}
-          label="Transaction & Capital"
+          label="Transactions"
         />
       </nav>
 
@@ -122,10 +110,9 @@ function SidebarLink({
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-          isActive
-            ? "bg-teal-500 text-white"
-            : "text-slate-300 hover:bg-slate-700"
+        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive
+          ? "bg-teal-500 text-white"
+          : "text-slate-300 hover:bg-slate-700"
         }`
       }
     >

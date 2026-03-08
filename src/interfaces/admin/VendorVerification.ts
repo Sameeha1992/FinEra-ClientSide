@@ -40,4 +40,5 @@ export type VendorStatus = "verified" | "notVerified" | "rejected";
 export interface UpdateVendorStatusPayload {
     vendorId:string,
     status:VendorStatus
+    rejectionReason?:string
 }

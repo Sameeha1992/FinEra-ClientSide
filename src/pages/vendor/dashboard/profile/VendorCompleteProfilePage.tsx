@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, Edit, Lock, FileText } from "lucide-react";
+import { AlertCircle, CheckCircle, XCircle, Edit, Lock, FileText } from "lucide-react";
 import type { VendorCompleteProfileData } from "@/interfaces/vendor/profile/profile.interface";
 import { vendorProfile } from "@/api/vendor/vendorProfile";
 import { Field } from "@/components/shared/Field";
@@ -68,16 +68,52 @@ const VendorCompleteProfilePage = () => {
                     Edit Profile
                   </button>
 
-                  <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 rounded-full border border-amber-100">
-                    <AlertCircle className="w-4 h-4 text-amber-600" />
-                    <span className="text-sm font-semibold text-amber-700">
-                      Pending Documents
-                    </span>
-                  </div>
+                  {/* ── Verification Status Badge ── */}
+                  {(() => {
+                    const s = profileData.status;
+                    if (s === "verified") {
+                      return (
+                        <div className="flex items-center gap-2 px-4 py-2 bg-green-50 rounded-full border border-green-200">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <span className="text-sm font-semibold text-green-700">Verified</span>
+                        </div>
+                      );
+                    }
+                    if (s === "rejected") {
+                      return (
+                        <div className="flex items-center gap-2 px-4 py-2 bg-red-50 rounded-full border border-red-200">
+                          <XCircle className="w-4 h-4 text-red-600" />
+                          <span className="text-sm font-semibold text-red-700">Rejected</span>
+                        </div>
+                      );
+                    }
+                    // notVerified (default / pending)
+                    return (
+                      <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 rounded-full border border-amber-100">
+                        <AlertCircle className="w-4 h-4 text-amber-600" />
+                        <span className="text-sm font-semibold text-amber-700">Not Verified</span>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 
               <div className="h-px bg-zinc-100 w-full" />
+
+              {/* ── Rejection Reason Banner (only shown when rejected) ── */}
+              {profileData.status === "rejected" && profileData.rejectionReason && (
+                <div className="mx-6 md:mx-8 mt-6 flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-red-700 mb-0.5">
+                      Application Rejected
+                    </p>
+                    <p className="text-sm text-red-600 leading-relaxed">
+                      {profileData.rejectionReason}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Body */}
               <div className="p-6 md:p-8 space-y-10">

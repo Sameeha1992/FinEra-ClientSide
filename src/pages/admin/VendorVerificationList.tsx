@@ -7,24 +7,37 @@ import { vendorVerificationList } from "@/api/admin/VendorVerification";
 import type { VendorVerification } from "@/interfaces/admin/VendorVerification";
 
 // ── Status Badge ──────────────────────────────────────────────────────────────
+const STATUS_STYLES: Record<
+    "verified" | "not verified" | "rejected",
+    { pill: string; dot: string; label: string }
+> = {
+    verified: {
+        pill: "bg-green-100 text-green-800",
+        dot: "bg-green-500",
+        label: "Verified",
+    },
+    "not verified": {
+        pill: "bg-yellow-100 text-yellow-800",
+        dot: "bg-yellow-400",
+        label: "Not Verified",
+    },
+    rejected: {
+        pill: "bg-red-100 text-red-800",
+        dot: "bg-red-500",
+        label: "Rejected",
+    },
+};
+
 const VerificationBadge = ({
     status,
 }: {
-    status: "verified" | "not verified";
+    status: "verified" | "not verified" | "rejected";
 }) => {
-    const isVerified = status === "verified";
+    const { pill, dot, label } = STATUS_STYLES[status] ?? STATUS_STYLES["not verified"];
     return (
-        <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isVerified
-                ? "bg-green-100 text-green-800"
-                : "bg-yellow-100 text-yellow-800"
-                }`}
-        >
-            <span
-                className={`w-1.5 h-1.5 rounded-full mr-1.5 ${isVerified ? "bg-green-500" : "bg-yellow-400"
-                    }`}
-            />
-            {isVerified ? "Verified" : "Not Verified"}
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${pill}`}>
+            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${dot}`} />
+            {label}
         </span>
     );
 };

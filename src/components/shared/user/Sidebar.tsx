@@ -17,25 +17,25 @@ interface SidebarItem {
   icon: any;
   label: string;
   route?: string;
-  action?:()=>void
+  action?: () => void
 }
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const {role} = useSelector((state:RootState)=>state.auth)
+  const { role } = useSelector((state: RootState) => state.auth)
 
 
-  
-  const handleLogout = async()=>{
+
+  const handleLogout = async () => {
     try {
       await authService.logout();
     } catch (error) {
-      console.log("Logout failed",error)
-    } finally{
+      console.log("Logout failed", error)
+    } finally {
       dispatch(clearAuth())
-      if( role === "user"){
+      if (role === "user") {
         navigate("/user/logout")
       }
     }
@@ -43,7 +43,7 @@ export const Sidebar: React.FC = () => {
 
   const sidebarItems: SidebarItem[] = [
     { icon: User, label: "User Profile", route: "/user/user-profile" },
-    { icon: FileText, label: "Loans", route: "/loans" },
+    { icon: FileText, label: "Loans", route: "/user/loans" },
     { icon: FileText, label: "Applications", route: "/applications" },
     { icon: ArrowRightLeft, label: "Transactions", route: "/transactions" },
     { icon: MessageCircle, label: "Chat Support", route: "/chat" },
@@ -52,28 +52,27 @@ export const Sidebar: React.FC = () => {
   ];
 
 
-                  
+
   return (
     <div className="fixed left-0 top-20 bottom-0 w-64 bg-white border-r border-gray-200">
       {sidebarItems.map((item) => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.route;
+        const isActive = item.route ? location.pathname.startsWith(item.route) : false;
 
         return (
           <button
             key={item.label}
             onClick={() => {
-              if(item.action){
+              if (item.action) {
                 item.action();
-              }else if(item.route){
+              } else if (item.route) {
                 navigate(item.route)
               }
             }}
-            className={`w-full flex items-center gap-4 px-4 py-3 rounded-lg transition ${
-              isActive
-                ? "bg-teal-600 text-white"
-                : "text-gray-700 hover:bg-gray-100"
-            }`}
+            className={`w-full flex items-center gap-4 px-4 py-3 rounded-lg transition ${isActive
+              ? "bg-teal-600 text-white"
+              : "text-gray-700 hover:bg-gray-100"
+              }`}
           >
             <Icon className="w-5 h-5" />
             <span>{item.label}</span>

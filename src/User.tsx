@@ -23,6 +23,7 @@ const ProfileCompleteionForm = lazy(() => import("./components/user/userDashboar
 const CompleteProfile = lazy(() => import("@/pages/user/userProfile/CompleteProfilePage"))
 const UserChangePassword = lazy(() => import("./pages/user/auth/ChangePassword"))
 const UpdateProfileForm = lazy(() => import("./pages/user/userProfile/UpdateProfileForm"))
+const EMICalculator = lazy(() => import("./components/shared/EMICalculator"))
 function User() {
   return (
     <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
@@ -52,6 +53,7 @@ function User() {
           <Route path="gold-loan" element={<GoldLoanPage />} />
           <Route path="home-loan" element={<HomeLoanPage />} />
           <Route path="business-loan" element={<BusinessLoanPage />} />
+          <Route path="emi-check" element={<EMICalculator />} />
 
           {/* Dashboard routes (with sidebar layout) */}
           <Route element={<UserProfile />}>

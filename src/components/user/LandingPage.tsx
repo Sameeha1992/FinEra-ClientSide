@@ -42,9 +42,11 @@ const Landingpage = () => {
               <p className="text-gray-500 text-lg mb-8">
                 Quick, hassle-free loans tailored to fit your needs.
               </p>
-              <button className="bg-teal-600 text-white px-8 py-3 rounded-md font-medium hover:bg-teal-700 transition-colors">
-                Get Started
-              </button>
+              <div className="flex items-center gap-4 flex-wrap">
+                <button className="bg-teal-600 text-white px-8 py-3 rounded-md font-medium hover:bg-teal-700 transition-colors">
+                  Get Started
+                </button>
+              </div>
             </div>
             <div className="flex justify-center">
               <img

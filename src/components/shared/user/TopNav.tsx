@@ -1,13 +1,28 @@
 // components/TopNav.tsx
 import type { FC } from "react";
 import { Bell } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+
+const navLinks = [
+  { label: "Home", path: "/user/home" },
+  { label: "Loans", path: "/user/loans" },
+  { label: "About Us", path: "/user/about" },
+  { label: "Contact Us", path: "/user/contact" },
+];
 
 const TopNav: FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   return (
     <div className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
       <div className="flex items-center justify-between px-8 py-4">
-        {/* Logo */}
-        <div className="flex items-center gap-2">
+
+        {/* Logo — click to go home */}
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => navigate("/user/home")}
+        >
           <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center">
             <span className="text-white font-bold">F</span>
           </div>
@@ -16,25 +31,28 @@ const TopNav: FC = () => {
 
         {/* Center Navigation */}
         <nav className="flex gap-8">
-          <a href="#" className="text-gray-800 font-medium hover:text-teal-600 border-b-2 border-gray-800">
-            Home
-          </a>
-          <a href="#" className="text-gray-600 font-medium hover:text-teal-600">
-            Loans
-          </a>
-          <a href="#" className="text-gray-600 font-medium hover:text-teal-600">
-            About Us
-          </a>
-          <a href="#" className="text-gray-600 font-medium hover:text-teal-600">
-            Contact Us
-          </a>
+          {navLinks.map((link) => {
+            const isActive = location.pathname.startsWith(link.path);
+            return (
+              <button
+                key={link.path}
+                onClick={() => navigate(link.path)}
+                className={`text-sm font-medium transition-colors pb-0.5 ${isActive
+                    ? "text-teal-600 border-b-2 border-teal-600"
+                    : "text-gray-600 hover:text-teal-600"
+                  }`}
+              >
+                {link.label}
+              </button>
+            );
+          })}
         </nav>
 
         {/* Right Actions */}
         <div className="flex items-center gap-6">
           <Bell className="w-6 h-6 text-gray-600 cursor-pointer" />
-          
         </div>
+
       </div>
     </div>
   );
