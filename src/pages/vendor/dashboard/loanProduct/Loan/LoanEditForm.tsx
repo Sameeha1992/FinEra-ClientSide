@@ -12,7 +12,7 @@ export default function LoanEditForm() {
     loanType: "",
     description: "",
     interestRate: 0,
-    duePenalty: 0,
+    duePenalty: 200,
     processingFee: 0,
     amount: { minimum: 0, maximum: 0 },
     tenure: { minimum: 0, maximum: 0 },
@@ -24,12 +24,11 @@ export default function LoanEditForm() {
   const navigate = useNavigate();
 
   useEffect(() => {
-
     const fetchLoan = async () => {
       if (!loanId) {
         toast.error("LoanId is missing");
-        return null
-      };
+        return null;
+      }
       try {
         const loan = await loanProduct.getLoanById(loanId);
         setFormData({
@@ -37,7 +36,7 @@ export default function LoanEditForm() {
           loanType: loan.loanType || "",
           description: loan.description,
           interestRate: loan.interestRate,
-          duePenalty: loan.duePenalty,
+          duePenalty: 200,
           processingFee: loan.processingFee ?? 0,
           amount: {
             minimum: loan.amount.minimum,
@@ -56,16 +55,18 @@ export default function LoanEditForm() {
           status: loan.status,
         });
       } catch (error) {
-        toast.error(typeof error === "string" ? error : "Failed to fetch loan details")
+        toast.error(
+          typeof error === "string" ? error : "Failed to fetch loan details",
+        );
       }
     };
-    fetchLoan()
-  }, [loanId, navigate])
-
-
+    fetchLoan();
+  }, [loanId, navigate]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value, type } = e.target;
 
@@ -76,7 +77,8 @@ export default function LoanEditForm() {
         ...prev,
         [parent]: {
           ...(prev as any)[parent],
-          [child]: type === "number" ? (value === "" ? "" : Number(value)) : value,
+          [child]:
+            type === "number" ? (value === "" ? "" : Number(value)) : value,
         },
       }));
     } else {
@@ -85,15 +87,9 @@ export default function LoanEditForm() {
         [name]: type === "number" ? (value === "" ? "" : Number(value)) : value,
       }));
     }
-  }
+  };
 
-  const loanTypes = [
-    "PERSONAL",
-    "GOLD",
-    "HOME",
-    "AGRICULTURAL",
-    "EDUCATION"
-  ];
+  const loanTypes = ["PERSONAL", "GOLD", "HOME", "AGRICULTURAL", "EDUCATION"];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,17 +100,13 @@ export default function LoanEditForm() {
     }
 
     try {
-
       await loanProduct.updateloans(loanId, formData);
       toast.success("Loan updated successfully");
-      navigate("/vendor/loans")
+      navigate("/vendor/loans");
     } catch (error) {
       toast.error(typeof error === "string" ? error : "Update failed");
     }
   };
-
-
-
 
   const toggleStatus = () => {
     setFormData((prev) => ({
@@ -122,7 +114,6 @@ export default function LoanEditForm() {
       status: prev.status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
     }));
   };
-
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -158,7 +149,9 @@ export default function LoanEditForm() {
                 {/* ── Basic Info ── */}
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold uppercase tracking-widest text-teal-600">Basic Information</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-teal-600">
+                      Basic Information
+                    </span>
                     <div className="flex-1 h-px bg-slate-200" />
                   </div>
 
@@ -189,7 +182,9 @@ export default function LoanEditForm() {
                         onChange={handleChange}
                         className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-slate-700 bg-white"
                       >
-                        <option value="" disabled>Select Loan Type</option>
+                        <option value="" disabled>
+                          Select Loan Type
+                        </option>
                         {loanTypes.map((type) => (
                           <option key={type} value={type}>
                             {type}
@@ -218,7 +213,9 @@ export default function LoanEditForm() {
                 {/* ── Rates & Fees ── */}
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold uppercase tracking-widest text-teal-600">Rates &amp; Fees</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-teal-600">
+                      Rates &amp; Fees
+                    </span>
                     <div className="flex-1 h-px bg-slate-200" />
                   </div>
 
@@ -237,26 +234,29 @@ export default function LoanEditForm() {
                           className="w-full px-4 pr-10 py-2.5 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-slate-700"
                           placeholder="0.00"
                         />
-                        <span className="absolute right-3 top-2.5 text-slate-400 text-sm font-medium">%</span>
+                        <span className="absolute right-3 top-2.5 text-slate-400 text-sm font-medium">
+                          %
+                        </span>
                       </div>
                     </div>
 
                     {/* Due Penalty */}
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Due Penalty (%)
+                        Late Payment Penalty (₹)
                       </label>
                       <div className="relative">
                         <input
                           type="number"
                           name="duePenalty"
-                          value={formData.duePenalty}
-                          onChange={handleChange}
-                          className="w-full px-4 pr-10 py-2.5 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-slate-700"
-                          placeholder="0.00"
+                          value={200}
+                          disabled
+                          className="w-full pl-8 pr-4 py-2.5 rounded-lg border border-slate-300 bg-slate-100 cursor-not-allowed text-slate-700"
                         />
-                        <span className="absolute right-3 top-2.5 text-slate-400 text-sm font-medium">%</span>
                       </div>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Fixed late payment penalty set by platform
+                      </p>
                     </div>
 
                     {/* Processing Fee */}
@@ -273,7 +273,9 @@ export default function LoanEditForm() {
                           className="w-full px-4 pr-10 py-2.5 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-slate-700"
                           placeholder="0.00"
                         />
-                        <span className="absolute right-3 top-2.5 text-slate-400 text-sm font-medium">%</span>
+                        <span className="absolute right-3 top-2.5 text-slate-400 text-sm font-medium">
+                          %
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -282,7 +284,9 @@ export default function LoanEditForm() {
                 {/* ── Loan Amount ── */}
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold uppercase tracking-widest text-teal-600">Loan Amount</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-teal-600">
+                      Loan Amount
+                    </span>
                     <div className="flex-1 h-px bg-slate-200" />
                   </div>
 
@@ -293,7 +297,9 @@ export default function LoanEditForm() {
                         Minimum Amount (₹)
                       </label>
                       <div className="relative">
-                        <span className="absolute left-4 top-2.5 text-slate-400 font-medium">₹</span>
+                        <span className="absolute left-4 top-2.5 text-slate-400 font-medium">
+                          ₹
+                        </span>
                         <input
                           type="number"
                           name="amount.minimum"
@@ -311,7 +317,9 @@ export default function LoanEditForm() {
                         Maximum Amount (₹)
                       </label>
                       <div className="relative">
-                        <span className="absolute left-4 top-2.5 text-slate-400 font-medium">₹</span>
+                        <span className="absolute left-4 top-2.5 text-slate-400 font-medium">
+                          ₹
+                        </span>
                         <input
                           type="number"
                           name="amount.maximum"
@@ -328,7 +336,9 @@ export default function LoanEditForm() {
                 {/* ── Tenure ── */}
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold uppercase tracking-widest text-teal-600">Tenure</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-teal-600">
+                      Tenure
+                    </span>
                     <div className="flex-1 h-px bg-slate-200" />
                   </div>
 
@@ -365,14 +375,18 @@ export default function LoanEditForm() {
                 {/* ── Eligibility Criteria ── */}
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold uppercase tracking-widest text-teal-600">Eligibility Criteria</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-teal-600">
+                      Eligibility Criteria
+                    </span>
                     <div className="flex-1 h-px bg-slate-200" />
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {/* Min Age */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Min Age</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Min Age
+                      </label>
                       <input
                         type="number"
                         name="eligibility.minAge"
@@ -385,7 +399,9 @@ export default function LoanEditForm() {
 
                     {/* Max Age */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Max Age</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Max Age
+                      </label>
                       <input
                         type="number"
                         name="eligibility.maxAge"
@@ -398,9 +414,13 @@ export default function LoanEditForm() {
 
                     {/* Min Salary */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">Min Salary (₹)</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Min Salary (₹)
+                      </label>
                       <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-slate-400 font-medium text-sm">₹</span>
+                        <span className="absolute left-3 top-2.5 text-slate-400 font-medium text-sm">
+                          ₹
+                        </span>
                         <input
                           type="number"
                           name="eligibility.minSalary"
@@ -414,7 +434,9 @@ export default function LoanEditForm() {
 
                     {/* CIBIL Score */}
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">CIBIL Score</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        CIBIL Score
+                      </label>
                       <input
                         type="number"
                         name="eligibility.minCibilScore"
@@ -444,12 +466,14 @@ export default function LoanEditForm() {
                     <button
                       type="button"
                       onClick={toggleStatus}
-                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${formData.status ? "bg-green-500" : "bg-slate-300"
-                        }`}
+                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
+                        formData.status === "ACTIVE" ? "bg-green-500" : "bg-slate-300"
+                      }`}
                     >
                       <span
-                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${formData.status ? "translate-x-6" : "translate-x-1"
-                          }`}
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${
+                          formData.status === "ACTIVE" ? "translate-x-6" : "translate-x-1"
+                        }`}
                       />
                     </button>
                   </div>

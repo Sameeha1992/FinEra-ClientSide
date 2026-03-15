@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Controller, get } from "react-hook-form";
 import type { Control, FieldValues, Path, RegisterOptions, FieldErrors } from "react-hook-form";
-import { Paperclip, X } from "lucide-react";
+import { Paperclip, X, ExternalLink } from "lucide-react";
 import ErrorMessage from "./ErrorMessage";
 
 interface FileUploadFieldProps<T extends FieldValues> {
@@ -18,6 +18,8 @@ interface FileUploadFieldProps<T extends FieldValues> {
     accept?: string;
     hint?: string;
     className?: string;
+    /** URL of a previously uploaded file (shown as preview in reapply mode) */
+    existingFileUrl?: string;
 }
 
 /**
@@ -25,16 +27,7 @@ interface FileUploadFieldProps<T extends FieldValues> {
  * - Shows selected file name with a clear button.
  * - Accepts file-type restrictions via the `accept` prop.
  * - Does NOT upload to a server — returns the raw `File` object in form data.
- *
- * @example
- * <FileUploadField
- *   name="salarySlip"
- *   label="Latest Salary Slip"
- *   control={control}
- *   errors={errors}
- *   rules={{ required: "Salary slip is required" }}
- *   accept=".pdf,.jpg,.jpeg,.png"
- * />
+ * - Shows a preview of an existing file URL when provided (reapply mode).
  */
 const FileUploadField = <T extends FieldValues>({
     name,
@@ -45,11 +38,17 @@ const FileUploadField = <T extends FieldValues>({
     accept,
     hint,
     className = "",
+    existingFileUrl,
 }: FileUploadFieldProps<T>) => {
     const error = get(errors, name);
     const hasError = Boolean(error?.message);
     const inputRef = useRef<HTMLInputElement>(null);
     const [fileName, setFileName] = useState<string | null>(null);
+
+    // Check if the existing URL points to an image
+    const isImage = existingFileUrl
+        ? /\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i.test(existingFileUrl)
+        : false;
 
     return (
         <div className={`flex flex-col gap-1 ${className}`}>
@@ -63,6 +62,32 @@ const FileUploadField = <T extends FieldValues>({
             </label>
 
             {hint && <p className="text-xs text-slate-400 -mt-0.5">{hint}</p>}
+
+            {/* Existing file preview (shown only when no new file is selected) */}
+            {existingFileUrl && !fileName && (
+                <div className="mb-1 rounded-lg border border-slate-200 bg-slate-50 p-2">
+                    <p className="text-xs font-medium text-slate-500 mb-1.5">Previously uploaded:</p>
+                    {isImage ? (
+                        <a href={existingFileUrl} target="_blank" rel="noopener noreferrer">
+                            <img
+                                src={existingFileUrl}
+                                alt="Previously uploaded"
+                                className="h-20 w-auto rounded border border-slate-200 object-cover hover:opacity-80 transition-opacity"
+                            />
+                        </a>
+                    ) : (
+                        <a
+                            href={existingFileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 text-xs text-teal-600 hover:text-teal-800 font-medium"
+                        >
+                            <ExternalLink size={13} />
+                            View uploaded document
+                        </a>
+                    )}
+                </div>
+            )}
 
             <Controller
                 name={name}
@@ -102,7 +127,7 @@ const FileUploadField = <T extends FieldValues>({
                 `}
                             >
                                 <Paperclip size={16} className="shrink-0" />
-                                Click to choose a file
+                                {existingFileUrl ? "Upload new file to replace" : "Click to choose a file"}
                                 {accept && (
                                     <span className="text-xs text-slate-400 font-normal">
                                         ({accept})
@@ -142,3 +167,4 @@ const FileUploadField = <T extends FieldValues>({
 };
 
 export default FileUploadField;
+

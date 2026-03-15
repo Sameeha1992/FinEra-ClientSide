@@ -158,8 +158,8 @@ export default function LoanDetailPage() {
                                     icon={Info}
                                 />
                                 <DetailItem
-                                    label="Due Penalty"
-                                    value={`${loan.duePenalty}%`}
+                                    label="Late Payment Penalty"
+                                    value={`₹${loan.duePenalty}`}
                                     icon={AlertCircle}
                                 />
                             </div>

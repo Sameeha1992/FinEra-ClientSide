@@ -15,5 +15,15 @@ export const userVerification = {
         console.log("user verification data", response.data)
         return response.data.data;
 
-    }
+    },
+
+    async approveLoan(applicationId:string):Promise<{ success: boolean; message: string; data: VendorApplicationDetailsData }>{
+        const response = await axiosInstance.patch(`/vendor/applications/${applicationId}/approve`)
+        return response.data
+    },
+
+        async rejectLoan(applicationId:string,rejectionReason:string):Promise<{ success: boolean; message: string; data: VendorApplicationDetailsData }>{
+            const response = await axiosInstance.patch(`/vendor/applications/${applicationId}/reject`,{rejectionReason});
+            return response.data
+        }
 }

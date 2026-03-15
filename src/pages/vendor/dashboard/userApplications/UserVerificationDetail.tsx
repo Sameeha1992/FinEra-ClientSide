@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 import Sidebar from "@/components/vendor/dashboard/shared/Sidebar";
 import {
     ArrowLeft,
@@ -18,9 +19,14 @@ import {
     XCircle,
     CheckCircle,
     AlertTriangle,
+    Calendar,
+    ChevronRight,
 } from "lucide-react";
 import type { VendorApplicationDetailsData } from "@/interfaces/vendor/user.verification.interface";
 import { userVerification } from "@/api/vendor/user.verification";
+import { EmiService } from "@/api/emi/emi";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt = (n?: number) =>
@@ -138,29 +144,49 @@ export default function UserVerificationDetail() {
         fetchDetail();
     }, [applicationId]);
 
-    // ── Mock: Approve / Verify ────────────────────────────────────────────────
-    const handleStatusUpdate = (newStatus: string) => {
-        // TODO: replace body with real API call
+    // ── Fetch EMI Schedule via TanStack Query ────────────────────────────────
+    const { data: emiData, isLoading: emiLoading } = useQuery({
+        queryKey: ['loanEmis', applicationId],
+        queryFn: () => EmiService.getEmisByLoanId(applicationId as string),
+        enabled: !!applicationId,
+    });
+
+    // ── Approve ───────────────────────────────────────────────────────────────
+    const handleStatusUpdate = async () => {
+        if (!applicationId) return;
         setActionLoading(true);
-        setTimeout(() => {
-            setData((prev) => (prev ? { ...prev, status: newStatus } : prev));
+        try {
+            const res = await userVerification.approveLoan(applicationId);
+            setData((prev) => prev ? { ...prev, status: "APPROVED" } : prev);
+            toast.success(res.message || "Application approved successfully!");
+        } catch (err) {
+            const message = axios.isAxiosError(err)
+                ? err.response?.data?.message ?? "Failed to approve application."
+                : "Failed to approve application.";
+            toast.error(message);
+        } finally {
             setActionLoading(false);
-        }, 600);
+        }
     };
 
-    // ── Mock: Reject ──────────────────────────────────────────────────────────
-    const handleReject = () => {
+    // ── Reject ────────────────────────────────────────────────────────────────
+    const handleReject = async () => {
         const reason = rejectionModal.reason.trim();
-        if (!reason) return;
-        // TODO: replace body with real API call
+        if (!reason || !applicationId) return;
         setActionLoading(true);
         setRejectionModal({ open: false, reason: "" });
-        setTimeout(() => {
-            setData((prev) =>
-                prev ? { ...prev, status: "REJECTED", rejectionReason: reason } : prev
-            );
+        try {
+            const res = await userVerification.rejectLoan(applicationId, reason);
+            setData((prev) => prev ? { ...prev, status: "REJECTED", rejectionReason: reason } : prev);
+            toast.success(res.message || "Application rejected.");
+        } catch (err) {
+            const message = axios.isAxiosError(err)
+                ? err.response?.data?.message ?? "Failed to reject application."
+                : "Failed to reject application.";
+            toast.error(message);
+        } finally {
             setActionLoading(false);
-        }, 600);
+        }
     };
 
     // ── Loading screen ────────────────────────────────────────────────────────
@@ -271,7 +297,7 @@ export default function UserVerificationDetail() {
                                 <div className="flex flex-wrap gap-2">
                                     <button
                                         disabled={actionLoading || data.status === "APPROVED"}
-                                        onClick={() => handleStatusUpdate("APPROVED")}
+                                        onClick={() => handleStatusUpdate()}
                                         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                                     >
                                         {actionLoading
@@ -373,7 +399,7 @@ export default function UserVerificationDetail() {
                     {/* ── Personal Loan Details — only if it has actual data ── */}
                     {(data.personalDetails?.employerName || data.personalDetails?.purpose || data.personalDetails?.salarySlipUrl) && (
                         <Section icon={<Briefcase size={16} />} title="Personal Loan Details">
-                           
+
                             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">
                                 Loan Document
                             </p>
@@ -429,7 +455,116 @@ export default function UserVerificationDetail() {
                             </div>
                         </Section>
                     )}
+                    {/* ── EMI Schedule Section ── */}
+                    <div className="mt-8">
+                        {(() => {
+                            if (emiLoading) {
+                                return (
+                                    <Section title="EMI Schedule" icon={<Calendar size={16} />}>
+                                        <div className="flex justify-center py-4">
+                                            <Loader2 className="animate-spin text-teal-600 w-8 h-8" />
+                                        </div>
+                                    </Section>
+                                );
+                            }
 
+                            const hasRealData = emiData && emiData.length > 0;
+                            const tenure = hasRealData ? emiData.length : (data?.loanTenure || 12);
+                            const loanAmount = data?.loanAmount || 0;
+                            
+                            const displayData = hasRealData 
+                                ? emiData 
+                                : Array.from({ length: Math.min(tenure, 6) }).map((_, i) => ({
+                                    emiNumber: i + 1,
+                                    dueDate: new Date(new Date().setMonth(new Date().getMonth() + i + 1)),
+                                    amount: loanAmount > 0 ? Math.round(loanAmount / tenure + (loanAmount * 0.1) / 12) : 0, 
+                                    status: i === 0 ? 'PENDING' : ('UPCOMING' as any)
+                                }));
+
+                            return (
+                                <Section title={hasRealData ? "EMI Schedule" : "EMI Schedule (Preview)"} icon={<Calendar size={16} />}>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+                                            <span className="text-sm font-medium text-slate-500">Total Tenure</span>
+                                            <span className="text-sm font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">{tenure} Months</span>
+                                        </div>
+                                        
+                                        <div className="space-y-3 relative overflow-x-auto">
+                                            <div className="hidden sm:grid grid-cols-5 gap-4 px-4 py-2 bg-slate-50 rounded-lg border border-slate-100 mb-2">
+                                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">EMI No.</span>
+                                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Due Date</span>
+                                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</span>
+                                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</span>
+                                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Action</span>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                {displayData.slice(0, 6).map((emi, index, arr) => {
+                                                    const firstPendingIndex = arr.findIndex((e: any) => e.status === 'PENDING');
+                                                    const isFirstPending = index === firstPendingIndex;
+
+                                                    return (
+                                                        <div key={emi.emiNumber} className="flex flex-col sm:grid sm:grid-cols-5 sm:items-center gap-3 sm:gap-4 p-4 rounded-xl border border-slate-100 bg-white shadow-sm hover:shadow-md hover:border-teal-100 transition-all group">
+                                                            <div className="flex items-center gap-3 col-span-1">
+                                                                <div className="w-9 h-9 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-sm border border-teal-100 shrink-0 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                                                                    {emi.emiNumber}
+                                                                </div>
+                                                                <span className="sm:hidden text-sm font-bold text-slate-900">EMI {emi.emiNumber}</span>
+                                                            </div>
+
+                                                            <div className="col-span-1 flex justify-between sm:block">
+                                                                <span className="sm:hidden text-xs font-medium text-slate-500 uppercase">Due Date</span>
+                                                                <span className="text-sm font-semibold text-slate-700">
+                                                                    {new Date(emi.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="col-span-1 flex justify-between sm:block">
+                                                                <span className="sm:hidden text-xs font-medium text-slate-500 uppercase">Amount</span>
+                                                                <span className="text-sm font-black text-slate-900">
+                                                                    ₹ {emi.amount.toLocaleString('en-IN')}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="col-span-1 flex justify-between sm:block">
+                                                                <span className="sm:hidden text-xs font-medium text-slate-500 uppercase">Status</span>
+                                                                <span className={`inline-flex items-center text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-md border ${
+                                                                    emi.status === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-200' : 
+                                                                    emi.status === 'PAID' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                                                                    emi.status === 'UPCOMING' ? 'bg-teal-50 text-teal-600 border-teal-200' :
+                                                                    'bg-slate-50 text-slate-500 border-slate-200'
+                                                                }`}>
+                                                                    {emi.status}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="col-span-1 flex justify-end mt-2 sm:mt-0 pt-3 sm:pt-0 border-t border-slate-50 sm:border-0 relative">
+                                                                {emi.status === 'PAID' ? (
+                                                                    <span className="text-xs font-semibold text-slate-400 flex items-center justify-center w-full sm:w-auto px-3 py-1.5">—</span>
+                                                                ) : isFirstPending ? (
+                                                                    <button 
+                                                                        className="flex items-center gap-1 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 px-4 py-1.5 rounded-lg transition-colors w-full sm:w-auto justify-center shadow-sm shadow-teal-200"
+                                                                        onClick={() => console.log('Vendor View EMI', emi.emiNumber)}
+                                                                    >
+                                                                        View Details
+                                                                        <ChevronRight size={14} />
+                                                                    </button>
+                                                                ) : (
+                                                                    <span className="text-xs font-semibold text-slate-400 flex items-center justify-center w-full sm:w-auto px-3 py-1.5 cursor-not-allowed" title="Locked">
+                                                                        —
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Section>
+                            );
+                        })()}
+                    </div>
                 </main>
             </div>
 

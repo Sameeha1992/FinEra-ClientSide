@@ -24,6 +24,9 @@ const CompleteProfile = lazy(() => import("@/pages/user/userProfile/CompleteProf
 const UserChangePassword = lazy(() => import("./pages/user/auth/ChangePassword"))
 const UpdateProfileForm = lazy(() => import("./pages/user/userProfile/UpdateProfileForm"))
 const EMICalculator = lazy(() => import("./components/shared/EMICalculator"))
+const UserApplicationList = lazy(() => import("./pages/user/userApplications/UserApplicationList"))
+const UserApplicationDetail = lazy(() => import("./pages/user/userApplications/UserApplicationDetail"))
+const EmiListing = lazy(()=>import("@/pages/user/userApplications/EMIListing"))
 function User() {
   return (
     <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
@@ -62,8 +65,9 @@ function User() {
             <Route path="user-complete-profile" element={<CompleteProfile />} />
             <Route path="change-password" element={<UserChangePassword />} />
             <Route path="update-profile" element={<UpdateProfileForm />} />
-
-
+            <Route path="applications" element={<UserApplicationList />} />
+            <Route path="applications/:id" element={<UserApplicationDetail />} />
+            <Route path="emilist/:loanId" element={<EmiListing/>}/>
           </Route>
         </Route>
 

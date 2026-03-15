@@ -1,13 +1,17 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
 
 import type { RootState } from "@/redux/store";
 import { personalLoanSchema } from "./personalLoanSchema";
 import type { PersonalLoanFormValues } from "./personalLoanSchema";
 import { LoanApplication } from "@/api/loanApplication/loan.application";
+import { UserApplicationservice } from "@/api/user/user.loan.application";
+import axios from "axios";
 
 import CommonLoanFields from "@/components/loanForms/CommonLoanFields";
 import InputField from "@/components/loanForms/InputField";
@@ -29,6 +33,8 @@ const PersonalLoanForm = () => {
     const loanProductId = searchParams.get("loanId") ?? "";
     const vendorId = searchParams.get("vendorId") ?? "";
     const loanType = (searchParams.get("loanType") ?? "PERSONAL") as "PERSONAL";
+    const applicationId = searchParams.get("applicationId") ?? "";
+    const isReapply = !!applicationId;
 
     // ── Loan Product Limits (from listing page) ──────────────────────────────
     const limits = {
@@ -44,10 +50,32 @@ const PersonalLoanForm = () => {
         register,
         control,
         handleSubmit,
+        reset,
         formState: { errors, isSubmitting },
     } = useForm<PersonalLoanFormValues>({
         resolver: zodResolver(personalLoanSchema),
     });
+
+    // ── Pre-fill form for reapply (using react-query) ────────────────────────
+    const { data: appDetail, isLoading: loadingDetail } = useQuery({
+        queryKey: ["applicationDetail", applicationId],
+        queryFn: () => UserApplicationservice.getApplicationDetail(applicationId),
+        enabled: isReapply,
+    });
+
+    useEffect(() => {
+        if (!appDetail) return;
+        reset({
+            phoneNumber: appDetail.phoneNumber,
+            employmentType: appDetail.employmentType as any,
+            monthlyIncome: appDetail.monthlyIncome,
+            loanAmount: appDetail.loanAmount,
+            loanTenure: appDetail.loanTenure,
+            employerName: appDetail.personalDetails?.employerName,
+            yearsOfExperience: appDetail.personalDetails?.yearsOfExperience,
+            purpose: appDetail.personalDetails?.purpose,
+        });
+    }, [appDetail, reset]);
 
     // ── Submit Handler ───────────────────────────────────────────────────────
     const onSubmit = async (data: PersonalLoanFormValues) => {
@@ -57,38 +85,52 @@ const PersonalLoanForm = () => {
         }
 
         try {
-            await LoanApplication.createLoanApplication(
-                {
-                    userId,
-                    vendorId,
-                    loanProductId,
-                    loanType,
-                    phoneNumber: data.phoneNumber,
-                    employmentType: data.employmentType,
-                    monthlyIncome: data.monthlyIncome,
-                    loanAmount: data.loanAmount,
-                    loanTenure: data.loanTenure,
-                    personalDetails: {
-                        employerName: data.employerName,
-                        yearsOfExperience: data.yearsOfExperience,
-                        purpose: data.purpose,
-                    },
+            const payload = {
+                userId,
+                vendorId,
+                loanProductId,
+                loanType,
+                phoneNumber: data.phoneNumber,
+                employmentType: data.employmentType,
+                monthlyIncome: data.monthlyIncome,
+                loanAmount: data.loanAmount,
+                loanTenure: data.loanTenure,
+                personalDetails: {
+                    employerName: data.employerName,
+                    yearsOfExperience: data.yearsOfExperience,
+                    purpose: data.purpose,
                 },
-                {
-                    salarySlipDoc: data.salarySlip,
-                },
-            );
+            };
+            const files = {
+                salarySlipDoc: data.salarySlip,
+            };
 
-            toast.success("Personal loan application submitted successfully!");
+            if (isReapply) {
+                await LoanApplication.reapplyRejectedLoan(applicationId, payload, files);
+                toast.success("Personal loan application re-submitted successfully!");
+            } else {
+                await LoanApplication.createLoanApplication(payload, files);
+                toast.success("Personal loan application submitted successfully!");
+            }
             navigate("/user/loans");
-        } catch (error: any) {
-            const message =
-                error?.response?.data?.message ?? "Failed to submit application. Please try again.";
+        } catch (error) {
+            const message = axios.isAxiosError(error)
+                ? error.response?.data?.message ?? "Failed to submit application. Please try again."
+                : "Failed to submit application. Please try again.";
             toast.error(message);
         }
     };
 
     // ── Render ───────────────────────────────────────────────────────────────
+    if (loadingDetail) {
+        return (
+            <div className="py-16 text-center">
+                <div className="inline-block w-6 h-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin mb-3" />
+                <p className="text-sm text-gray-500">Loading application data…</p>
+            </div>
+        );
+    }
+
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
@@ -160,14 +202,15 @@ const PersonalLoanForm = () => {
                         errors={errors}
                         accept=".pdf,.jpg,.jpeg,.png"
                         hint="Upload a clear copy of your latest salary slip (PDF or image)"
+                        existingFileUrl={appDetail?.personalDetails?.salarySlipUrl}
                     />
                 </div>
             </FormSection>
 
             {/* ── Submit ── */}
             <SubmitButton
-                label="Submit Application"
-                loadingLabel="Submitting…"
+                label={isReapply ? "Re-apply" : "Submit Application"}
+                loadingLabel={isReapply ? "Re-submitting…" : "Submitting…"}
                 isLoading={isSubmitting}
             />
         </form>
@@ -175,3 +218,4 @@ const PersonalLoanForm = () => {
 };
 
 export default PersonalLoanForm;
+

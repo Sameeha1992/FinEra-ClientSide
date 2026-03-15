@@ -1,13 +1,17 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSelector } from "react-redux";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
 
 import type { RootState } from "@/redux/store";
 import { homeLoanSchema } from "./homeLoanSchema";
 import type { HomeLoanFormValues } from "./homeLoanSchema";
 import { LoanApplication } from "@/api/loanApplication/loan.application";
+import { UserApplicationservice } from "@/api/user/user.loan.application";
+import axios from "axios";
 
 import CommonLoanFields from "@/components/loanForms/CommonLoanFields";
 import InputField from "@/components/loanForms/InputField";
@@ -39,6 +43,8 @@ const HomeLoanForm = () => {
     const loanProductId = searchParams.get("loanId") ?? "";
     const vendorId = searchParams.get("vendorId") ?? "";
     const loanType = (searchParams.get("loanType") ?? "HOME") as "HOME";
+    const applicationId = searchParams.get("applicationId") ?? "";
+    const isReapply = !!applicationId;
 
     // ── Loan Product Limits (from listing page) ──────────────────────────────
     const limits = {
@@ -54,10 +60,32 @@ const HomeLoanForm = () => {
         register,
         control,
         handleSubmit,
+        reset,
         formState: { errors, isSubmitting },
     } = useForm<HomeLoanFormValues>({
         resolver: zodResolver(homeLoanSchema),
     });
+
+    // ── Pre-fill form for reapply (using react-query) ────────────────────────
+    const { data: appDetail, isLoading: loadingDetail } = useQuery({
+        queryKey: ["applicationDetail", applicationId],
+        queryFn: () => UserApplicationservice.getApplicationDetail(applicationId),
+        enabled: isReapply,
+    });
+
+    useEffect(() => {
+        if (!appDetail) return;
+        reset({
+            phoneNumber: appDetail.phoneNumber,
+            employmentType: appDetail.employmentType as any,
+            monthlyIncome: appDetail.monthlyIncome,
+            loanAmount: appDetail.loanAmount,
+            loanTenure: appDetail.loanTenure,
+            propertyValue: appDetail.homeDetails?.propertyValue,
+            propertyLocation: appDetail.homeDetails?.propertyLocation,
+            propertyType: appDetail.homeDetails?.propertyType as any,
+        });
+    }, [appDetail, reset]);
 
     // ── Submit Handler ───────────────────────────────────────────────────────
     const onSubmit = async (data: HomeLoanFormValues) => {
@@ -67,38 +95,52 @@ const HomeLoanForm = () => {
         }
 
         try {
-            await LoanApplication.createLoanApplication(
-                {
-                    userId,
-                    vendorId,
-                    loanProductId,
-                    loanType,
-                    phoneNumber: data.phoneNumber,
-                    employmentType: data.employmentType,
-                    monthlyIncome: data.monthlyIncome,
-                    loanAmount: data.loanAmount,
-                    loanTenure: data.loanTenure,
-                    homeDetails: {
-                        propertyValue: data.propertyValue,
-                        propertyLocation: data.propertyLocation,
-                        propertyType: data.propertyType,
-                    },
+            const payload = {
+                userId,
+                vendorId,
+                loanProductId,
+                loanType,
+                phoneNumber: data.phoneNumber,
+                employmentType: data.employmentType,
+                monthlyIncome: data.monthlyIncome,
+                loanAmount: data.loanAmount,
+                loanTenure: data.loanTenure,
+                homeDetails: {
+                    propertyValue: data.propertyValue,
+                    propertyLocation: data.propertyLocation,
+                    propertyType: data.propertyType,
                 },
-                {
-                    propertyDoc: data.propertyDocument,
-                },
-            );
+            };
+            const files = {
+                propertyDoc: data.propertyDocument,
+            };
 
-            toast.success("Home loan application submitted successfully!");
+            if (isReapply) {
+                await LoanApplication.reapplyRejectedLoan(applicationId, payload, files);
+                toast.success("Home loan application re-submitted successfully!");
+            } else {
+                await LoanApplication.createLoanApplication(payload, files);
+                toast.success("Home loan application submitted successfully!");
+            }
             navigate("/user/loans");
-        } catch (error: any) {
-            const message =
-                error?.response?.data?.message ?? "Failed to submit application. Please try again.";
+        } catch (error) {
+            const message = axios.isAxiosError(error)
+                ? error.response?.data?.message ?? "Failed to submit application. Please try again."
+                : "Failed to submit application. Please try again.";
             toast.error(message);
         }
     };
 
     // ── Render ───────────────────────────────────────────────────────────────
+    if (loadingDetail) {
+        return (
+            <div className="py-16 text-center">
+                <div className="inline-block w-6 h-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin mb-3" />
+                <p className="text-sm text-gray-500">Loading application data…</p>
+            </div>
+        );
+    }
+
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
@@ -171,14 +213,15 @@ const HomeLoanForm = () => {
                         errors={errors}
                         accept=".pdf,.jpg,.jpeg,.png"
                         hint="Upload sale deed, agreement, or any official property document (PDF or image)"
+                        existingFileUrl={appDetail?.homeDetails?.propertyDocUrl}
                     />
                 </div>
             </FormSection>
 
             {/* ── Submit ── */}
             <SubmitButton
-                label="Submit Application"
-                loadingLabel="Submitting…"
+                label={isReapply ? "Re-apply" : "Submit Application"}
+                loadingLabel={isReapply ? "Re-submitting…" : "Submitting…"}
                 isLoading={isSubmitting}
             />
         </form>

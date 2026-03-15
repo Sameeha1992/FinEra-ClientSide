@@ -47,7 +47,6 @@ const SelectField = <T extends FieldValues>({
     errors,
     rules,
     placeholder = "Select an option",
-    defaultValue = "",
     selectClassName = "",
     className = "",
 }: SelectFieldProps<T>) => {
@@ -69,7 +68,6 @@ const SelectField = <T extends FieldValues>({
             {/* Select */}
             <select
                 id={name}
-                defaultValue={defaultValue}
                 aria-invalid={hasError}
                 aria-describedby={hasError ? `${name}-error` : undefined}
                 className={`

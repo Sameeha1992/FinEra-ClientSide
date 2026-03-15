@@ -19,7 +19,7 @@ export default function AddLoanForm() {
     amount: { minimum: 0, maximum: 0 },
     tenure: { minimum: 0, maximum: 0 },
     interestRate: 0,
-    duePenalty: 0,
+    duePenalty: 200,
     processingFee: 0,
     features: [],
     eligibility: {
@@ -66,7 +66,6 @@ export default function AddLoanForm() {
         ...prev,
         [field]:
           field === "interestRate" ||
-          field === "duePenalty" ||
           field === "processingFee"
             ? Number(value)
             : value,
@@ -94,13 +93,13 @@ export default function AddLoanForm() {
       await loanProduct.addLoan(result.data);
       toast.success("Loan Product Created Successfully");
       setErrors({});
-    } catch (error:unknown) {
+    } catch (error: unknown) {
       console.error("Error creating loan product", error);
 
-      if(error instanceof Error){
+      if (error instanceof Error) {
         toast.error(error.message);
-      }else{
-        toast.error("Something went wrong")
+      } else {
+        toast.error("Something went wrong");
       }
       return;
     }
@@ -110,7 +109,7 @@ export default function AddLoanForm() {
 
   const getError = (path: string) => errors[path];
 
-  const loanTypes = ["HOME", "PERSONAL", "GOLD","BUSINESS"];
+  const loanTypes = ["HOME", "PERSONAL", "GOLD", "BUSINESS"];
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4 font-sans">
@@ -339,25 +338,19 @@ export default function AddLoanForm() {
                   htmlFor="duePenalty"
                   className="text-gray-600 font-semibold"
                 >
-                  Due Penalty (%)
+                  Late Payment Penalty (₹){" "}
                 </Label>
                 <Input
                   id="duePenalty"
                   type="number"
-                  value={formData.duePenalty}
-                  onChange={(e) => handleChange(e, "duePenalty")}
-                  className={`h-12 ${
-                    getError("duePenalty")
-                      ? "border-red-500"
-                      : "border-gray-200"
-                  }`}
+                  value={200}
+                  disabled
+                  className="h-12 border-gray-200 bg-gray-100 cursor-not-allowed"
                 />
 
-                {getError("duePenalty") && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {getError("duePenalty")}
-                  </p>
-                )}
+                <p className="text-xs text-gray-500">
+                  Fixed late payment penalty set by platform
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -475,7 +468,9 @@ export default function AddLoanForm() {
                   id="cibilScore"
                   type="number"
                   value={formData.eligibility!.minCibilScore}
-                  onChange={(e) => handleChange(e, "eligibility", "minCibilScore")}
+                  onChange={(e) =>
+                    handleChange(e, "eligibility", "minCibilScore")
+                  }
                   className={`h-12 ${
                     getError("eligibility.cibilScore")
                       ? "border-red-500"
