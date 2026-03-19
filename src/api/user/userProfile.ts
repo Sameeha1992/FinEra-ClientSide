@@ -1,4 +1,5 @@
 import axiosInstance from "@/config/axiosInterceptor";
+import { API_ENDPOINTS } from "@/constants/api.endpoints";
 import type {ApiResponsnes } from "@/interfaces/shared/auth/auth.interface";
 import type { CompleteProfileForm } from "@/interfaces/user/userProfile/profile.complete.interface";
 import type { CompleteProfileData } from "@/interfaces/user/userProfile/profile.complete.interface";
@@ -27,7 +28,7 @@ export interface userData{
 export const userProfile = {
 async getUserProfile():Promise<userData>{
   try {
-    const response = await axiosInstance.get("/user/user-profile")
+    const response = await axiosInstance.get(API_ENDPOINTS.USER.GET_USER_PROFILE)
     console.log("Profile api response",response.data)
     return response.data.data
     
@@ -54,7 +55,7 @@ async completeUserProfile(formData:CompleteProfileForm):Promise<ApiResponsnes<us
         if (file) data.append(key, file);
       });
 
-      const response = await axiosInstance.post<ApiResponsnes<userData>>("/user/user-complete-profile", data, {
+      const response = await axiosInstance.post<ApiResponsnes<userData>>(API_ENDPOINTS.USER.COMPLETE_USER_PROFILE, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -71,7 +72,7 @@ async completeUserProfile(formData:CompleteProfileForm):Promise<ApiResponsnes<us
 async getCompleteProfile():Promise<CompleteProfileData>{
 
   try {
-    const response = await axiosInstance.get("/user/complete-profile")
+    const response = await axiosInstance.get(API_ENDPOINTS.USER.GET_COMPLETE_PROFILE)
     console.log("complete profile api response",response.data);
     return response.data.data
     
@@ -104,7 +105,7 @@ async updateUserProfile(formData:Partial<CompleteProfileForm>):Promise<ApiRespon
       }
     });
     
-    const response = await axiosInstance.put<ApiResponsnes<userData>>("/user/user-profile",data,{headers:{"Content-Type":"multipart/form-data"}});
+    const response = await axiosInstance.put<ApiResponsnes<userData>>(API_ENDPOINTS.USER.UPDATE_USER_PROFILE,data,{headers:{"Content-Type":"multipart/form-data"}});
 
     console.log("Update profile response",response.data)
 

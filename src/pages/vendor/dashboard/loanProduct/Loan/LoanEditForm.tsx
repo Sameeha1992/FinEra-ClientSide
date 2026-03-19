@@ -13,7 +13,7 @@ export default function LoanEditForm() {
     description: "",
     interestRate: 0,
     duePenalty: 200,
-    processingFee: 0,
+    processingFee: 200,
     amount: { minimum: 0, maximum: 0 },
     tenure: { minimum: 0, maximum: 0 },
     eligibility: { minAge: 0, maxAge: 0, minSalary: 0, minCibilScore: 0 },
@@ -37,7 +37,7 @@ export default function LoanEditForm() {
           description: loan.description,
           interestRate: loan.interestRate,
           duePenalty: 200,
-          processingFee: loan.processingFee ?? 0,
+          processingFee: loan.processingFee ?? 200,
           amount: {
             minimum: loan.amount.minimum,
             maximum: loan.amount.maximum,
@@ -268,8 +268,7 @@ export default function LoanEditForm() {
                         <input
                           type="number"
                           name="processingFee"
-                          value={formData.processingFee}
-                          onChange={handleChange}
+                          value={200}
                           className="w-full px-4 pr-10 py-2.5 rounded-lg border border-slate-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all text-slate-700"
                           placeholder="0.00"
                         />

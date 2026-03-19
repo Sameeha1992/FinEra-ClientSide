@@ -1,9 +1,10 @@
 import axiosInstance from "@/config/axiosInterceptor";
+import { API_ENDPOINTS } from "@/constants/api.endpoints";
 import type { AccountQuery } from "@/interfaces/admin/AccouuntQuery";
 
 export const fetchAccounts = async (query: AccountQuery) => {
   try {
-    const response = await axiosInstance.get("/admin/accounts", {
+    const response = await axiosInstance.get(API_ENDPOINTS.ADMIN.ACCOUNTS, {
       params: query,
     });
     return response.data;
@@ -18,7 +19,7 @@ export const updateAccountStatus = async (
   role: "user" | "vendor",
 ) => {
   const response = await axiosInstance.patch(
-    `/admin/accounts/${accountId}/accountStatus`,
+    API_ENDPOINTS.ADMIN.UPDATE_ACCOUNT_STATUS(accountId),
     { accountStatus, role },
   );
   return response.data;

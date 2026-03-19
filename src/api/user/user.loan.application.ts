@@ -1,14 +1,15 @@
 import axiosInstance from "@/config/axiosInterceptor";
+import { API_ENDPOINTS } from "@/constants/api.endpoints";
 import type { IUserApplicationsListResponse, UserApplicationDetail } from "@/interfaces/user/userApplications/user.application.types";
 
 export const UserApplicationservice = {
     async getApplicationList(page: number = 1, limit: number = 10): Promise<IUserApplicationsListResponse> {
-        const response = await axiosInstance.get("/user/applications", { params: { page, limit } });
+        const response = await axiosInstance.get(API_ENDPOINTS.USER.GET_APPLICATIONS, { params: { page, limit } });
         return response.data.data;
     },
 
     async getApplicationDetail(applicationId: string): Promise<UserApplicationDetail> {
-        const response = await axiosInstance.get(`/user/applications/${applicationId}`);
+        const response = await axiosInstance.get(API_ENDPOINTS.USER.GET_APPLICATION_DETAILS(applicationId));
 
         console.log(response.data.data,"user application")
         return response.data.data;

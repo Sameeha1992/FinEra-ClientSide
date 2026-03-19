@@ -14,24 +14,51 @@ import BusinessLoanPage from "./pages/loans/BusinessLoanPage";
 const UserLogin = lazy(() => import("./pages/user/auth/UserLogin"));
 const SignUpPage = lazy(() => import("./pages/user/auth/Signup"));
 const OtpVerification = lazy(() => import("./pages/user/auth/OtpVerification"));
-const UserForgetPassword = lazy(() => import("./pages/user/auth/UserForgetPassword"));
+const UserForgetPassword = lazy(
+  () => import("./pages/user/auth/UserForgetPassword"),
+);
 const ForgetOtpVerify = lazy(() => import("./pages/user/auth/ForgetOtpVerify"));
-const UserResetPassword = lazy(() => import("./pages/user/auth/UserResetPassword"));
+const UserResetPassword = lazy(
+  () => import("./pages/user/auth/UserResetPassword"),
+);
 const LandingPage = lazy(() => import("./pages/user/LadingPage"));
 const UserProfile = lazy(() => import("./pages/user/userProfile/UserProfile"));
-const ProfileCompleteionForm = lazy(() => import("./components/user/userDashboard/ProfileCompletionForm"))
-const CompleteProfile = lazy(() => import("@/pages/user/userProfile/CompleteProfilePage"))
-const UserChangePassword = lazy(() => import("./pages/user/auth/ChangePassword"))
-const UpdateProfileForm = lazy(() => import("./pages/user/userProfile/UpdateProfileForm"))
-const EMICalculator = lazy(() => import("./components/shared/EMICalculator"))
-const UserApplicationList = lazy(() => import("./pages/user/userApplications/UserApplicationList"))
-const UserApplicationDetail = lazy(() => import("./pages/user/userApplications/UserApplicationDetail"))
-const EmiListing = lazy(()=>import("@/pages/user/userApplications/EMIListing"))
+const ProfileCompleteionForm = lazy(
+  () => import("./components/user/userDashboard/ProfileCompletionForm"),
+);
+const CompleteProfile = lazy(
+  () => import("@/pages/user/userProfile/CompleteProfilePage"),
+);
+const UserChangePassword = lazy(
+  () => import("./pages/user/auth/ChangePassword"),
+);
+const UpdateProfileForm = lazy(
+  () => import("./pages/user/userProfile/UpdateProfileForm"),
+);
+const EMICalculator = lazy(() => import("./components/shared/EMICalculator"));
+const UserApplicationList = lazy(
+  () => import("./pages/user/userApplications/UserApplicationList"),
+);
+const UserApplicationDetail = lazy(
+  () => import("./pages/user/userApplications/UserApplicationDetail"),
+);
+const EmiListing = lazy(
+  () => import("@/pages/user/userApplications/EMIListing"),
+);
+const SuccessPayment = lazy(
+  () => import("@/pages/user/userApplications/emiPaymentPage/EmiSuccessPage"),
+);
+const FailurePayment = lazy(
+  () => import("@/pages/user/userApplications/emiPaymentPage/EmiFailedPage"),
+);
+const UserNotifications = lazy(
+  () => import("@/pages/user/userNotifications/UserNotifications"),
+);
+
 function User() {
   return (
     <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
       <Routes>
-
         {/* 🌍 Public page */}
         <Route path="home" element={<LandingPage />} />
 
@@ -50,6 +77,8 @@ function User() {
           {/* Standalone full-page routes (no sidebar) */}
           <Route path="loans" element={<LoanListingPage />} />
           <Route path="loans/:loanId" element={<LoanDetailPage />} />
+          <Route path="payment-success" element={<SuccessPayment />} />
+          <Route path="payment-cancel" element={<FailurePayment />} />
 
           {/* ── Loan Application Pages (standalone, no sidebar) ── */}
           <Route path="personal-loan" element={<PersonalLoanPage />} />
@@ -61,16 +90,22 @@ function User() {
           {/* Dashboard routes (with sidebar layout) */}
           <Route element={<UserProfile />}>
             <Route path="user-profile" element={<ProfilePage />} />
-            <Route path="user-complete-form" element={<ProfileCompleteionForm />} />
+            <Route
+              path="user-complete-form"
+              element={<ProfileCompleteionForm />}
+            />
             <Route path="user-complete-profile" element={<CompleteProfile />} />
             <Route path="change-password" element={<UserChangePassword />} />
             <Route path="update-profile" element={<UpdateProfileForm />} />
             <Route path="applications" element={<UserApplicationList />} />
-            <Route path="applications/:id" element={<UserApplicationDetail />} />
-            <Route path="emilist/:loanId" element={<EmiListing/>}/>
+            <Route
+              path="applications/:id"
+              element={<UserApplicationDetail />}
+            />
+            <Route path="emilist/:loanId" element={<EmiListing />} />
+            <Route path="notifications" element={<UserNotifications />} />
           </Route>
         </Route>
-
       </Routes>
     </Suspense>
   );

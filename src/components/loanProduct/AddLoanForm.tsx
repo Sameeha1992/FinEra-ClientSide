@@ -20,7 +20,7 @@ export default function AddLoanForm() {
     tenure: { minimum: 0, maximum: 0 },
     interestRate: 0,
     duePenalty: 200,
-    processingFee: 0,
+    processingFee: 200,
     features: [],
     eligibility: {
       minAge: 0,
@@ -65,8 +65,8 @@ export default function AddLoanForm() {
       setFormData((prev) => ({
         ...prev,
         [field]:
-          field === "interestRate" ||
-          field === "processingFee"
+          field === "interestRate" 
+          
             ? Number(value)
             : value,
       }));
@@ -363,20 +363,11 @@ export default function AddLoanForm() {
                 <Input
                   id="processingFee"
                   type="number"
-                  value={formData.processingFee}
-                  onChange={(e) => handleChange(e, "processingFee")}
-                  className={`h-12 ${
-                    getError("processingFee")
-                      ? "border-red-500"
-                      : "border-gray-200"
-                  }`}
+                  value={200}
+                  
                 />
 
-                {getError("processingFee") && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {getError("processingFee")}
-                  </p>
-                )}
+                
               </div>
             </div>
           </div>

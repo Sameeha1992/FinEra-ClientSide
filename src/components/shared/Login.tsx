@@ -167,6 +167,10 @@ export default function LoginForm({
     }
   };
 
+
+const signupPath =
+  role === "vendor" ? "/vendor/vendor-register" : "/user/signup";
+
   return (
     <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md mx-auto">
       {/* Header inside the form */}
@@ -275,7 +279,7 @@ export default function LoginForm({
       <p className="text-center text-sm text-gray-600 mt-6">
         Don’t have an account?{" "}
         <a
-          href="/user/signup"
+          href={signupPath}
           className="text-teal-600 font-semibold hover:underline"
         >
           Sign up

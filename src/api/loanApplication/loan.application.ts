@@ -1,4 +1,5 @@
 import axiosInstance from "@/config/axiosInterceptor";
+import { API_ENDPOINTS } from "@/constants/api.endpoints";
 import type {
   CreateLoanApplicationPayload,
   LoanApplicationFiles,
@@ -54,7 +55,7 @@ export const LoanApplication = {
       formData.append("salarySlipDoc", files.salarySlipDoc);
     }
 
-    return axiosInstance.post("/user/create-loan-application", formData, {
+    return axiosInstance.post(API_ENDPOINTS.USER.CREATE_LOAN_APPLICATION, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
@@ -92,7 +93,7 @@ export const LoanApplication = {
       formData.append("salarySlipDoc", files.salarySlipDoc);
 
     // PUT request to reapply endpoint
-    return axiosInstance.put(`/user/loans/${applicationId}/reapply`, formData, {
+    return axiosInstance.put(API_ENDPOINTS.USER.REAPPLY_LOAN_APPLICATION(applicationId), formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },

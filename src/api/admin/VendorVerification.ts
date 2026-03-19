@@ -1,4 +1,5 @@
 import axiosInstance from "@/config/axiosInterceptor";
+import { API_ENDPOINTS } from "@/constants/api.endpoints";
 import type {
   UpdateVendorStatusPayload,
   VendorDetailData,
@@ -13,7 +14,7 @@ export const vendorVerificationList = {
     limit: number = 10,
   ): Promise<VendorVerificationResponse> {
     try {
-      const response = await axiosInstance.get("/admin/vendors", {
+      const response = await axiosInstance.get(API_ENDPOINTS.ADMIN.VENDORS, {
         params: { page, limit },
       });
       return response.data.data;
@@ -28,7 +29,7 @@ export const vendorVerificationList = {
 
   async getVendorDetails(vendorId: string): Promise<VendorDetailData> {
     try {
-      const response = await axiosInstance.get(`/admin/vendors/${vendorId}`);
+      const response = await axiosInstance.get(API_ENDPOINTS.ADMIN.VENDOR_DETAILS(vendorId));
       return response.data.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -39,7 +40,7 @@ export const vendorVerificationList = {
   },
 
   async updateVendorStatus(vendorId:string,status:VendorStatus,rejectionReason?:string):Promise<UpdateVendorStatusPayload>{
-    const response = await axiosInstance.patch(`/admin/vendors/${vendorId}/status`,{status,rejectionReason});
+    const response = await axiosInstance.patch(API_ENDPOINTS.ADMIN.UPDATE_VENDOR_STATUS(vendorId),{status,rejectionReason});
 
     return response.data
   }

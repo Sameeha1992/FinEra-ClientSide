@@ -1,4 +1,5 @@
 import axiosInstance from "@/config/axiosInterceptor";
+import { API_ENDPOINTS } from "@/constants/api.endpoints";
 import type { LoanListingResponse } from "@/interfaces/user/loans/user.loan.listing";
 
 export const loanService = {
@@ -24,7 +25,7 @@ export const loanService = {
         params.search = search;
       }
 
-      const response = await axiosInstance.get("user/loans", {
+      const response = await axiosInstance.get(API_ENDPOINTS.USER.GET_LOANS, {
         params,
       });
 

@@ -61,14 +61,14 @@ export default function Sidebar() {
           icon={<DollarSign size={20} />}
           label="Loan"
         />
-        <SidebarLink to="/vendor/user-loans" icon={<Users size={20} />} label="Users" />
+        <SidebarLink to="/vendor/user-loans" icon={<Users size={20} />} label="Users Applications" />
 
 
-        <SidebarLink
+        {/* <SidebarLink
           to="/applications"
           icon={<FileText size={20} />}
           label="Applications"
-        />
+        /> */}
 
         <SidebarLink
           to="/notifications"

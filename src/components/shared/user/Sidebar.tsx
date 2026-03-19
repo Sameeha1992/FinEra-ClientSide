@@ -47,7 +47,7 @@ export const Sidebar: React.FC = () => {
     { icon: FileText, label: "Applications", route: "/user/applications" },
     { icon: ArrowRightLeft, label: "Transactions", route: "/transactions" },
     { icon: MessageCircle, label: "Chat Support", route: "/chat" },
-    { icon: BellIcon, label: "Notifications", route: "/notifications" },
+    { icon: BellIcon, label: "Notifications", route: "/user/notifications" },
     { icon: LogOut, label: "Logout", action: handleLogout },
   ];
 

@@ -1,4 +1,5 @@
 import axiosInstance from "@/config/axiosInterceptor";
+import { API_ENDPOINTS } from "@/constants/api.endpoints";
 import type { LoanDetailForUserDto } from "@/interfaces/addLoan/loan.detail.dto";
 import type {
   ILoanProductDto,
@@ -9,7 +10,7 @@ import axios from "axios";
 export const loanProduct = {
   async addLoan(data: ILoanProductDto): Promise<ILoanProductDto> {
     try {
-      const response = await axiosInstance.post("/vendor/loan-product", data);
+      const response = await axiosInstance.post(API_ENDPOINTS.VENDOR.ADD_LOAN, data);
       console.log(response.data, "loan product data coming");
       return response.data;
     } catch (error) {
@@ -28,7 +29,7 @@ export const loanProduct = {
     limit: number = 2,
   ): Promise<LoanListing> {
     try {
-      const response = await axiosInstance.get("/vendor/loans", {
+      const response = await axiosInstance.get(API_ENDPOINTS.VENDOR.GET_VENDOR_LOANS, {
         params: { page, limit, search },
       });
 
@@ -46,7 +47,7 @@ export const loanProduct = {
 
   async getLoanById(loanId: string): Promise<ILoanProductDto> {
     try {
-      const response = await axiosInstance.get(`/vendor/loans/${loanId}`);
+      const response = await axiosInstance.get(API_ENDPOINTS.VENDOR.GET_VENDOR_LOAN(loanId));
       console.log("Single loan data:", response.data.data);
       return response.data.data;
     } catch (error) {
@@ -64,7 +65,7 @@ export const loanProduct = {
   ): Promise<ILoanProductDto> {
     try {
       const response = await axiosInstance.put(
-        `/vendor/loans/${loandId}`,
+        API_ENDPOINTS.VENDOR.UPDATE_VENDOR_LOAN(loandId),
         data,
       );
 

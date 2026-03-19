@@ -1,29 +1,30 @@
 import React from "react";
 import { Calendar, ChevronRight } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { EmiService } from "@/api/emi/emi";
+import { EmiPaymentService } from "@/api/emi/emi.payment.service";
+import EmiDetailsModal from "./EmiDetailsModal";
 
 type EmiItem = {
+  emiId?: string;
   emiNumber: number;
   dueDate: string | Date;
   amount: number;
-  status: "PENDING" | "PAID" | "UPCOMING";
+  status: "PENDING" | "PAID" | "UPCOMING" | "OVERDUE";
 };
 
-const SectionCard = ({
-  title,
-  icon,
-  children,
-}: {
+type SectionCardProps = {
   title: string;
   icon?: React.ReactNode;
   children: React.ReactNode;
-}) => (
-  <div className="bg-white rounded-2xl p-6 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100 mb-6 transition-all hover:shadow-md">
-    <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-50">
+};
+
+const SectionCard = ({ title, icon, children }: SectionCardProps) => (
+  <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] transition-all hover:shadow-md">
+    <div className="mb-6 flex items-center gap-3 border-b border-gray-50 pb-4">
       {icon && (
-        <div className="p-2 bg-blue-50/80 text-blue-600 rounded-xl">{icon}</div>
+        <div className="rounded-xl bg-blue-50/80 p-2 text-blue-600">{icon}</div>
       )}
       <h2 className="text-lg font-bold text-gray-800">{title}</h2>
     </div>
@@ -33,11 +34,10 @@ const SectionCard = ({
 
 const EmiListing: React.FC = () => {
   const { loanId } = useParams<{ loanId: string }>();
-
-  console.log(loanId, "loan id from emi page");
+  const [selectedEmiId, setSelectedEmiId] = React.useState<string | null>(null);
 
   const {
-    data: emiData,
+    data: emiData = [],
     isLoading: emiLoading,
     isError,
   } = useQuery({
@@ -47,7 +47,32 @@ const EmiListing: React.FC = () => {
     retry: false,
   });
 
-  const nextPendingEmi = emiData?.find((emi) => emi.status === "PENDING");
+  const paymentMutation = useMutation({
+    mutationFn: (emiId: string) => EmiPaymentService.createPaymentSession(emiId),
+    onSuccess: (data) => {
+      if (data?.checkoutUrl) {
+        if (loanId) localStorage.setItem("lastPaidEmiLoanId", loanId);
+        window.location.href = data.checkoutUrl;
+      } else {
+        alert("Checkout URL not received");
+      }
+    },
+    onError: () => {
+      alert("Failed to create payment session");
+    },
+  });
+
+  console.log("paymnet mutation", paymentMutation)
+
+  const handlePayNow = (emiId?: string) => {
+    if (!emiId) {
+      alert("EMI ID is missing");
+      return;
+    }
+
+    paymentMutation.mutate(emiId);
+  };
+
   if (!loanId) {
     return (
       <SectionCard title="EMI Schedule" icon={<Calendar size={20} />}>
@@ -62,23 +87,27 @@ const EmiListing: React.FC = () => {
     return (
       <SectionCard title="EMI Schedule" icon={<Calendar size={20} />}>
         <div className="flex justify-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
         </div>
       </SectionCard>
     );
   }
 
-  const hasRealData = !!emiData && emiData.length > 0;
+  const hasRealData = emiData.length > 0;
   const tenure = hasRealData ? emiData.length : 12;
 
   const displayData: EmiItem[] = hasRealData
     ? emiData
-    : Array.from({ length: 6 }).map((_, i) => ({
-        emiNumber: i + 1,
-        dueDate: new Date(new Date().setMonth(new Date().getMonth() + i + 1)),
-        amount: 0,
-        status: i === 0 ? "PENDING" : "UPCOMING",
-      }));
+    : Array.from({ length: 6 }, (_, i) => ({
+      emiNumber: i + 1,
+      dueDate: new Date(new Date().setMonth(new Date().getMonth() + i + 1)),
+      amount: 0,
+      status: i === 0 ? "PENDING" : "UPCOMING",
+    }));
+
+  const nextPendingEmi = emiData.find((emi: EmiItem) => emi.status === "PENDING");
+
+  const firstPendingIndex = displayData.findIndex((emi) => emi.status === "PENDING");
 
   return (
     <SectionCard
@@ -87,14 +116,12 @@ const EmiListing: React.FC = () => {
     >
       <div className="space-y-4">
         {nextPendingEmi && (
-          <div className="rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 mb-6">
-            <p className="text-sm font-medium text-blue-700">
-              EMI to be paid now
-            </p>
-            <p className="text-2xl font-bold text-blue-900 mt-1">
+          <div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4">
+            <p className="text-sm font-medium text-blue-700">EMI to be paid now</p>
+            <p className="mt-1 text-2xl font-bold text-blue-900">
               ₹ {nextPendingEmi.amount.toLocaleString("en-IN")}
             </p>
-            <p className="text-sm text-blue-600 mt-1">
+            <p className="mt-1 text-sm text-blue-600">
               Due on{" "}
               {new Date(nextPendingEmi.dueDate).toLocaleDateString("en-GB", {
                 day: "numeric",
@@ -104,11 +131,10 @@ const EmiListing: React.FC = () => {
             </p>
           </div>
         )}
-        <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-          <span className="text-sm font-medium text-gray-500">
-            Total Tenure
-          </span>
-          <span className="text-sm font-bold text-gray-900 bg-gray-100 px-3 py-1 rounded-lg">
+
+        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+          <span className="text-sm font-medium text-gray-500">Total Tenure</span>
+          <span className="rounded-lg bg-gray-100 px-3 py-1 text-sm font-bold text-gray-900">
             {tenure} Months
           </span>
         </div>
@@ -119,48 +145,45 @@ const EmiListing: React.FC = () => {
           </div>
         )}
 
-        <div className="space-y-3 relative overflow-x-auto">
-          <div className="hidden sm:grid grid-cols-5 gap-4 px-4 py-2 bg-gray-50 rounded-lg border border-gray-100 mb-2">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+        <div className="relative space-y-3 overflow-x-auto">
+          <div className="mb-2 hidden grid-cols-5 gap-4 rounded-lg border border-gray-100 bg-gray-50 px-4 py-2 sm:grid">
+            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
               EMI No.
             </span>
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
               Due Date
             </span>
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
               Amount
             </span>
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
               Status
             </span>
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
+            <span className="text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
               Action
             </span>
           </div>
 
           <div className="space-y-3">
-            {displayData.slice(0, 6).map((emi, index, arr) => {
-              const firstPendingIndex = arr.findIndex(
-                (e) => e.status === "PENDING",
-              );
+            {displayData.slice(0, 6).map((emi, index) => {
               const isFirstPending = index === firstPendingIndex;
 
               return (
                 <div
-                  key={emi.emiNumber}
-                  className="flex flex-col sm:grid sm:grid-cols-5 sm:items-center gap-3 sm:gap-4 p-4 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md hover:border-blue-100 transition-all hover:-translate-y-0.5 group"
+                  key={emi.emiId ?? emi.emiNumber}
+                  className="group flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md sm:grid sm:grid-cols-5 sm:items-center sm:gap-4"
                 >
-                  <div className="flex items-center gap-3 col-span-1">
-                    <div className="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm border border-blue-100 shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="col-span-1 flex items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-sm font-bold text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
                       {emi.emiNumber}
                     </div>
-                    <span className="sm:hidden text-sm font-bold text-gray-900">
+                    <span className="text-sm font-bold text-gray-900 sm:hidden">
                       EMI {emi.emiNumber}
                     </span>
                   </div>
 
                   <div className="col-span-1 flex justify-between sm:block">
-                    <span className="sm:hidden text-xs font-medium text-gray-500 uppercase">
+                    <span className="text-xs font-medium uppercase text-gray-500 sm:hidden">
                       Due Date
                     </span>
                     <span className="text-sm font-semibold text-gray-700">
@@ -173,7 +196,7 @@ const EmiListing: React.FC = () => {
                   </div>
 
                   <div className="col-span-1 flex justify-between sm:block">
-                    <span className="sm:hidden text-xs font-medium text-gray-500 uppercase">
+                    <span className="text-xs font-medium uppercase text-gray-500 sm:hidden">
                       Amount
                     </span>
                     <span className="text-sm font-black text-gray-900">
@@ -182,38 +205,46 @@ const EmiListing: React.FC = () => {
                   </div>
 
                   <div className="col-span-1 flex justify-between sm:block">
-                    <span className="sm:hidden text-xs font-medium text-gray-500 uppercase">
+                    <span className="text-xs font-medium uppercase text-gray-500 sm:hidden">
                       Status
                     </span>
                     <span
-                      className={`inline-flex items-center text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-md border ${
-                        emi.status === "PENDING"
-                          ? "bg-amber-50 text-amber-600 border-amber-200"
+                      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${emi.status === "PENDING"
+                          ? "border-amber-200 bg-amber-50 text-amber-600"
                           : emi.status === "PAID"
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                            : "bg-blue-50 text-blue-600 border-blue-200"
-                      }`}
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+                            : "border-blue-200 bg-blue-50 text-blue-600"
+                        }`}
                     >
                       {emi.status}
                     </span>
                   </div>
 
-                  <div className="col-span-1 flex justify-end mt-2 sm:mt-0 pt-3 sm:pt-0 border-t border-gray-50 sm:border-0 relative">
+                  <div className="relative col-span-1 mt-2 flex justify-end border-t border-gray-50 pt-3 sm:mt-0 sm:border-0 sm:pt-0">
                     {emi.status === "PAID" ? (
-                      <span className="text-xs font-semibold text-gray-400 flex items-center justify-center w-full sm:w-auto px-3 py-1.5">
-                        —
-                      </span>
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-center gap-1 rounded-lg bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-emerald-600 border border-emerald-200 shadow-sm transition-colors hover:bg-emerald-100 hover:text-emerald-700 sm:w-auto"
+                        onClick={() => {
+                          if (emi.emiId) setSelectedEmiId(emi.emiId);
+                        }}
+                      >
+                        Details
+                        <ChevronRight size={14} />
+                      </button>
                     ) : isFirstPending ? (
                       <button
-                        className="flex items-center gap-1 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded-lg transition-colors w-full sm:w-auto justify-center shadow-sm shadow-blue-200"
-                        onClick={() => console.log("Pay EMI", emi.emiNumber)}
+                        type="button"
+                        className="flex w-full items-center justify-center gap-1 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm shadow-blue-200 transition-colors hover:bg-blue-700 sm:w-auto disabled:cursor-not-allowed disabled:opacity-60"
+                        onClick={() => handlePayNow(emi.emiId)}
+                        disabled={paymentMutation.isPending}
                       >
-                        Pay Now
-                        <ChevronRight size={14} />
+                        {paymentMutation.isPending ? "Processing..." : "Pay Now"}
+                        {!paymentMutation.isPending && <ChevronRight size={14} />}
                       </button>
                     ) : (
                       <span
-                        className="text-xs font-semibold text-gray-400 flex items-center justify-center w-full sm:w-auto px-3 py-1.5 cursor-not-allowed"
+                        className="flex w-full cursor-not-allowed items-center justify-center px-3 py-1.5 text-xs font-semibold text-gray-400 sm:w-auto"
                         title="Please pay previous EMIs first"
                       >
                         Locked
@@ -227,16 +258,24 @@ const EmiListing: React.FC = () => {
         </div>
 
         {tenure > 6 && (
-          <div className="text-center pt-3 pb-1">
-            <div className="inline-flex items-center justify-center w-full relative">
+          <div className="pb-1 pt-3 text-center">
+            <div className="relative inline-flex w-full items-center justify-center">
               <hr className="w-full border-gray-100" />
-              <span className="absolute px-3 bg-white text-xs font-medium text-gray-400">
+              <span className="absolute bg-white px-3 text-xs font-medium text-gray-400">
                 + {tenure - 6} more installments
               </span>
             </div>
           </div>
         )}
       </div>
+
+      {selectedEmiId && (
+        <EmiDetailsModal
+          emiId={selectedEmiId}
+          isOpen={!!selectedEmiId}
+          onClose={() => setSelectedEmiId(null)}
+        />
+      )}
     </SectionCard>
   );
 };
