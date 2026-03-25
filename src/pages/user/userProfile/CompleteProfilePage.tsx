@@ -3,17 +3,25 @@ import React, { useEffect, useState } from 'react';
 import UserProfileDisplay from '@/components/user/userDashboard/CompleteProfile';
 import { userProfile } from '@/api/user/userProfile';
 import { useNavigate } from 'react-router-dom';
+import type{ UseDispatch } from 'react-redux';
+import type { AppDispatch } from "@/redux/store";
+import { setProfileComplete } from "@/redux/slice/auth.slice";
+import { useDispatch } from 'react-redux';
+
 
 const CompleteProfilePage = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
  const navigate = useNavigate()
+ const dispatch = useDispatch<AppDispatch>()
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await userProfile.getCompleteProfile();
         console.log("API response",res)
         setProfile(res);
+
+        dispatch(setProfileComplete(res.isProfileComplete ?? false))
       } catch (err) {
         console.error('Profile fetch failed', err);
       } finally {
@@ -22,7 +30,7 @@ const CompleteProfilePage = () => {
     };
 
     fetchProfile();
-  }, []);
+  }, [dispatch]);
 
   if (loading) return <p className="text-center mt-10">Loading...</p>;
   if (!profile) return <p className="text-center mt-10">No data found</p>;

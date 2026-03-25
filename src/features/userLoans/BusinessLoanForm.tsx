@@ -36,7 +36,8 @@ const BUSINESS_TYPE_OPTIONS = [
 
 const BusinessLoanForm = () => {
     // ── Auth & Route params ─────────────────────────────────────────────────────
-    const { name, email, Id: userId } = useSelector((state: RootState) => state.auth);
+    const { name, email, Id: userId,isProfileComplete } = useSelector((state: RootState) => state.auth);
+    
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 
@@ -94,6 +95,11 @@ const BusinessLoanForm = () => {
             return;
         }
 
+        if(!isProfileComplete){
+            toast.error("Please complete your profile before applying for a loan");
+            navigate("/user/user-profile");
+            return
+        }
         try {
             const payload = {
                 userId,

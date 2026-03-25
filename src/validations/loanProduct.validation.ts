@@ -6,11 +6,10 @@ export const loanProductSchema = z.object({
   loanType: z.string().min(1, { message: "Loan type is required" }),
   description: z.string().min(1, { message: "Loan description is required" }),
   status: z.enum(["ACTIVE", "INACTIVE"]),
-  processingFee: z.number().min(1, "Processing fee is required").max(2, "Processing fee should not go above 2"),
   amount: z
     .object({
-      minimum: z.number().min(1, "Minimum amount is required"),
-      maximum: z.number().min(1, "Maximum amount is required"),
+      minimum: z.coerce.number().min(1, "Minimum amount is required"),
+      maximum: z.coerce.number().min(1, "Maximum amount is required"),
     })
     .superRefine((data, ctx) => {
       if (data.maximum < data.minimum) {
@@ -24,8 +23,8 @@ export const loanProductSchema = z.object({
 
   tenure: z
     .object({
-      minimum: z.number().min(1, "Minimum amount is required"),
-      maximum: z.number().min(1, "Maximum amount is required"),
+      minimum: z.coerce.number().min(1, "Minimum amount is required"),
+      maximum: z.coerce.number().min(1, "Maximum amount is required"),
     })
     .superRefine((data, ctx) => {
       if (data.maximum < data.minimum) {
@@ -37,12 +36,11 @@ export const loanProductSchema = z.object({
       }
     }),
 
-  interestRate: z.number().min(1, { message: "Interest rate is required" }),
-  duePenalty: z.number().min(0, { message: "Due penalty is required" }),
+  interestRate: z.coerce.number().min(1, { message: "Interest rate is required" }),
   eligibility: z.object({
-    minAge: z.number().min(18, { message: "Minimum age should be at least 18" }),
-    maxAge: z.number().min(70, { message: "Maximum age is required" }),
-    minSalary: z.number({ error: "Minimum salary is required" }).min(5000, { message: "Minimum salary must be at least ₹5,000" }),
-    minCibilScore: z.number().min(300, { message: "CIBIL score must be at least 300" }),
+    minAge: z.coerce.number().min(18, { message: "Minimum age should be at least 18" }),
+    maxAge: z.coerce.number().min(70, { message: "Maximum age is required" }),
+    minSalary: z.coerce.number({ error: "Minimum salary is required" }).min(5000, { message: "Minimum salary must be at least ₹5,000" }),
+    minCibilScore: z.coerce.number().min(300, { message: "CIBIL score must be at least 300" }),
   }),
 });

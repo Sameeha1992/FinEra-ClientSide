@@ -30,7 +30,7 @@ export interface  CompleteProfileData {
   adhaarNumber?: string;
   panNumber?: string;
   cibilScore?: string;
-  isCompleteProfile?:boolean;
+  isProfileComplete?:boolean;
   documents?: {
     adhaarDocUrl: string;
     panDocUrl: string;

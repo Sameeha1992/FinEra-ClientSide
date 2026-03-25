@@ -154,7 +154,7 @@ export default function LoanDetailPage() {
                                 />
                                 <DetailItem
                                     label="Processing Fee"
-                                    value={`${loan.processingFee}%`}
+                                    value={`₹${loan.processingFee}`}
                                     icon={Info}
                                 />
                                 <DetailItem

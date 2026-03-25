@@ -62,8 +62,9 @@ async completeUserProfile(formData:CompleteProfileForm):Promise<ApiResponsnes<us
       console.log("Complete profile response", response.data);
       return response.data;
 
-  } catch (error) {
+  } catch (error:any) {
     console.error("Failed to complete user profile", error);
+    console.log("this is the issue",error.response?.data)
       throw error;
   }
 },

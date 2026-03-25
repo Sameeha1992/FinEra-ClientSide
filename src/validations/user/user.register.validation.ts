@@ -11,7 +11,7 @@ export const registerUserSchema = z
       .email("Please enter a valid email address")
       .max(30, "Email too long"),
 
-      phone:z.string().max(10,"Should not exceed above 10 numbers").regex(/[1-9]/,"please enter only numbers"),
+      phone:z.string().max(10,"Should not exceed above 10 numbers").regex(/^[1-9]+$/,"Only numbers allowed"),
     password: z
       .string()
       .min(8, "Password must be atleast 8 characters")

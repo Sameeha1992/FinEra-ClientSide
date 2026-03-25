@@ -53,6 +53,7 @@ const VendorRegistrationForm: React.FC = () => {
             email: formData.email,
             registerNumber: formData.registerNumber,
             password: formData.password,
+            confirmPassword:formData.confirmPassword,
             role: 'vendor' as const,
           },
         },

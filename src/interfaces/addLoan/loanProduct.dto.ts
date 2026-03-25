@@ -16,8 +16,8 @@ export interface ILoanProductDto {
   };
 
   interestRate: number;
-  duePenalty: number;
-  processingFee: number;
+  duePenalty?: number;
+  processingFee?: number;
 
   features?: string[];
   eligibility?: {

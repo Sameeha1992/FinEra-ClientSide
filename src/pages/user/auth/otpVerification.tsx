@@ -99,6 +99,7 @@ const OtpVerification = () => {
           email: userData.email,
           registerNumber: userData.registerNumber,
           password: userData.password,
+          confirmPassword:userData.confirmPassword,
         });
         sonnerToast.success("Vendor account created");
         navigate("/vendor/login",{replace:true});

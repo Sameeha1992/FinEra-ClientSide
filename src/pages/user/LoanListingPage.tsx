@@ -7,15 +7,18 @@ import { loanService } from "@/api/user/userLoanService";
 import type { LoanListingItem } from "@/interfaces/user/loans/user.loan.listing";
 import { useQuery } from "@tanstack/react-query";
 
+
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
+import toast from "react-hot-toast";
+
+
 const loanLabels: Record<string, string> = {
   personal: "Personal Loans",
   home: "Home Loans",
   education: "Education Loans",
-  agriculture: "Agriculture Loans",
   business: "Business Loans",
-  commercial: "Commercial Loans",
   gold: "Gold Loans",
-  vehicle: "Vehicle Loans",
 };
 
 interface LoanMeta {
@@ -115,6 +118,9 @@ const LoanListingPage = () => {
   const loanLabel = loanLabels[rawType] ?? "Personal Loans"; // lowercase key lookup
   const [currentPage, setCurrentPage] = useState(1);
 
+  const {isProfileComplete} = useSelector((state:RootState)=>state.auth);
+
+
   // Filter inputs (controlled separately so filter only fires on button click)
   const [salaryInput, setSalaryInput] = useState("");
   const [searchInput, setSearchInput] = useState("");
@@ -133,6 +139,12 @@ const LoanListingPage = () => {
   };
 
   const handleApply = (loan: LoanListingItem) => {
+
+    if(!isProfileComplete){
+      toast.error("Please complete your profile before applying for a loan");
+      navigate("/user/user-profile");
+      return
+    }
     const route = loanTypeToRoute[rawType];
     if (route) {
       const params = new URLSearchParams({
@@ -386,7 +398,7 @@ const LoanListingPage = () => {
 
                   {/* Processing Fee */}
                   <span className="text-sm text-gray-700">
-                    {loan.processingFee}%
+                    ₹{loan.processingFee}
                   </span>
 
                   {/* Loan Amount */}

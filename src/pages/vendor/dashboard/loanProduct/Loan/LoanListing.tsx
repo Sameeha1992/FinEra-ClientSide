@@ -12,6 +12,8 @@ import {
 import { loanProduct } from "@/api/loanProduct/loanProduct.service";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
 
 interface Loan {
   id: string;
@@ -45,8 +47,20 @@ export default function LoanListing() {
     loanName: "",
     currentStatus: "Active",
   });
+
   const [toggling, setToggling] = useState(false);
   const navigate = useNavigate();
+
+  const {isProfileComplete} = useSelector((state:RootState)=>state.auth);
+  
+  const handleAddLoan =()=>{
+    if(!isProfileComplete){
+      toast.error("Complete your profile before adding a loan product");
+      navigate("/vendor/vendor-profile")
+      return;
+    }
+    navigate("/vendor/add-loan")
+  }
 
   const openConfirmModal = (loanId: string, loanName: string, currentStatus: "Active" | "Inactive") => {
     setConfirmModal({ open: true, loanId, loanName, currentStatus });
@@ -158,7 +172,7 @@ export default function LoanListing() {
               />
             </div>
 
-            <button onClick={() => navigate("/vendor/add-loan")} className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2.5 rounded-lg transition-colors flex items-center gap-2 font-medium shadow-sm shadow-teal-500/20">
+            <button onClick={handleAddLoan} className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2.5 rounded-lg transition-colors flex items-center gap-2 font-medium shadow-sm shadow-teal-500/20">
               <Plus size={18} />
               Add Loan
             </button>
@@ -180,11 +194,9 @@ export default function LoanListing() {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     Loan Type
                   </th>
+                  
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Min Amount
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Max Amount
+                   Loan Amount
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     Interest
@@ -228,9 +240,7 @@ export default function LoanListing() {
                       <td className="px-6 py-4 text-sm font-semibold text-slate-800 uppercase">
                         {loan.loanType}
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600">
-                        {loan.minAmount}
-                      </td>
+                      
                       <td className="px-6 py-4 text-sm text-slate-600">
                         {loan.maxAmount}
                       </td>

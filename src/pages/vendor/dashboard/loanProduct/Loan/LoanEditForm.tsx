@@ -249,7 +249,7 @@ export default function LoanEditForm() {
                         <input
                           type="number"
                           name="duePenalty"
-                          value={200}
+                          value={500}
                           disabled
                           className="w-full pl-8 pr-4 py-2.5 rounded-lg border border-slate-300 bg-slate-100 cursor-not-allowed text-slate-700"
                         />

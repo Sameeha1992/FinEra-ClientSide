@@ -120,7 +120,9 @@ export const authService = {
         name:formData.name,
         email:formData.email,
         registerNumber:formData.registerNumber,
-        password:formData.password
+        password:formData.password,
+        confirmPassword:formData.confirmPassword,
+        
       });
       console.log("responses for user verification",response.data)
       return response.data

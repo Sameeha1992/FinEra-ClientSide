@@ -7,12 +7,11 @@ interface SubmitButtonProps {
     disabled?: boolean;
     fullWidth?: boolean;
     className?: string;
+    disabledLabel?:string;
 }
 
-/**
- * A polished submit button that reflects loading / disabled states.
- * Pair with React Hook Form's `formState.isSubmitting`.
- */
+
+
 const SubmitButton = ({
     label = "Submit",
     loadingLabel = "Submitting…",
@@ -20,6 +19,7 @@ const SubmitButton = ({
     disabled = false,
     fullWidth = true,
     className = "",
+    disabledLabel="",
 }: SubmitButtonProps) => {
     const isDisabled = isLoading || disabled;
 
@@ -40,8 +40,11 @@ const SubmitButton = ({
       `}
         >
             {isLoading && <Loader2 size={16} className="animate-spin shrink-0" />}
-            {isLoading ? loadingLabel : label}
-        </button>
+{isLoading
+  ? loadingLabel
+  : isDisabled
+  ? disabledLabel || label
+  : label}        </button>
     );
 };
 

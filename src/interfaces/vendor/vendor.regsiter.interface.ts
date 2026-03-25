@@ -3,5 +3,6 @@ export interface IVendorRegister{
     email:string,
     registerNumber:string,
     password:string,
+    confirmPassword:string,
     
 }

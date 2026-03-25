@@ -19,7 +19,7 @@ export default function AddLoanForm() {
     amount: { minimum: 0, maximum: 0 },
     tenure: { minimum: 0, maximum: 0 },
     interestRate: 0,
-    duePenalty: 200,
+    duePenalty: 500,
     processingFee: 200,
     features: [],
     eligibility: {
@@ -90,7 +90,7 @@ export default function AddLoanForm() {
     }
 
     try {
-      await loanProduct.addLoan(result.data);
+      await loanProduct.addLoan({...result.data,duePenalty:500,processingFee:200});
       toast.success("Loan Product Created Successfully");
       setErrors({});
     } catch (error: unknown) {
@@ -343,7 +343,7 @@ export default function AddLoanForm() {
                 <Input
                   id="duePenalty"
                   type="number"
-                  value={200}
+                  value={500}
                   disabled
                   className="h-12 border-gray-200 bg-gray-100 cursor-not-allowed"
                 />
@@ -363,7 +363,10 @@ export default function AddLoanForm() {
                 <Input
                   id="processingFee"
                   type="number"
+                  disabled
                   value={200}
+                    className="h-12 border-gray-200 bg-gray-100 cursor-not-allowed"
+
                   
                 />
 
@@ -463,7 +466,7 @@ export default function AddLoanForm() {
                     handleChange(e, "eligibility", "minCibilScore")
                   }
                   className={`h-12 ${
-                    getError("eligibility.cibilScore")
+                    getError("eligibility.minCibilScore")
                       ? "border-red-500"
                       : "border-gray-200"
                   }`}
@@ -471,7 +474,7 @@ export default function AddLoanForm() {
 
                 {getError("eligibility.cibilScore") && (
                   <p className="text-red-500 text-sm mt-1">
-                    {getError("eligibility.cibilScore")}
+                    {getError("eligibility.minCibilScore")}
                   </p>
                 )}
               </div>
