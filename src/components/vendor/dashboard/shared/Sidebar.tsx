@@ -62,6 +62,11 @@ export default function Sidebar() {
           label="Loan"
         />
         <SidebarLink to="/vendor/user-loans" icon={<Users size={20} />} label="Users Applications" />
+        <SidebarLink
+          to="/vendor/conversations"
+          icon={<MessageSquare size={20} />}
+          label="Messages"
+        />
 
 
         {/* <SidebarLink

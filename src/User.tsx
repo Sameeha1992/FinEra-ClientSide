@@ -54,6 +54,12 @@ const FailurePayment = lazy(
 const UserNotifications = lazy(
   () => import("@/pages/user/userNotifications/UserNotifications"),
 );
+const UserChatPage = lazy(
+  () => import("@/pages/user/chat/UserChatPage"),
+);
+const UserConversationsPage = lazy(
+  () => import("@/pages/user/chat/UserConversationsPage"),
+);
 
 function User() {
   return (
@@ -104,6 +110,8 @@ function User() {
             />
             <Route path="emilist/:loanId" element={<EmiListing />} />
             <Route path="notifications" element={<UserNotifications />} />
+            <Route path="chat/:conversationId" element={<UserChatPage />} />
+            <Route path="conversations" element={<UserConversationsPage />} />
           </Route>
         </Route>
       </Routes>

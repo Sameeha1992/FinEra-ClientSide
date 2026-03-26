@@ -27,6 +27,7 @@ import { userVerification } from "@/api/vendor/user.verification";
 import { EmiService } from "@/api/emi/emi";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import ChatButton from "@/components/chat/ChatButton";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt = (n?: number) =>
@@ -294,11 +295,13 @@ export default function UserVerificationDetail() {
                                 </div>
 
                                 {/* Action buttons */}
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-2 items-center">
+                                    <ChatButton applicationId={applicationId as string} viewerRole="vendor" />
+                                    
                                     <button
                                         disabled={actionLoading || data.status === "APPROVED"}
                                         onClick={() => handleStatusUpdate()}
-                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed h-fit"
                                     >
                                         {actionLoading
                                             ? <Loader2 size={14} className="animate-spin" />
@@ -309,7 +312,7 @@ export default function UserVerificationDetail() {
                                     <button
                                         disabled={actionLoading || data.status === "REJECTED"}
                                         onClick={() => setRejectionModal({ open: true, reason: "" })}
-                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed h-fit"
                                     >
                                         {actionLoading
                                             ? <Loader2 size={14} className="animate-spin" />
@@ -471,13 +474,13 @@ export default function UserVerificationDetail() {
                             const hasRealData = emiData && emiData.length > 0;
                             const tenure = hasRealData ? emiData.length : (data?.loanTenure || 12);
                             const loanAmount = data?.loanAmount || 0;
-                            
-                            const displayData = hasRealData 
-                                ? emiData 
+
+                            const displayData = hasRealData
+                                ? emiData
                                 : Array.from({ length: Math.min(tenure, 6) }).map((_, i) => ({
                                     emiNumber: i + 1,
                                     dueDate: new Date(new Date().setMonth(new Date().getMonth() + i + 1)),
-                                    amount: loanAmount > 0 ? Math.round(loanAmount / tenure + (loanAmount * 0.1) / 12) : 0, 
+                                    amount: loanAmount > 0 ? Math.round(loanAmount / tenure + (loanAmount * 0.1) / 12) : 0,
                                     status: i === 0 ? 'PENDING' : ('UPCOMING' as any)
                                 }));
 
@@ -488,7 +491,7 @@ export default function UserVerificationDetail() {
                                             <span className="text-sm font-medium text-slate-500">Total Tenure</span>
                                             <span className="text-sm font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-lg">{tenure} Months</span>
                                         </div>
-                                        
+
                                         <div className="space-y-3 relative overflow-x-auto">
                                             <div className="hidden sm:grid grid-cols-5 gap-4 px-4 py-2 bg-slate-50 rounded-lg border border-slate-100 mb-2">
                                                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">EMI No.</span>
@@ -528,12 +531,11 @@ export default function UserVerificationDetail() {
 
                                                             <div className="col-span-1 flex justify-between sm:block">
                                                                 <span className="sm:hidden text-xs font-medium text-slate-500 uppercase">Status</span>
-                                                                <span className={`inline-flex items-center text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-md border ${
-                                                                    emi.status === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-200' : 
-                                                                    emi.status === 'PAID' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                                                                    emi.status === 'UPCOMING' ? 'bg-teal-50 text-teal-600 border-teal-200' :
-                                                                    'bg-slate-50 text-slate-500 border-slate-200'
-                                                                }`}>
+                                                                <span className={`inline-flex items-center text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-md border ${emi.status === 'PENDING' ? 'bg-amber-50 text-amber-600 border-amber-200' :
+                                                                        emi.status === 'PAID' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                                                                            emi.status === 'UPCOMING' ? 'bg-teal-50 text-teal-600 border-teal-200' :
+                                                                                'bg-slate-50 text-slate-500 border-slate-200'
+                                                                    }`}>
                                                                     {emi.status}
                                                                 </span>
                                                             </div>
@@ -542,7 +544,7 @@ export default function UserVerificationDetail() {
                                                                 {emi.status === 'PAID' ? (
                                                                     <span className="text-xs font-semibold text-slate-400 flex items-center justify-center w-full sm:w-auto px-3 py-1.5">—</span>
                                                                 ) : isFirstPending ? (
-                                                                    <button 
+                                                                    <button
                                                                         className="flex items-center gap-1 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 px-4 py-1.5 rounded-lg transition-colors w-full sm:w-auto justify-center shadow-sm shadow-teal-200"
                                                                         onClick={() => console.log('Vendor View EMI', emi.emiNumber)}
                                                                     >

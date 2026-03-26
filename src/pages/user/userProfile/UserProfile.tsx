@@ -2,9 +2,10 @@
 import { Outlet } from "react-router-dom";
 import {Sidebar} from "@/components/shared/user/Sidebar";
 import TopNav from "@/components/shared/user/TopNav";
+import { useNotificationSocket } from "@/hooks/useNotificationSocket";
 
 export default function Dashboard() {
-  
+  useNotificationSocket();
 
   return (
     <div className="flex h-screen bg-gray-100">

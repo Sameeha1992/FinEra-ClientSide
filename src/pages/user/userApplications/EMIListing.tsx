@@ -105,9 +105,9 @@ const EmiListing: React.FC = () => {
       status: i === 0 ? "PENDING" : "UPCOMING",
     }));
 
-  const nextPendingEmi = emiData.find((emi: EmiItem) => emi.status === "PENDING");
+  const nextPendingEmi = emiData.find((emi: EmiItem) => emi.status === "PENDING" || emi.status === "OVERDUE");
 
-  const firstPendingIndex = displayData.findIndex((emi) => emi.status === "PENDING");
+  const firstPendingIndex = displayData.findIndex((emi) => emi.status === "PENDING" || emi.status === "OVERDUE");
 
   return (
     <SectionCard
@@ -116,12 +116,14 @@ const EmiListing: React.FC = () => {
     >
       <div className="space-y-4">
         {nextPendingEmi && (
-          <div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4">
-            <p className="text-sm font-medium text-blue-700">EMI to be paid now</p>
-            <p className="mt-1 text-2xl font-bold text-blue-900">
+          <div className={`mb-6 rounded-2xl border px-5 py-4 ${nextPendingEmi.status === "OVERDUE" ? "border-rose-200 bg-rose-50" : "border-blue-200 bg-blue-50"}`}>
+            <p className={`text-sm font-medium ${nextPendingEmi.status === "OVERDUE" ? "text-rose-700" : "text-blue-700"}`}>
+              {nextPendingEmi.status === "OVERDUE" ? "Overdue EMI to be paid now" : "EMI to be paid now"}
+            </p>
+            <p className={`mt-1 text-2xl font-bold ${nextPendingEmi.status === "OVERDUE" ? "text-rose-900" : "text-blue-900"}`}>
               ₹ {nextPendingEmi.amount.toLocaleString("en-IN")}
             </p>
-            <p className="mt-1 text-sm text-blue-600">
+            <p className={`mt-1 text-sm ${nextPendingEmi.status === "OVERDUE" ? "text-rose-600" : "text-blue-600"}`}>
               Due on{" "}
               {new Date(nextPendingEmi.dueDate).toLocaleDateString("en-GB", {
                 day: "numeric",
@@ -209,12 +211,15 @@ const EmiListing: React.FC = () => {
                       Status
                     </span>
                     <span
-                      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${emi.status === "PENDING"
+                      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                        emi.status === "PENDING"
                           ? "border-amber-200 bg-amber-50 text-amber-600"
+                          : emi.status === "OVERDUE"
+                          ? "border-rose-200 bg-rose-50 text-rose-600"
                           : emi.status === "PAID"
-                            ? "border-emerald-200 bg-emerald-50 text-emerald-600"
-                            : "border-blue-200 bg-blue-50 text-blue-600"
-                        }`}
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+                          : "border-blue-200 bg-blue-50 text-blue-600"
+                      }`}
                     >
                       {emi.status}
                     </span>

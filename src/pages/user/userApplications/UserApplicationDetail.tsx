@@ -5,7 +5,6 @@ import {
   Circle,
   Clock,
   FileText,
-  Image as ImageIcon,
   Briefcase,
   Home,
   Banknote,
@@ -15,6 +14,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { UserApplicationservice } from "@/api/user/user.loan.application";
+import ChatButton from "@/components/chat/ChatButton";
 
 const StatusBadge = ({
   status,
@@ -85,8 +85,8 @@ export const UserApplicationDetail = () => {
     queryFn: () => UserApplicationservice.getApplicationDetail(id as string),
     enabled: !!id,
   });
-  console.log("gggkggggggg",data, "the data of the application details");
-  console.log("ooooooooo",data?.loanMongoId, "loan mongo id from application detail");
+  console.log("gggkggggggg", data, "the data of the application details");
+  console.log("ooooooooo", data?.loanMongoId, "loan mongo id from application detail");
 
   const formattedDate = useMemo(() => {
     if (!data?.appliedDate) return "";
@@ -335,6 +335,12 @@ export const UserApplicationDetail = () => {
               View EMI Schedule
             </button>
           )}
+
+          {data.status === "APPROVED" && (
+            <div className="mt-3 sm:mt-11">
+              <ChatButton applicationId={id as string} viewerRole="user" />
+            </div>
+          )}
         </div>
 
         {/* Information Box */}
@@ -383,13 +389,12 @@ export const UserApplicationDetail = () => {
             {/* Connecting Line Tracker */}
             <div className="absolute left-[1.1rem] top-4 bottom-4 w-1 bg-gray-100 sm:left-4 sm:top-[1.1rem] sm:w-[calc(100%-2rem)] sm:h-1 sm:bottom-auto rounded-full overflow-hidden">
               <div
-                className={`h-full sm:h-full w-full bg-emerald-400 transition-all ${
-                  data.status === "APPROVED"
+                className={`h-full sm:h-full w-full bg-emerald-400 transition-all ${data.status === "APPROVED"
                     ? "sm:w-full h-full"
                     : data.status === "REJECTED"
                       ? "sm:w-full h-full !bg-rose-400"
                       : "h-1/2 sm:w-1/2"
-                }`}
+                  }`}
               ></div>
             </div>
 
@@ -412,11 +417,10 @@ export const UserApplicationDetail = () => {
               {/* Step 2 */}
               <div className="flex flex-row sm:flex-col items-start sm:items-center gap-4 sm:gap-3 bg-white pl-1 sm:px-2">
                 <div
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-4 border-white shadow-sm shrink-0 relative z-10 transition-colors ${
-                    data.status !== "PENDING"
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-4 border-white shadow-sm shrink-0 relative z-10 transition-colors ${data.status !== "PENDING"
                       ? "bg-emerald-100 text-emerald-600"
                       : "bg-blue-600 text-white"
-                  }`}
+                    }`}
                 >
                   {data.status !== "PENDING" ? (
                     <CheckCircle2 size={20} />
@@ -441,13 +445,12 @@ export const UserApplicationDetail = () => {
               {/* Step 3 */}
               <div className="flex flex-row sm:flex-col items-start sm:items-center gap-4 sm:gap-3 bg-white pl-1 sm:px-2">
                 <div
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-4 border-white shadow-sm shrink-0 relative z-10 transition-colors ${
-                    data.status === "APPROVED"
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-4 border-white shadow-sm shrink-0 relative z-10 transition-colors ${data.status === "APPROVED"
                       ? "bg-emerald-100 text-emerald-600"
                       : data.status === "REJECTED"
                         ? "bg-rose-100 text-rose-600"
                         : "bg-gray-100 text-gray-400"
-                  }`}
+                    }`}
                 >
                   {data.status === "APPROVED" ? (
                     <CheckCircle2 size={20} />
@@ -459,13 +462,12 @@ export const UserApplicationDetail = () => {
                 </div>
                 <div className="pt-1.5 sm:pt-0">
                   <p
-                    className={`text-base font-bold sm:text-center ${
-                      data.status === "APPROVED"
+                    className={`text-base font-bold sm:text-center ${data.status === "APPROVED"
                         ? "text-gray-900"
                         : data.status === "REJECTED"
                           ? "text-rose-700"
                           : "text-gray-400"
-                    }`}
+                      }`}
                   >
                     {data.status === "PENDING"
                       ? "Decision"

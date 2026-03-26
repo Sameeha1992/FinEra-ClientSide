@@ -23,6 +23,8 @@ const VendorChangePassword = lazy(() => import("./pages/vendor/VendorChnagePassw
 const LoanListing = lazy(() => import("./pages/vendor/dashboard/loanProduct/Loan/LoanListing.tsx"))
 const AddLoanForm = lazy(() => import('./components/loanProduct/AddLoanForm.tsx'))
 const LoanEditForm = lazy(() => import("./pages/vendor/dashboard/loanProduct/Loan/LoanEditForm.tsx"))
+const VendorChatPage = lazy(() => import("./pages/vendor/chat/VendorChatPage.tsx"))
+const VendorConversationsPage = lazy(() => import("./pages/vendor/chat/VendorConversationsPage.tsx"))
 function Vendor() {
   return (
     <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
@@ -53,6 +55,8 @@ function Vendor() {
           <Route path='/loan-detail/:loanId' element={<LoanDetailPage />} />
           <Route path='/user-loans' element={<UserList />} />
           <Route path='/user-application/:applicationId' element={<UserVerificationDetail />} />
+          <Route path='/chat/:conversationId' element={<VendorChatPage />} />
+          <Route path='/conversations' element={<VendorConversationsPage />} />
 
 
 

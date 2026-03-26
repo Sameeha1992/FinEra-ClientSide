@@ -16,6 +16,7 @@ const EmiDetailsModal: React.FC<EmiDetailsModalProps> = ({ emiId, isOpen, onClos
     enabled: isOpen && !!emiId,
   });
 
+  console.log("emi details", emiDetails)
   if (!isOpen) return null;
 
   return (
@@ -93,32 +94,32 @@ const EmiDetailsModal: React.FC<EmiDetailsModalProps> = ({ emiId, isOpen, onClos
                 </div>
 
                 {emiDetails.paidAt && (
-                   <div className="flex items-center justify-between">
-                   <div className="flex items-center gap-2 text-gray-500">
-                     <CreditCard size={16} />
-                     <span className="text-sm font-medium">Paid On</span>
-                   </div>
-                   <span className="text-sm font-bold text-gray-900">
-                     {new Date(emiDetails.paidAt).toLocaleDateString("en-GB", {
-                       day: "numeric",
-                       month: "short",
-                       year: "numeric"
-                     })}
-                   </span>
-                 </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <CreditCard size={16} />
+                      <span className="text-sm font-medium">Paid On</span>
+                    </div>
+                    <span className="text-sm font-bold text-gray-900">
+                      {new Date(emiDetails.paidAt).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric"
+                      })}
+                    </span>
+                  </div>
                 )}
-                
+
                 {emiDetails.penalty ? (
-                   <div className="flex items-center justify-between">
-                   <div className="flex items-center gap-2 text-gray-500">
-                     <AlertCircle size={16} className="text-amber-500" />
-                     <span className="text-sm font-medium">Penalty</span>
-                   </div>
-                   <span className="text-sm font-bold text-amber-600">
-                     ₹ {emiDetails.penalty.toLocaleString("en-IN")}
-                   </span>
-                 </div>
-                ): null}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <AlertCircle size={16} className="text-amber-500" />
+                      <span className="text-sm font-medium">Penalty</span>
+                    </div>
+                    <span className="text-sm font-bold text-amber-600">
+                      ₹ {emiDetails.penalty.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                ) : null}
               </div>
             </div>
           )}

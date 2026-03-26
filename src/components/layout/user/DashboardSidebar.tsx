@@ -44,7 +44,7 @@ const defaultItems: SidebarItem[] = [
   },
   {
     label: "Chat Support",
-    href: "/dashboard/support",
+    href: "/user/conversations",
     icon: <MessageCircle className="w-5 h-5" />,
   },
   {
