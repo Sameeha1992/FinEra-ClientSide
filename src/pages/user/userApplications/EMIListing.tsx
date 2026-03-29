@@ -1,17 +1,20 @@
 import React from "react";
-import { Calendar, ChevronRight } from "lucide-react";
+import { Calendar, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { EmiService } from "@/api/emi/emi";
 import { EmiPaymentService } from "@/api/emi/emi.payment.service";
 import EmiDetailsModal from "./EmiDetailsModal";
+import toast from "react-hot-toast";
 
 type EmiItem = {
   emiId?: string;
   emiNumber: number;
   dueDate: string | Date;
   amount: number;
-  status: "PENDING" | "PAID" | "UPCOMING" | "OVERDUE";
+  penalty?: number;
+  totalAmount?: number;
+  status: "PENDING" | "PAID" | "UPCOMING" | "OVERDUE" | "PAYMENT_IN_PROGRESS";
 };
 
 type SectionCardProps = {
@@ -35,6 +38,7 @@ const SectionCard = ({ title, icon, children }: SectionCardProps) => (
 const EmiListing: React.FC = () => {
   const { loanId } = useParams<{ loanId: string }>();
   const [selectedEmiId, setSelectedEmiId] = React.useState<string | null>(null);
+  const [showAll, setShowAll] = React.useState(false);
 
   const {
     data: emiData = [],
@@ -48,25 +52,36 @@ const EmiListing: React.FC = () => {
   });
 
   const paymentMutation = useMutation({
-    mutationFn: (emiId: string) => EmiPaymentService.createPaymentSession(emiId),
+    mutationFn: (emiId: string) =>
+      EmiPaymentService.createPaymentSession(emiId),
     onSuccess: (data) => {
       if (data?.checkoutUrl) {
         if (loanId) localStorage.setItem("lastPaidEmiLoanId", loanId);
         window.location.href = data.checkoutUrl;
       } else {
-        alert("Checkout URL not received");
+        toast.error("Checkout URL not received");
       }
     },
-    onError: () => {
-      alert("Failed to create payment session");
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || "Failed to create payment session";
+
+      if (message.includes("already in progress")) {
+        toast.error(
+          "A payment attempt is already active. Please wait 1 minute if you need to retry.",
+          { id: "payment-progress", duration: 5000 }
+        );
+      } else {
+        toast.error(message);
+      }
     },
   });
 
-  console.log("paymnet mutation", paymentMutation)
+  console.log("paymnet mutation", paymentMutation);
 
   const handlePayNow = (emiId?: string) => {
     if (!emiId) {
-      alert("EMI ID is missing");
+      toast.error("EMI ID is missing");
       return;
     }
 
@@ -105,9 +120,19 @@ const EmiListing: React.FC = () => {
       status: i === 0 ? "PENDING" : "UPCOMING",
     }));
 
-  const nextPendingEmi = emiData.find((emi: EmiItem) => emi.status === "PENDING" || emi.status === "OVERDUE");
+  const nextPendingEmi = emiData.find(
+    (emi: EmiItem) =>
+      emi.status === "PENDING" ||
+      emi.status === "OVERDUE" ||
+      emi.status === "PAYMENT_IN_PROGRESS",
+  );
 
-  const firstPendingIndex = displayData.findIndex((emi) => emi.status === "PENDING" || emi.status === "OVERDUE");
+  const firstPendingIndex = displayData.findIndex(
+    (emi) =>
+      emi.status === "PENDING" ||
+      emi.status === "OVERDUE" ||
+      emi.status === "PAYMENT_IN_PROGRESS",
+  );
 
   return (
     <SectionCard
@@ -116,14 +141,24 @@ const EmiListing: React.FC = () => {
     >
       <div className="space-y-4">
         {nextPendingEmi && (
-          <div className={`mb-6 rounded-2xl border px-5 py-4 ${nextPendingEmi.status === "OVERDUE" ? "border-rose-200 bg-rose-50" : "border-blue-200 bg-blue-50"}`}>
-            <p className={`text-sm font-medium ${nextPendingEmi.status === "OVERDUE" ? "text-rose-700" : "text-blue-700"}`}>
-              {nextPendingEmi.status === "OVERDUE" ? "Overdue EMI to be paid now" : "EMI to be paid now"}
+          <div
+            className={`mb-6 rounded-2xl border px-5 py-4 ${nextPendingEmi.status === "OVERDUE" ? "border-rose-200 bg-rose-50" : "border-blue-200 bg-blue-50"}`}
+          >
+            <p
+              className={`text-sm font-medium ${nextPendingEmi.status === "OVERDUE" ? "text-rose-700" : "text-blue-700"}`}
+            >
+              {nextPendingEmi.status === "OVERDUE"
+                ? "Overdue EMI to be paid now"
+                : "EMI to be paid now"}
             </p>
-            <p className={`mt-1 text-2xl font-bold ${nextPendingEmi.status === "OVERDUE" ? "text-rose-900" : "text-blue-900"}`}>
+            <p
+              className={`mt-1 text-2xl font-bold ${nextPendingEmi.status === "OVERDUE" ? "text-rose-900" : "text-blue-900"}`}
+            >
               ₹ {nextPendingEmi.amount.toLocaleString("en-IN")}
             </p>
-            <p className={`mt-1 text-sm ${nextPendingEmi.status === "OVERDUE" ? "text-rose-600" : "text-blue-600"}`}>
+            <p
+              className={`mt-1 text-sm ${nextPendingEmi.status === "OVERDUE" ? "text-rose-600" : "text-blue-600"}`}
+            >
               Due on{" "}
               {new Date(nextPendingEmi.dueDate).toLocaleDateString("en-GB", {
                 day: "numeric",
@@ -135,7 +170,9 @@ const EmiListing: React.FC = () => {
         )}
 
         <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-          <span className="text-sm font-medium text-gray-500">Total Tenure</span>
+          <span className="text-sm font-medium text-gray-500">
+            Total Tenure
+          </span>
           <span className="rounded-lg bg-gray-100 px-3 py-1 text-sm font-bold text-gray-900">
             {tenure} Months
           </span>
@@ -167,7 +204,7 @@ const EmiListing: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {displayData.slice(0, 6).map((emi, index) => {
+            {(showAll ? displayData : displayData.slice(0, 6)).map((emi, index) => {
               const isFirstPending = index === firstPendingIndex;
 
               return (
@@ -201,9 +238,16 @@ const EmiListing: React.FC = () => {
                     <span className="text-xs font-medium uppercase text-gray-500 sm:hidden">
                       Amount
                     </span>
-                    <span className="text-sm font-black text-gray-900">
-                      ₹ {emi.amount.toLocaleString("en-IN")}
-                    </span>
+                    <div>
+                      <span className="text-sm font-black text-gray-900">
+                        ₹ {(emi.totalAmount ?? emi.amount).toLocaleString("en-IN")}
+                      </span>
+                      {(emi.penalty ?? 0) > 0 && (
+                        <p className="text-[10px] font-medium text-rose-500">
+                          incl. ₹{emi.penalty?.toLocaleString("en-IN")} penalty
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   <div className="col-span-1 flex justify-between sm:block">
@@ -211,15 +255,16 @@ const EmiListing: React.FC = () => {
                       Status
                     </span>
                     <span
-                      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
-                        emi.status === "PENDING"
-                          ? "border-amber-200 bg-amber-50 text-amber-600"
-                          : emi.status === "OVERDUE"
+                      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${emi.status === "PENDING"
+                        ? "border-amber-200 bg-amber-50 text-amber-600"
+                        : emi.status === "OVERDUE"
                           ? "border-rose-200 bg-rose-50 text-rose-600"
                           : emi.status === "PAID"
-                          ? "border-emerald-200 bg-emerald-50 text-emerald-600"
-                          : "border-blue-200 bg-blue-50 text-blue-600"
-                      }`}
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+                            : emi.status === "PAYMENT_IN_PROGRESS"
+                              ? "border-sky-200 bg-sky-50 text-sky-600"
+                              : "border-blue-200 bg-blue-50 text-blue-600"
+                        }`}
                     >
                       {emi.status}
                     </span>
@@ -240,12 +285,23 @@ const EmiListing: React.FC = () => {
                     ) : isFirstPending ? (
                       <button
                         type="button"
-                        className="flex w-full items-center justify-center gap-1 rounded-lg bg-blue-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm shadow-blue-200 transition-colors hover:bg-blue-700 sm:w-auto disabled:cursor-not-allowed disabled:opacity-60"
+                        className={`flex w-full items-center justify-center gap-1 rounded-lg px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors sm:w-auto disabled:cursor-not-allowed disabled:opacity-60 ${emi.status === "PAYMENT_IN_PROGRESS"
+                            ? "bg-amber-500 hover:bg-amber-600 shadow-amber-200"
+                            : "bg-blue-600 hover:bg-blue-700 shadow-blue-200"
+                          }`}
                         onClick={() => handlePayNow(emi.emiId)}
                         disabled={paymentMutation.isPending}
                       >
-                        {paymentMutation.isPending ? "Processing..." : "Pay Now"}
-                        {!paymentMutation.isPending && <ChevronRight size={14} />}
+                        {paymentMutation.isPending ? (
+                          "Processing..."
+                        ) : emi.status === "PAYMENT_IN_PROGRESS" ? (
+                          "Retry Payment"
+                        ) : (
+                          "Pay Now"
+                        )}
+                        {!paymentMutation.isPending && (
+                          <ChevronRight size={14} />
+                        )}
                       </button>
                     ) : (
                       <span
@@ -264,12 +320,21 @@ const EmiListing: React.FC = () => {
 
         {tenure > 6 && (
           <div className="pb-1 pt-3 text-center">
-            <div className="relative inline-flex w-full items-center justify-center">
-              <hr className="w-full border-gray-100" />
-              <span className="absolute bg-white px-3 text-xs font-medium text-gray-400">
-                + {tenure - 6} more installments
-              </span>
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowAll((prev) => !prev)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-xs font-semibold text-gray-600 shadow-sm transition-all hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+            >
+              {showAll ? (
+                <>
+                  Show Less <ChevronUp size={14} />
+                </>
+              ) : (
+                <>
+                  Show All {tenure} EMIs <ChevronDown size={14} />
+                </>
+              )}
+            </button>
           </div>
         )}
       </div>

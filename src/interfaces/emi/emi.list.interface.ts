@@ -4,7 +4,8 @@ export interface EmiListByLoanIdType{
     emiNumber:number,
     amount:number,
     dueDate:Date,
-    status:"PENDING"|"PAID" |"UPCOMING"| "OVERDUE",
+    status:"PENDING"|"PAID" |"UPCOMING"| "OVERDUE" | "PAYMENT_IN_PROGRESS",
     penalty?:number,
+    totalAmount?:number,
     paidAt?:Date,
 }

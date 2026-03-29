@@ -59,10 +59,23 @@ const EmiDetailsModal: React.FC<EmiDetailsModalProps> = ({ emiId, isOpen, onClos
 
               {/* Amount Display */}
               <div className="text-center">
-                <p className="text-sm font-medium text-gray-500">Amount Paid</p>
-                <p className="text-4xl font-black text-gray-900">
-                  ₹ {emiDetails.amount.toLocaleString("en-IN")}
+                <p className="text-sm font-medium text-gray-500">
+                  {emiDetails.status === "PAID" ? "Total Amount Paid" : "Total Payable"}
                 </p>
+                <p className="text-4xl font-black text-gray-900">
+                  ₹ {(emiDetails.totalAmount ?? emiDetails.amount).toLocaleString("en-IN")}
+                </p>
+                {(emiDetails.penalty ?? 0) > 0 && (
+                  <div className="mt-2 inline-flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-4 py-2 text-xs">
+                    <span className="text-gray-500">
+                      EMI: <span className="font-bold text-gray-700">₹{emiDetails.amount.toLocaleString("en-IN")}</span>
+                    </span>
+                    <span className="text-gray-300">|</span>
+                    <span className="text-rose-500">
+                      Penalty: <span className="font-bold text-rose-600">₹{emiDetails.penalty?.toLocaleString("en-IN")}</span>
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="h-px w-full bg-gray-100" />
