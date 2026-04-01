@@ -60,6 +60,9 @@ const UserChatPage = lazy(
 const UserConversationsPage = lazy(
   () => import("@/pages/user/chat/UserConversationsPage"),
 );
+const TransactionListing = lazy(
+  () => import("@/pages/user/TransactionListing"),
+);
 
 function User() {
   return (
@@ -112,6 +115,7 @@ function User() {
             <Route path="notifications" element={<UserNotifications />} />
             <Route path="chat/:conversationId" element={<UserChatPage />} />
             <Route path="conversations" element={<UserConversationsPage />} />
+            <Route path="transactions" element={<TransactionListing />} />
           </Route>
         </Route>
       </Routes>

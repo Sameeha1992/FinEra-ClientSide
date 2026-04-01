@@ -7,6 +7,7 @@ import type { RootState } from "@/redux/store";
 import { authService } from "@/api/AuthServiceAndProfile";
 import { clearAuth } from "@/redux/slice/auth.slice";
 import { userProfile } from "@/api/user/userProfile";
+import toast from "react-hot-toast";
 
 export default function Header() {
   const navigate = useNavigate();
@@ -55,14 +56,14 @@ export default function Header() {
 
       // Redirect based on backend value
       navigate(
-        profile.isCompleteProfile
+        profile.isProfileComplete
           ? "/user/user-complete-profile" : "/user/user-profile"
 
       );
     } catch (error) {
       console.error("Failed to fetch profile:", error);
       // Optional: show a toast
-      alert("Unable to load profile. Please try again.");
+      toast.error("Unable to load profile. Please try again.");
     }
   };
 

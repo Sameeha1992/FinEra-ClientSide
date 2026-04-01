@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { setProfileComplete } from "@/redux/slice/auth.slice";
 import { useNavigate } from "react-router-dom";
 import { verificationSchema } from "@/validations/user/user.profileForm.validation";
+import toast from "react-hot-toast";
 
 export type Gender = "male" | "female" | "other";
 
@@ -130,11 +131,11 @@ export default function VerificationForm() {
 
       console.log("Profile submitted successfully:", response);
       dispatch(setProfileComplete(true));
-      alert("Profile submitted successfully!");
+      toast.success("Profile submitted successfully!");
       navigate("/user/user-complete-profile");
     } catch (error) {
       console.error("Submission failed:", error);
-      alert("Failed to submit profile!");
+      toast.error("Failed to submit profile!");
     }
   };
 

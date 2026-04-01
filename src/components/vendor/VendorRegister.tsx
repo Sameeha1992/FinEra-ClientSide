@@ -3,6 +3,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { registrationSchema, type RegistrationFormData } from '@/components/pages/validation/vendorAuthSchema';
 import { authService } from '@/api/AuthServiceAndProfile';
+import toast from 'react-hot-toast';
 
 const VendorRegistrationForm: React.FC = () => {
   const navigate = useNavigate();
@@ -59,7 +60,7 @@ const VendorRegistrationForm: React.FC = () => {
         },
       });
     } catch (err: any) {
-      alert(err.message || 'Failed to generate OTP');
+      toast.error(err.message || 'Failed to generate OTP');
     } finally {
       setLoading(false);
     }

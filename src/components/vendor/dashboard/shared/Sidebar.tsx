@@ -67,6 +67,7 @@ export default function Sidebar() {
           icon={<MessageSquare size={20} />}
           label="Messages"
         />
+       
 
 
         {/* <SidebarLink
@@ -82,7 +83,7 @@ export default function Sidebar() {
         />
 
         <SidebarLink
-          to="/transactions"
+          to="/vendor/transactions"
           icon={<ArrowRightLeft size={20} />}
           label="Transactions"
         />

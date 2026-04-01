@@ -21,7 +21,7 @@ export interface  CompleteProfileData {
   name?:string;
   email?:string
   phone?: string;
-  status: "VERIFIED" | "NOT_VERIFIED";
+  status: "Verified" | "Not_Verified" |"Rejected";
   dob?: string;
   job?: string;
   income?: string;

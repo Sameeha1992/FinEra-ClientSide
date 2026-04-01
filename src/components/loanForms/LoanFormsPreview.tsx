@@ -9,6 +9,7 @@ import SubmitButton from "./SubmitButton";
 import FormSection from "./FormSection";
 import CommonLoanFields from "./CommonLoanFields";
 import type { CommonLoanFieldValues } from "./CommonLoanFields";
+import toast from "react-hot-toast";
 
 interface PreviewForm extends CommonLoanFieldValues {
     loanPurpose: string;
@@ -36,7 +37,7 @@ export default function LoanFormsPreview() {
 
     const onSubmit = (data: PreviewForm) => {
         console.log("Form submitted:", data);
-        alert("✅ Form submitted! Check console for values.");
+        toast.success("✅ Form submitted! Check console for values.");
     };
 
     return (

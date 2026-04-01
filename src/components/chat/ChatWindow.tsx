@@ -133,7 +133,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     const payload: SendMessagePayload = {
       conversationId,
       senderId: currentUser.id,
-      role: currentUser.role.toUpperCase() as "USER" | "VENDOR",
+      role: currentUser.role.toUpperCase() as "User" | "Vendor",
       text,
     };
 
