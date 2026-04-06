@@ -35,6 +35,7 @@ const UserChangePassword = lazy(
 const UpdateProfileForm = lazy(
   () => import("./pages/user/userProfile/UpdateProfileForm"),
 );
+
 const EMICalculator = lazy(() => import("./components/shared/EMICalculator"));
 const UserApplicationList = lazy(
   () => import("./pages/user/userApplications/UserApplicationList"),
@@ -106,6 +107,7 @@ function User() {
             <Route path="user-complete-profile" element={<CompleteProfile />} />
             <Route path="change-password" element={<UserChangePassword />} />
             <Route path="update-profile" element={<UpdateProfileForm />} />
+            
             <Route path="applications" element={<UserApplicationList />} />
             <Route
               path="applications/:id"

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Upload, CheckCircle } from "lucide-react";
+import { DOBPicker } from "@/components/ui/DOBPicker";
 import { userProfile } from "@/api/user/userProfile";
 import type { CompleteProfileForm } from "@/interfaces/user/userProfile/profile.complete.interface";
 import { useSelector } from "react-redux";
@@ -78,7 +79,7 @@ export default function UpdateProfileForm() {
 
         setExistingDocs({
           pan: data.documents?.panDocUrl, // assume backend gives signed URL
-          aadhar: data.documents?.panDocUrl,
+          aadhar: data.documents?.adhaarDocUrl,
         });
 
         // Show file name if already uploaded
@@ -291,23 +292,20 @@ export default function UpdateProfileForm() {
               )}
             </div>
 
-            {/* Date of Birth */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-500">
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                name="dateOfBirth"
+            {/* Date of Birth Picker (MUI) */}
+            <div className="col-span-1">
+              <DOBPicker
                 value={formData.dateOfBirth}
-                onChange={handleInputChange}
-                className={`border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400 ${
-                  errors.dateOfBirth ? "border-red-400" : "border-gray-300"
-                }`}
+                onChange={(val) => {
+                  setFormData((prev) => ({ ...prev, dateOfBirth: val }));
+                  setErrors((prev) => {
+                    const copy = { ...prev };
+                    delete copy.dateOfBirth;
+                    return copy;
+                  });
+                }}
+                error={errors.dateOfBirth}
               />
-              {errors.dateOfBirth && (
-                <p className="text-red-500 text-xs">{errors.dateOfBirth}</p>
-              )}
             </div>
           </div>
 

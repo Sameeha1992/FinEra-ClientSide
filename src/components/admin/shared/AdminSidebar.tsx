@@ -15,12 +15,10 @@ const sidebarItems: SidebarItem[] = [
   { label: "Vendor Management", path: "/admin/vendor" },
   { label: "User Management", path: "/admin/user" },
   { label: "Vendor Verification", path: "/admin/vendor-verification" },
-  { label: "Notifications", path: "/admin/notifications" },
 ];
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
   const { role } = useSelector((state: RootState) => state.auth);
 

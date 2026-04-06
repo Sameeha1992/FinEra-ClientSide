@@ -1,28 +1,29 @@
 import React from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Home,
   Users,
   FileText,
   DollarSign,
-  BarChart3,
   Bell,
   MessageSquare,
   ArrowRightLeft,
   LogOut,
-  UserCheck,
 } from "lucide-react";
 import { authService } from "@/api/AuthServiceAndProfile";
 import { useDispatch } from "react-redux";
 import { clearAuth } from "@/redux/slice/auth.slice";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
+import { useVendorUnreadCount } from "@/hooks/vendor/vendor.notification";
 
 export default function Sidebar() {
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
   const { role } = useSelector((state: RootState) => state.auth);
+
+  const { data: unreadData } = useVendorUnreadCount();
+  const unreadCount = unreadData?.unreadCount || 0;
 
   const handleLogout = async () => {
     try {
@@ -38,7 +39,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-56 bg-gradient-to-b from-black to-gray-900 text-white h-screen flex flex-col fixed left-0 top-0">
+    <aside className="w-56 bg-gradient-to-b from-black to-gray-900 text-white h-screen flex flex-col fixed left-0 top-0 z-50">
       {/* Logo */}
       <div className="p-6 border-b border-slate-700">
         <h1 className="text-2xl font-bold text-teal-400">FinanceAdmin</h1>
@@ -70,16 +71,11 @@ export default function Sidebar() {
        
 
 
-        {/* <SidebarLink
-          to="/applications"
-          icon={<FileText size={20} />}
-          label="Applications"
-        /> */}
-
         <SidebarLink
-          to="/notifications"
+          to="/vendor/notifications"
           icon={<Bell size={20} />}
           label="Notifications"
+          badge={unreadCount > 0 ? unreadCount : undefined}
         />
 
         <SidebarLink
@@ -107,23 +103,32 @@ function SidebarLink({
   to,
   icon,
   label,
+  badge,
 }: {
   to: string;
   icon: React.ReactNode;
   label: string;
+  badge?: number | string;
 }) {
   return (
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive
+        `flex items-center justify-between px-4 py-3 rounded-lg transition-all ${isActive
           ? "bg-teal-500 text-white"
           : "text-slate-300 hover:bg-slate-700"
         }`
       }
     >
-      {icon}
-      <span className="text-sm font-medium">{label}</span>
+      <div className="flex items-center gap-3">
+        {icon}
+        <span className="text-sm font-medium">{label}</span>
+      </div>
+      {badge !== undefined && (
+        <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+          {badge}
+        </span>
+      )}
     </NavLink>
   );
 }

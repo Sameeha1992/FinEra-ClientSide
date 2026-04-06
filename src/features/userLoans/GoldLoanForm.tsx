@@ -25,7 +25,7 @@ import SubmitButton from "@/components/loanForms/SubmitButton";
 
 const GoldLoanForm = () => {
     // ── Auth & Route params ──────────────────────────────────────────────────
-    const { name, email, Id: userId } = useSelector((state: RootState) => state.auth);
+    const { name, email,Id:userId } = useSelector((state: RootState) => state.auth);
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
 

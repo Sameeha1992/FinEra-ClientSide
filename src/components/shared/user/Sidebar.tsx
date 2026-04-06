@@ -43,7 +43,6 @@ export const Sidebar: React.FC = () => {
 
   const sidebarItems: SidebarItem[] = [
     { icon: User, label: "User Profile", route: "/user/user-profile" },
-    { icon: FileText, label: "Loans", route: "/user/loans" },
     { icon: FileText, label: "Applications", route: "/user/applications" },
     { icon: ArrowRightLeft, label: "Transactions", route: "/user/transactions" },
     { icon: MessageCircle, label: "Chat Support", route: "/user/conversations" },

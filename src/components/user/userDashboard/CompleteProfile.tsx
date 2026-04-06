@@ -1,6 +1,5 @@
-
-
-import { Mail, Phone, Edit2, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, Phone, Edit2, Lock, X } from 'lucide-react';
 import type { UserProfileDisplayProps } from '@/interfaces/user/userProfile/profile.complete.interface';
 
 export default function UserProfileDisplay({
@@ -10,6 +9,14 @@ export default function UserProfileDisplay({
   onEditDetails,
   onChangePassword,
 }: UserProfileDisplayProps) {
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  const handleImageClick = (imageUrl?: string) => {
+    if (imageUrl) {
+      setPreviewImage(imageUrl);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Personal Information Section */}
@@ -119,11 +126,14 @@ export default function UserProfileDisplay({
             <div>
               <h3 className="text-sm font-semibold text-teal-500 mb-3">Aadhar Document</h3>
               {documentInfo?.aadharDocument && (
-                <div className="w-full h-40 bg-gray-100 rounded-lg overflow-hidden border border-gray-300 flex items-center justify-center">
+                <div 
+                  onClick={() => handleImageClick(documentInfo?.aadharDocument)}
+                  className="w-full h-40 bg-gray-50 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center cursor-pointer group transition-all hover:border-teal-500"
+                >
                   <img
                     src={documentInfo?.aadharDocument || "/placeholder.svg"}
                     alt="Aadhar Document"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain p-1 transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
               )}
@@ -140,20 +150,47 @@ export default function UserProfileDisplay({
             <div>
               <h3 className="text-sm font-semibold text-teal-500 mb-3">PAN Document</h3>
               {documentInfo?.panDocument && (
-                <div className="w-full h-40 bg-gray-100 rounded-lg overflow-hidden border border-gray-300 flex items-center justify-center">
+                <div 
+                  onClick={() => handleImageClick(documentInfo?.panDocument)}
+                  className="w-full h-40 bg-gray-50 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center cursor-pointer group transition-all hover:border-teal-500"
+                >
                   <img
                     src={documentInfo?.panDocument || "/placeholder.svg"}
                     alt="PAN Document"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain p-1 transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
               )}
             </div>
           </div>
-
-         
         </div>
       </div>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-all"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="relative max-w-5xl w-full flex justify-center items-center">
+            <button
+              className="absolute -top-12 right-0 p-2 text-white hover:text-teal-400 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                setPreviewImage(null);
+              }}
+            >
+              <X size={32} />
+            </button>
+            <img
+              src={previewImage}
+              alt="Enlarged Document"
+              className="max-h-[90vh] max-w-full rounded-lg shadow-2xl object-contain bg-white"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
-}    
+}

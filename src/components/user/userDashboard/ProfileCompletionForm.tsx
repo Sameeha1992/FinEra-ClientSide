@@ -9,6 +9,7 @@ import { setProfileComplete } from "@/redux/slice/auth.slice";
 import { useNavigate } from "react-router-dom";
 import { verificationSchema } from "@/validations/user/user.profileForm.validation";
 import toast from "react-hot-toast";
+import { DOBPicker } from "@/components/ui/DOBPicker";
 
 export type Gender = "male" | "female" | "other";
 
@@ -176,17 +177,20 @@ export default function VerificationForm() {
             className="border p-2 rounded"
           />
 
-          <input
-            type="date"
-            name="dateOfBirth"
+          <DOBPicker
             value={formData.dateOfBirth}
-            onChange={handleInputChange}
-            className="border p-2 rounded"
+            onChange={(value) => {
+              setFormData((prev) => ({ ...prev, dateOfBirth: value }));
+              setErrors((prev) => {
+                const copy = { ...prev };
+                delete copy.dateOfBirth;
+                return copy;
+              });
+            }}
+            error={errors.dateOfBirth}
+            className="w-full"
           />
         </div>
-        {errors.dateOfBirth && (
-          <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>
-        )}
 
         <div className="col-span-2">
           <label className="block mb-1 font-medium">Gender</label>
