@@ -1,9 +1,8 @@
 
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import UserProfileDisplay from '@/components/user/userDashboard/CompleteProfile';
 import { userProfile } from '@/api/user/userProfile';
 import { useNavigate } from 'react-router-dom';
-import type{ UseDispatch } from 'react-redux';
 import type { AppDispatch } from "@/redux/store";
 import { setProfileComplete } from "@/redux/slice/auth.slice";
 import { useDispatch } from 'react-redux';

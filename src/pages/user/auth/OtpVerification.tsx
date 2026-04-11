@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/api/AuthServiceAndProfile";
 import type {
   LocationState,
-  UserPayload,
+  
 } from "@/interfaces/shared/auth/auth.interface";
 import z from "zod";
 
@@ -188,9 +188,10 @@ const OtpVerification = () => {
                   <div className="mt-8">
                     <Button
                       onClick={handleSubmit}
+                      disabled={loading}
                       className="h-12 w-full bg-primary text-base sm:text-lg font-medium text-primary-foreground hover:bg-primary/90"
                     >
-                      Submit
+                      {loading ? "Submitting..." : "Submit"}
                     </Button>
                   </div>
 

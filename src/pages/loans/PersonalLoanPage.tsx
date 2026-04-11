@@ -11,10 +11,7 @@ import PersonalLoanForm from "@/features/userLoans/PersonalLoanForm";
  */
 const PersonalLoanPage = () => {
     // TODO: Replace with actual user data from auth context / Redux store
-    const userProfile = {
-        fullName: "",
-        email: "",
-    };
+    
 
     return (
         <div className="min-h-screen bg-slate-100">

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, CheckCircle, XCircle, Edit, Lock, FileText } from "lucide-react";
+import { AlertCircle, CheckCircle, XCircle, Edit, Lock } from "lucide-react";
 import type { VendorCompleteProfileData } from "@/interfaces/vendor/profile/profile.interface";
 import { vendorProfile } from "@/api/vendor/vendorProfile";
 import { Field } from "@/components/shared/Field";

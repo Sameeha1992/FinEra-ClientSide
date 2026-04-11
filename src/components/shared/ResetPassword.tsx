@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {  useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import toast from "react-hot-toast";
 import { authService } from "@/api/AuthServiceAndProfile";
@@ -125,9 +125,12 @@ export default function ResetPassword() {
 
           <button
             type="submit"
-            className="w-full bg-teal-600 text-white py-3 rounded-lg"
+            disabled={isSubmitting}
+            className={`w-full bg-teal-600 text-white py-3 rounded-lg transition-all ${
+              isSubmitting ? "opacity-70 cursor-not-allowed" : "hover:bg-teal-700"
+            }`}
           >
-            Reset Password
+            {isSubmitting ? "Resetting..." : "Reset Password"}
           </button>
         </form>
       </div>

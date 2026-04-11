@@ -96,6 +96,12 @@ export function SignupForm() {
         Sign up
       </h2>
 
+      {message && (
+        <div className="p-3 rounded-md bg-red-50 border border-red-200 text-red-600 text-sm">
+          {typeof message === 'string' ? message : "An error occurred. Please try again."}
+        </div>
+      )}
+
       <div className="space-y-4">
         <div className="flex flex-col gap-1">
           <label htmlFor="name" className="text-base md:text-lg">

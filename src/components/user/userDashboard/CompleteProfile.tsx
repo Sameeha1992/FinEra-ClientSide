@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { Mail, Phone, Edit2, Lock, X } from 'lucide-react';
 import type { UserProfileDisplayProps } from '@/interfaces/user/userProfile/profile.complete.interface';
 

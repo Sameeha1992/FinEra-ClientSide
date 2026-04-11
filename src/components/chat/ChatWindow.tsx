@@ -225,7 +225,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
               );
             }
 
-            const senderRole = msg.senderRole?.toUpperCase();
+            const senderRole = msg.role?.toUpperCase();
             const isVendor = senderRole === "VENDOR";
             const isOwn = String(msg.senderId) === String(currentUser.id);
             

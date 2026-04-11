@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import Sidebar from "../../../../../components/vendor/dashboard/shared/Sidebar";
 import {
   Search,
@@ -38,7 +38,7 @@ export default function LoanListing() {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const limit = 10;
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [confirmModal, setConfirmModal] = useState<ConfirmModal>({

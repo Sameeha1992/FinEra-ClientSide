@@ -15,22 +15,25 @@ import {
 import type { ApplicationStatusOverview, LoanTypeDistributionItem } from '@/interfaces/vendor/vendor.dashboard.interface';
 
 interface DashboardChartsProps {
-  statusData: ApplicationStatusOverview;
+  statusData: ApplicationStatusOverview[];
   loanTypeData: LoanTypeDistributionItem[];
 }
 
 const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#3b82f6'];
 
 const DashboardCharts: React.FC<DashboardChartsProps> = ({ statusData, loanTypeData }) => {
+  // Safe helper to find a value by label from the status array
+  const getVal = (label: string) => statusData.find(s => s.label === label)?.value || 0;
+
   const statusChartData = [
-    { name: 'Approved', value: statusData.approved },
-    { name: 'Pending', value: statusData.pending },
-    { name: 'Rejected', value: statusData.rejected },
+    { name: 'Approved', value: getVal('Approved') },
+    { name: 'Pending', value: getVal('Pending') },
+    { name: 'Rejected', value: getVal('Rejected') },
   ];
 
-  const loanTypeChartData = loanTypeData.map((item) => ({
-    name: item.loanType.charAt(0).toUpperCase() + item.loanType.slice(1),
-    value: item.count,
+  const loanTypeChartData = (loanTypeData || []).map((item) => ({
+    name: item.label ? item.label.charAt(0).toUpperCase() + item.label.slice(1) : "Unknown",
+    value: item.value,
   }));
 
   return (

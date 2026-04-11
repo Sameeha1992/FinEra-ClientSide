@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ChangePasswordProps } from "@/interfaces/shared/auth/auth.interface";
 import toast from "react-hot-toast";
-import { set } from "zod";
 
 
 const ChangePassword = ({onSubmit}:ChangePasswordProps) => {

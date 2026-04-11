@@ -32,8 +32,8 @@ export default function LoginForm({
   });
   const [errors, setErrors] = useState({ email: "", password: "", role: "" });
   const [loading, setLoading] = useState(false);
-  const [serverError, setServerError] = useState("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
 
   const navigate = useNavigate();
@@ -74,6 +74,8 @@ export default function LoginForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setServerError(null);
+    setLoading(true)
     console.log("Form submitted:", formData);
 
     const result = loginSchema.safeParse(formData);
@@ -161,6 +163,7 @@ export default function LoginForm({
         error.response?.data?.message ||
         error?.response?.data?.error ||
         "Something went wrong.Please try again";
+      setServerError(message);
       toast.error(message, { id: toastId });
     } finally {
       setLoading(false);
@@ -168,8 +171,8 @@ export default function LoginForm({
   };
 
 
-const signupPath =
-  role === "vendor" ? "/vendor/vendor-register" : "/user/signup";
+  const signupPath =
+    role === "vendor" ? "/vendor/vendor-register" : "/user/signup";
 
   return (
     <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md mx-auto">
@@ -266,7 +269,9 @@ const signupPath =
         >
           {title}
         </Button> */}
-        {children}
+        <div className={loading ? "opacity-70 pointer-events-none" : ""}>
+          {children}
+        </div>
 
         <div className="mt-4 flex justify-center">
           {role !== "admin" && isLoginPage && (

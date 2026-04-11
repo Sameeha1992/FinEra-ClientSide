@@ -15,8 +15,6 @@ import {
 import AdminLayout from "@/components/layout/Adminlayout";
 import { vendorVerificationList } from "@/api/admin/VendorVerification";
 import type { VendorDetailData, VendorStatus } from "@/interfaces/admin/VendorVerification";
-import { adminProfile } from "@/api/admin/admin.profile";
-import type { adminData } from "@/api/admin/admin.profile";
 
 // ─────────────────────────────────────────────
 // Helper: status pill
@@ -124,7 +122,6 @@ const VendorDetailsVerification = () => {
     const navigate = useNavigate();
 
     const [vendor, setVendor] = useState<VendorDetailData | null>(null);
-    const [admin, setAdmin] = useState<adminData | null>(null);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [toast, setToast] = useState<{
@@ -364,20 +361,6 @@ const VendorDetailsVerification = () => {
                         Back to Verifications
                     </button>
 
-                    {/* Admin Profile Strip */}
-                    {admin && (
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-white text-sm font-bold">
-                                {admin.name?.charAt(0).toUpperCase()}
-                            </div>
-                            <div className="text-right">
-                                <p className="text-sm font-medium text-gray-800 leading-none">
-                                    {admin.name}
-                                </p>
-                                <p className="text-xs text-gray-400">{admin.email}</p>
-                            </div>
-                        </div>
-                    )}
                 </div>
 
                 {/* Loading state */}

@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
 import type { ILoanProductDto } from "@/interfaces/addLoan/loanProduct.dto";
 import { loanProduct } from "@/api/loanProduct/loanProduct.service";
 import { loanProductSchema } from "@/validations/loanProduct.validation";

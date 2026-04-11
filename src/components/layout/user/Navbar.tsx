@@ -1,14 +1,6 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Bell } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/redux/store";
-import { authService } from "@/api/AuthServiceAndProfile";
-import { clearAuth } from "@/redux/slice/auth.slice";
-import { AuthRoutes } from "@/constants/auth";
-import { userProfile } from "@/api/user/userProfile";
-import toast from "react-hot-toast";
+
 
 interface NavbarProps {
   logo?: React.ReactNode;
@@ -16,39 +8,8 @@ interface NavbarProps {
 
 export function Navbar({ logo }: NavbarProps) {
 
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const {role} = useSelector((state:RootState)=>state.auth);
 
-
-  const handleLogout = async()=>{
-    try {
-      await authService.logout();
-      
-    } catch (error) {
-      console.log("Logout failed",error)
-    }finally{
-      dispatch(clearAuth());
-      if(role === "user") navigate(AuthRoutes.LOGIN)
-        else if(role === "vendor") navigate(AuthRoutes.VENDOR_LOGIN)
-    }
-  }
-
-
-  const handleProfileClick = async()=>{
-    try {
-
-      const profileRes = await userProfile.getCompleteProfile();
-      const profile = profileRes;
-
-      const redirectPath = profile.isCompleteProfile ? "/user/complete-profile" : "/user/user-profile"
-
-      navigate(redirectPath)
-    } catch (error) {
-      console.error("Failed to fetch profile", error);
-    toast.error("Unable to load profile. Please try again.");
-    }
-  }
+  
   return (
     <header className="h-16 bg-navbar border-b border-border flex items-center justify-between px-6">
       {/* Logo */}

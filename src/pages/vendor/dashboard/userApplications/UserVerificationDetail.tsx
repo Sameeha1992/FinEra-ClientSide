@@ -28,6 +28,7 @@ import { EmiService } from "@/api/emi/emi";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import ChatButton from "@/components/chat/ChatButton";
+import type { EmiListByLoanIdType } from "@/interfaces/emi/emi.list.interface";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt = (n?: number) =>
@@ -473,21 +474,21 @@ export default function UserVerificationDetail() {
           {(data.personalDetails?.employerName ||
             data.personalDetails?.purpose ||
             data.personalDetails?.salarySlipUrl) && (
-            <Section
-              icon={<Briefcase size={16} />}
-              title="Personal Loan Details"
-            >
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">
-                Loan Document
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <DocCard
-                  label="Salary Slip"
-                  url={data.personalDetails?.salarySlipUrl}
-                />
-              </div>
-            </Section>
-          )}
+              <Section
+                icon={<Briefcase size={16} />}
+                title="Personal Loan Details"
+              >
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">
+                  Loan Document
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <DocCard
+                    label="Salary Slip"
+                    url={data.personalDetails?.salarySlipUrl}
+                  />
+                </div>
+              </Section>
+            )}
 
           {/* ── Gold Loan Details — only if it has actual data ── */}
           {(data.goldDetails?.goldWeight || data.goldDetails?.goldImageUrl) && (
@@ -514,58 +515,58 @@ export default function UserVerificationDetail() {
           {(data.homeDetails?.propertyValue ||
             data.homeDetails?.propertyLocation ||
             data.homeDetails?.propertyDocUrl) && (
-            <Section icon={<Home size={16} />} title="Home Loan Details">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-5">
-                <InfoRow
-                  label="Property Value"
-                  value={fmt(data.homeDetails?.propertyValue)}
-                />
-                <InfoRow
-                  label="Property Location"
-                  value={data.homeDetails?.propertyLocation}
-                />
-              </div>
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">
-                Loan Document
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <DocCard
-                  label="Property Document"
-                  url={data.homeDetails?.propertyDocUrl}
-                />
-              </div>
-            </Section>
-          )}
+              <Section icon={<Home size={16} />} title="Home Loan Details">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-5">
+                  <InfoRow
+                    label="Property Value"
+                    value={fmt(data.homeDetails?.propertyValue)}
+                  />
+                  <InfoRow
+                    label="Property Location"
+                    value={data.homeDetails?.propertyLocation}
+                  />
+                </div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">
+                  Loan Document
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <DocCard
+                    label="Property Document"
+                    url={data.homeDetails?.propertyDocUrl}
+                  />
+                </div>
+              </Section>
+            )}
 
           {/* ── Business Loan Details — only if it has actual data ── */}
           {(data.businessDetails?.businessName ||
             data.businessDetails?.annualRevenue ||
             data.businessDetails?.registrationDocUrl) && (
-            <Section
-              icon={<Building2 size={16} />}
-              title="Business Loan Details"
-            >
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-5">
-                <InfoRow
-                  label="Business Name"
-                  value={data.businessDetails?.businessName}
-                />
-                <InfoRow
-                  label="Annual Revenue"
-                  value={fmt(data.businessDetails?.annualRevenue)}
-                />
-              </div>
-              <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">
-                Loan Document
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <DocCard
-                  label="Registration Doc"
-                  url={data.businessDetails?.registrationDocUrl}
-                />
-              </div>
-            </Section>
-          )}
+              <Section
+                icon={<Building2 size={16} />}
+                title="Business Loan Details"
+              >
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-5">
+                  <InfoRow
+                    label="Business Name"
+                    value={data.businessDetails?.businessName}
+                  />
+                  <InfoRow
+                    label="Annual Revenue"
+                    value={fmt(data.businessDetails?.annualRevenue)}
+                  />
+                </div>
+                <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-3">
+                  Loan Document
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <DocCard
+                    label="Registration Doc"
+                    url={data.businessDetails?.registrationDocUrl}
+                  />
+                </div>
+              </Section>
+            )}
           {/* ── EMI Schedule Section ── */}
           <div className="mt-8">
             {(() => {
@@ -578,28 +579,25 @@ export default function UserVerificationDetail() {
                   </Section>
                 );
               }
-
-              const hasRealData = emiData && emiData.length > 0;
+              const hasRealData = !!(emiData?.emis && emiData.emis.length > 0);
               const tenure = hasRealData
-                ? emiData.length
-                : data?.loanTenure || 12;
-              const loanAmount = data?.loanAmount || 0;
+                ? emiData!.emis.length
+                : (data?.loanTenure || 12); // Fallback to 12 if tenure is undefined
 
-              const displayData = hasRealData
-                ? emiData
+              const loanAmount = data?.loanAmount || 0; // Fallback to 0 if amount is undefined
+
+              // Explicitly type displayData as an array of EmiListByLoanIdType
+              const displayData: EmiListByLoanIdType[] = hasRealData
+                ? emiData!.emis
                 : Array.from({ length: Math.min(tenure, 6) }).map((_, i) => ({
-                    emiNumber: i + 1,
-                    dueDate: new Date(
-                      new Date().setMonth(new Date().getMonth() + i + 1),
-                    ),
-                    amount:
-                      loanAmount > 0
-                        ? Math.round(
-                            loanAmount / tenure + (loanAmount * 0.1) / 12,
-                          )
-                        : 0,
-                    status: i === 0 ? "PENDING" : ("UPCOMING" as any),
-                  }));
+                  loan: applicationId || "preview",
+                  emiNumber: i + 1,
+                  dueDate: new Date(new Date().setMonth(new Date().getMonth() + i + 1)),
+                  amount: loanAmount > 0
+                    ? Math.round(loanAmount / tenure + (loanAmount * 0.1) / 12)
+                    : 0,
+                  status: (i === 0 ? "PENDING" : "UPCOMING") as "PENDING" | "UPCOMING",
+                }));
 
               return (
                 <Section
@@ -638,7 +636,7 @@ export default function UserVerificationDetail() {
                       </div>
 
                       <div className="space-y-3">
-                        {displayData.slice(0, 6).map((emi, index, arr) => {
+                        {displayData.slice(0, 6).map((emi: EmiListByLoanIdType, index: number, arr: EmiListByLoanIdType[]) => {
                           const firstPendingIndex = arr.findIndex(
                             (e: any) => e.status === "PENDING",
                           );
@@ -688,15 +686,14 @@ export default function UserVerificationDetail() {
                                   Status
                                 </span>
                                 <span
-                                  className={`inline-flex items-center text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-md border ${
-                                    emi.status === "PENDING"
-                                      ? "bg-amber-50 text-amber-600 border-amber-200"
-                                      : emi.status === "PAID"
-                                        ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                                        : emi.status === "UPCOMING"
-                                          ? "bg-teal-50 text-teal-600 border-teal-200"
-                                          : "bg-slate-50 text-slate-500 border-slate-200"
-                                  }`}
+                                  className={`inline-flex items-center text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-md border ${emi.status === "PENDING"
+                                    ? "bg-amber-50 text-amber-600 border-amber-200"
+                                    : emi.status === "PAID"
+                                      ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                      : emi.status === "UPCOMING"
+                                        ? "bg-teal-50 text-teal-600 border-teal-200"
+                                        : "bg-slate-50 text-slate-500 border-slate-200"
+                                    }`}
                                 >
                                   {emi.status}
                                 </span>

@@ -3,7 +3,7 @@ import { clearAuth } from "@/redux/slice/auth.slice";
 import type { RootState } from "@/redux/store";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 interface SidebarItem {
   label: string;

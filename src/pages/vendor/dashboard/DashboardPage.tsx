@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   FileText, Clock, TrendingUp, Briefcase, AlertTriangle,
   RefreshCcw, IndianRupee, BadgeAlert,
-  LayoutDashboard, Users, MessageSquare,
-  Settings, Package, LogOut, Download, Loader2,
+   MessageSquare,
+  
   XCircle
 } from 'lucide-react';
 import {
@@ -178,7 +178,7 @@ const VendorDashboard: React.FC = () => {
                     icon={TrendingUp}
                     color="text-emerald-600"
                     bgColor="bg-emerald-50"
-                    subtitle="Successfully disbursed"
+                    subtitle={`${approvalRate}% approval rate`}
                   />
                   <DashboardCard
                     title="Rejected Applications"

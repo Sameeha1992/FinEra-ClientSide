@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, CheckCircle, ShieldCheck, ShieldOff } from "lucide-react";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/redux/store";
+import { Upload, CheckCircle } from "lucide-react";
 import { vendorProfile } from "@/api/vendor/vendorProfile";
 import type { VendorCompleteProfileData } from "@/interfaces/vendor/profile/profile.interface";
 import Sidebar from "@/components/vendor/dashboard/shared/Sidebar";
@@ -32,10 +30,7 @@ interface ExistingDocs {
 export default function EditVendorProfileForm() {
     const navigate = useNavigate();
 
-    // Vendor verification status from Redux
-    const authStatus = useSelector((state: RootState) => state.auth.status);
-    const isVerified = authStatus?.toLowerCase() === "verified";
-
+   
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [successMsg, setSuccessMsg] = useState("");
