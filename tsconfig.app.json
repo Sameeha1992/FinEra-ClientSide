@@ -24,9 +24,11 @@
     "noUncheckedSideEffectImports": true,
 
      "baseUrl": "./src",
+     "ignoreDeprecations":"6.0" ,
     "paths": {
       "@/*": ["*"]
     }
   },
   "include": ["src"]
+  
 }

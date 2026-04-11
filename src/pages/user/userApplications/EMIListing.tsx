@@ -35,13 +35,40 @@ const SectionCard = ({ title, icon, children }: SectionCardProps) => (
   </div>
 );
 
+const StatCard = ({
+  label,
+  value,
+  icon,
+  bgColor,
+  textColor,
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ReactNode;
+  bgColor: string;
+  textColor: string;
+}) => (
+  <div className="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-5 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] transition-all hover:-translate-y-1 hover:shadow-md">
+    <div className="flex items-center justify-between">
+      <div className={`rounded-xl ${bgColor} ${textColor} p-2.5`}>{icon}</div>
+      <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+        Live Stats
+      </span>
+    </div>
+    <div>
+      <p className="text-xs font-bold text-gray-500">{label}</p>
+      <h3 className="mt-1 text-xl font-black text-gray-900">{value}</h3>
+    </div>
+  </div>
+);
+
 const EmiListing: React.FC = () => {
   const { loanId } = useParams<{ loanId: string }>();
   const [selectedEmiId, setSelectedEmiId] = React.useState<string | null>(null);
   const [showAll, setShowAll] = React.useState(false);
 
   const {
-    data: emiData = [],
+    data: emiData,
     isLoading: emiLoading,
     isError,
   } = useQuery({
@@ -50,6 +77,9 @@ const EmiListing: React.FC = () => {
     enabled: !!loanId,
     retry: false,
   });
+
+  const statistics = emiData?.statistics;
+  const emis = emiData?.emis ?? [];
 
   const paymentMutation = useMutation({
     mutationFn: (emiId: string) =>
@@ -69,7 +99,7 @@ const EmiListing: React.FC = () => {
       if (message.includes("already in progress")) {
         toast.error(
           "A payment attempt is already active. Please wait 1 minute if you need to retry.",
-          { id: "payment-progress", duration: 5000 }
+          { id: "payment-progress", duration: 5000 },
         );
       } else {
         toast.error(message);
@@ -108,19 +138,18 @@ const EmiListing: React.FC = () => {
     );
   }
 
-  const hasRealData = emiData.length > 0;
-  const tenure = hasRealData ? emiData.length : 12;
-
+  const hasRealData = emis.length > 0;
+  const tenure = statistics?.totalEmiCount ?? (hasRealData ? emis.length : 12);
   const displayData: EmiItem[] = hasRealData
-    ? emiData
+    ? emis
     : Array.from({ length: 6 }, (_, i) => ({
-      emiNumber: i + 1,
-      dueDate: new Date(new Date().setMonth(new Date().getMonth() + i + 1)),
-      amount: 0,
-      status: i === 0 ? "PENDING" : "UPCOMING",
-    }));
+        emiNumber: i + 1,
+        dueDate: new Date(new Date().setMonth(new Date().getMonth() + i + 1)),
+        amount: 0,
+        status: i === 0 ? "PENDING" : "UPCOMING",
+      }));
 
-  const nextPendingEmi = emiData.find(
+  const nextPendingEmi = emis.find(
     (emi: EmiItem) =>
       emi.status === "PENDING" ||
       emi.status === "OVERDUE" ||
@@ -135,10 +164,76 @@ const EmiListing: React.FC = () => {
   );
 
   return (
-    <SectionCard
-      title={hasRealData ? "EMI Schedule" : "EMI Schedule (Preview)"}
-      icon={<Calendar size={20} />}
-    >
+    <div className="space-y-6">
+      {/* Statistics Section */}
+      {statistics && hasRealData && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            label="Total EMI"
+            value={statistics.totalEmiCount}
+            icon={<Calendar size={18} />}
+            bgColor="bg-blue-50"
+            textColor="text-blue-600"
+          />
+          <StatCard
+            label="Paid EMI"
+            value={statistics.paidEmiCount}
+            icon={<Calendar size={18} />}
+            bgColor="bg-emerald-50"
+            textColor="text-emerald-600"
+          />
+          <StatCard
+            label="Remaining EMI"
+            value={statistics.remainingEmiCount}
+            icon={<Calendar size={18} />}
+            bgColor="bg-amber-50"
+            textColor="text-amber-600"
+          />
+          <StatCard
+            label="Overdue EMI"
+            value={statistics.overdueCount}
+            icon={<Calendar size={18} />}
+            bgColor="bg-rose-50"
+            textColor="text-rose-600"
+          />
+          <StatCard
+            label="Total Paid"
+            value={`₹ ${statistics.totalPaidAmount.toLocaleString("en-IN")}`}
+            icon={<Calendar size={18} />}
+            bgColor="bg-emerald-50"
+            textColor="text-emerald-600"
+          />
+          <StatCard
+            label="Remaining Balance"
+            value={`₹ ${statistics.remainingBalanceAmount.toLocaleString("en-IN")}`}
+            icon={<Calendar size={18} />}
+            bgColor="bg-sky-50"
+            textColor="text-sky-600"
+          />
+          <StatCard
+            label="Next Due Date"
+            value={
+              statistics.nextEmiDueDate
+                ? new Date(statistics.nextEmiDueDate).toLocaleDateString(
+                    "en-GB",
+                    {
+                      day: "numeric",
+                      month: "short",
+                    },
+                  )
+                : "N/A"
+            }
+            icon={<Calendar size={18} />}
+            bgColor="bg-indigo-50"
+            textColor="text-indigo-600"
+          />
+        </div>
+      )}
+
+      <SectionCard
+        title={hasRealData ? "EMI Schedule" : "EMI Schedule (Preview)"}
+        icon={<Calendar size={20} />}
+      >
       <div className="space-y-4">
         {nextPendingEmi && (
           <div
@@ -204,117 +299,123 @@ const EmiListing: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {(showAll ? displayData : displayData.slice(0, 6)).map((emi, index) => {
-              const isFirstPending = index === firstPendingIndex;
+            {(showAll ? displayData : displayData.slice(0, 6)).map(
+              (emi, index) => {
+                const isFirstPending = index === firstPendingIndex;
 
-              return (
-                <div
-                  key={emi.emiId ?? emi.emiNumber}
-                  className="group flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md sm:grid sm:grid-cols-5 sm:items-center sm:gap-4"
-                >
-                  <div className="col-span-1 flex items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-sm font-bold text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
-                      {emi.emiNumber}
-                    </div>
-                    <span className="text-sm font-bold text-gray-900 sm:hidden">
-                      EMI {emi.emiNumber}
-                    </span>
-                  </div>
-
-                  <div className="col-span-1 flex justify-between sm:block">
-                    <span className="text-xs font-medium uppercase text-gray-500 sm:hidden">
-                      Due Date
-                    </span>
-                    <span className="text-sm font-semibold text-gray-700">
-                      {new Date(emi.dueDate).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
-
-                  <div className="col-span-1 flex justify-between sm:block">
-                    <span className="text-xs font-medium uppercase text-gray-500 sm:hidden">
-                      Amount
-                    </span>
-                    <div>
-                      <span className="text-sm font-black text-gray-900">
-                        ₹ {(emi.totalAmount ?? emi.amount).toLocaleString("en-IN")}
+                return (
+                  <div
+                    key={emi.emiId ?? emi.emiNumber}
+                    className="group flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:shadow-md sm:grid sm:grid-cols-5 sm:items-center sm:gap-4"
+                  >
+                    <div className="col-span-1 flex items-center gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-blue-100 bg-blue-50 text-sm font-bold text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                        {emi.emiNumber}
+                      </div>
+                      <span className="text-sm font-bold text-gray-900 sm:hidden">
+                        EMI {emi.emiNumber}
                       </span>
-                      {(emi.penalty ?? 0) > 0 && (
-                        <p className="text-[10px] font-medium text-rose-500">
-                          incl. ₹{emi.penalty?.toLocaleString("en-IN")} penalty
-                        </p>
+                    </div>
+
+                    <div className="col-span-1 flex justify-between sm:block">
+                      <span className="text-xs font-medium uppercase text-gray-500 sm:hidden">
+                        Due Date
+                      </span>
+                      <span className="text-sm font-semibold text-gray-700">
+                        {new Date(emi.dueDate).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+
+                    <div className="col-span-1 flex justify-between sm:block">
+                      <span className="text-xs font-medium uppercase text-gray-500 sm:hidden">
+                        Amount
+                      </span>
+                      <div>
+                        <span className="text-sm font-black text-gray-900">
+                          ₹{" "}
+                          {(emi.totalAmount ?? emi.amount).toLocaleString(
+                            "en-IN",
+                          )}
+                        </span>
+                        {(emi.penalty ?? 0) > 0 && (
+                          <p className="text-[10px] font-medium text-rose-500">
+                            incl. ₹{emi.penalty?.toLocaleString("en-IN")}{" "}
+                            penalty
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="col-span-1 flex justify-between sm:block">
+                      <span className="text-xs font-medium uppercase text-gray-500 sm:hidden">
+                        Status
+                      </span>
+                      <span
+                        className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                          emi.status === "PENDING"
+                            ? "border-amber-200 bg-amber-50 text-amber-600"
+                            : emi.status === "OVERDUE"
+                              ? "border-rose-200 bg-rose-50 text-rose-600"
+                              : emi.status === "PAID"
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+                                : emi.status === "PAYMENT_IN_PROGRESS"
+                                  ? "border-sky-200 bg-sky-50 text-sky-600"
+                                  : "border-blue-200 bg-blue-50 text-blue-600"
+                        }`}
+                      >
+                        {emi.status}
+                      </span>
+                    </div>
+
+                    <div className="relative col-span-1 mt-2 flex justify-end border-t border-gray-50 pt-3 sm:mt-0 sm:border-0 sm:pt-0">
+                      {emi.status === "PAID" ? (
+                        <button
+                          type="button"
+                          className="flex w-full items-center justify-center gap-1 rounded-lg bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-emerald-600 border border-emerald-200 shadow-sm transition-colors hover:bg-emerald-100 hover:text-emerald-700 sm:w-auto"
+                          onClick={() => {
+                            if (emi.emiId) setSelectedEmiId(emi.emiId);
+                          }}
+                        >
+                          Details
+                          <ChevronRight size={14} />
+                        </button>
+                      ) : isFirstPending ? (
+                        <button
+                          type="button"
+                          className={`flex w-full items-center justify-center gap-1 rounded-lg px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors sm:w-auto disabled:cursor-not-allowed disabled:opacity-60 ${
+                            emi.status === "PAYMENT_IN_PROGRESS"
+                              ? "bg-amber-500 hover:bg-amber-600 shadow-amber-200"
+                              : "bg-blue-600 hover:bg-blue-700 shadow-blue-200"
+                          }`}
+                          onClick={() => handlePayNow(emi.emiId)}
+                          disabled={paymentMutation.isPending}
+                        >
+                          {paymentMutation.isPending
+                            ? "Processing..."
+                            : emi.status === "PAYMENT_IN_PROGRESS"
+                              ? "Retry Payment"
+                              : "Pay Now"}
+                          {!paymentMutation.isPending && (
+                            <ChevronRight size={14} />
+                          )}
+                        </button>
+                      ) : (
+                        <span
+                          className="flex w-full cursor-not-allowed items-center justify-center px-3 py-1.5 text-xs font-semibold text-gray-400 sm:w-auto"
+                          title="Please pay previous EMIs first"
+                        >
+                          Locked
+                        </span>
                       )}
                     </div>
                   </div>
-
-                  <div className="col-span-1 flex justify-between sm:block">
-                    <span className="text-xs font-medium uppercase text-gray-500 sm:hidden">
-                      Status
-                    </span>
-                    <span
-                      className={`inline-flex items-center rounded-md border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${emi.status === "PENDING"
-                        ? "border-amber-200 bg-amber-50 text-amber-600"
-                        : emi.status === "OVERDUE"
-                          ? "border-rose-200 bg-rose-50 text-rose-600"
-                          : emi.status === "PAID"
-                            ? "border-emerald-200 bg-emerald-50 text-emerald-600"
-                            : emi.status === "PAYMENT_IN_PROGRESS"
-                              ? "border-sky-200 bg-sky-50 text-sky-600"
-                              : "border-blue-200 bg-blue-50 text-blue-600"
-                        }`}
-                    >
-                      {emi.status}
-                    </span>
-                  </div>
-
-                  <div className="relative col-span-1 mt-2 flex justify-end border-t border-gray-50 pt-3 sm:mt-0 sm:border-0 sm:pt-0">
-                    {emi.status === "PAID" ? (
-                      <button
-                        type="button"
-                        className="flex w-full items-center justify-center gap-1 rounded-lg bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-emerald-600 border border-emerald-200 shadow-sm transition-colors hover:bg-emerald-100 hover:text-emerald-700 sm:w-auto"
-                        onClick={() => {
-                          if (emi.emiId) setSelectedEmiId(emi.emiId);
-                        }}
-                      >
-                        Details
-                        <ChevronRight size={14} />
-                      </button>
-                    ) : isFirstPending ? (
-                      <button
-                        type="button"
-                        className={`flex w-full items-center justify-center gap-1 rounded-lg px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors sm:w-auto disabled:cursor-not-allowed disabled:opacity-60 ${emi.status === "PAYMENT_IN_PROGRESS"
-                            ? "bg-amber-500 hover:bg-amber-600 shadow-amber-200"
-                            : "bg-blue-600 hover:bg-blue-700 shadow-blue-200"
-                          }`}
-                        onClick={() => handlePayNow(emi.emiId)}
-                        disabled={paymentMutation.isPending}
-                      >
-                        {paymentMutation.isPending ? (
-                          "Processing..."
-                        ) : emi.status === "PAYMENT_IN_PROGRESS" ? (
-                          "Retry Payment"
-                        ) : (
-                          "Pay Now"
-                        )}
-                        {!paymentMutation.isPending && (
-                          <ChevronRight size={14} />
-                        )}
-                      </button>
-                    ) : (
-                      <span
-                        className="flex w-full cursor-not-allowed items-center justify-center px-3 py-1.5 text-xs font-semibold text-gray-400 sm:w-auto"
-                        title="Please pay previous EMIs first"
-                      >
-                        Locked
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                );
+              },
+            )}
           </div>
         </div>
 
@@ -347,6 +448,7 @@ const EmiListing: React.FC = () => {
         />
       )}
     </SectionCard>
+  </div>
   );
 };
 
