@@ -4,6 +4,10 @@ import type { InternalAxiosRequestConfig } from "axios";
 import { store } from "@/redux/store";
 import { removeToken, setAccessToken } from "@/redux/slice/tokenSlice";
 
+interface ErrorResponse {
+  message: string;
+}
+
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_SERVER_BASEURL,
   withCredentials: true, // sends cookies automatically
@@ -57,8 +61,8 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest: any = error.config;
-
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    console.log("error",error)
+    if (error.response?.status === 401 && (error.response.data as ErrorResponse)?.message !== "Invalid email or password." && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise<string>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
