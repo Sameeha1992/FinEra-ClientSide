@@ -8,6 +8,7 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
+  Menu,
 } from "lucide-react";
 import { loanProduct } from "@/api/loanProduct/loanProduct.service";
 import { useNavigate } from "react-router-dom";
@@ -49,6 +50,7 @@ export default function LoanListing() {
   });
 
   const [toggling, setToggling] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   const {isProfileComplete} = useSelector((state:RootState)=>state.auth);
@@ -151,28 +153,38 @@ export default function LoanListing() {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <main className="flex-1 ml-56 p-8">
+      <main className="flex-1 lg:ml-56 p-4 md:p-8">
         {/* Top Controls */}
         <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 mb-6">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-            {/* Search */}
-            <div className="relative flex-1 w-full md:max-w-md">
-              <input
-                type="text"
-                placeholder="Search by Application"
-                className="w-full pl-4 pr-10 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-slate-600"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Search
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-                size={18}
-              />
+            {/* Mobile Toggle & Search Group */}
+            <div className="flex items-center gap-3 w-full md:flex-1">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
+                aria-label="Toggle Sidebar"
+              >
+                <Menu size={20} />
+              </button>
+              
+              <div className="relative flex-1 md:max-w-md">
+                <input
+                  type="text"
+                  placeholder="Search by Loan Name"
+                  className="w-full pl-4 pr-10 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-slate-600"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <Search
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={18}
+                />
+              </div>
             </div>
 
-            <button onClick={handleAddLoan} className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2.5 rounded-lg transition-colors flex items-center gap-2 font-medium shadow-sm shadow-teal-500/20">
+            <button onClick={handleAddLoan} className="w-full md:w-auto bg-teal-500 hover:bg-teal-600 text-white px-6 py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 font-medium shadow-sm shadow-teal-500/20">
               <Plus size={18} />
               Add Loan
             </button>
@@ -182,7 +194,7 @@ export default function LoanListing() {
         {/* Table Section */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[1000px]">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">

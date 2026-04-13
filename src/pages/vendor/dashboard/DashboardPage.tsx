@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   FileText, Clock, TrendingUp, Briefcase, AlertTriangle,
   RefreshCcw, IndianRupee, BadgeAlert,
-   MessageSquare,
-  
+  MessageSquare, Menu,
   XCircle
 } from 'lucide-react';
 import {
@@ -104,10 +103,9 @@ const BarTooltip = ({ active, payload, label }: any) => {
 
 const VendorDashboard: React.FC = () => {
   const { data, isLoading, isError, refetch, isFetching } = useVendorDashboard();
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const handleRefresh = () => refetch();
-
-  
 
   const cards = data?.cards;
   const approvalRate = cards
@@ -115,32 +113,40 @@ const VendorDashboard: React.FC = () => {
     : 0;
 
   return (
-    <div className="flex bg-gray-50 min-h-screen">
-      <Sidebar />
+    <div className="flex bg-gray-50 min-h-screen overflow-hidden">
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex-1 ml-56 flex flex-col">
+      <div className="flex-1 lg:ml-56 flex flex-col min-w-0">
 
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-10 py-6 sticky top-0 z-10">
+        <header className="bg-white border-b border-gray-200 px-4 md:px-10 py-4 md:py-6 sticky top-0 z-10">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 font-poppins">Vendor Dashboard</h1>
-              <p className="text-sm text-gray-400 mt-0.5">Real-time overview of your lending operations.</p>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setSidebarOpen(!isSidebarOpen)}
+                className="lg:hidden p-1 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+                aria-label="Toggle Navigation"
+              >
+                <Menu size={24} />
+              </button>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 font-poppins">Vendor Dashboard</h1>
+                <p className="hidden md:block text-sm text-gray-400 mt-0.5">Real-time overview of your lending operations.</p>
+              </div>
             </div>
             <div className="flex items-center gap-3">
-              
               <button
                 onClick={handleRefresh}
-                className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-gray-100"
+                className="p-2 md:p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all border border-gray-100"
                 title="Refresh data"
               >
-                <RefreshCcw className={`w-5 h-5 ${isFetching ? 'animate-spin' : ''}`} />
+                <RefreshCcw className={`w-4 h-4 md:w-5 md:h-5 ${isFetching ? 'animate-spin' : ''}`} />
               </button>
             </div>
           </div>
         </header>
 
-        <main className="p-10 space-y-8">
+        <main className="p-4 md:p-10 space-y-6 md:space-y-8 overflow-y-auto">
 
           {/* Error Banner */}
           {isError && (
@@ -327,7 +333,7 @@ const VendorDashboard: React.FC = () => {
                   />
                   <Bar dataKey="approved" name="Approved" fill="#10b981" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="rejected" name="Rejected" fill="#f43f5e" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="pending"  name="Pending"  fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="pending" name="Pending" fill="#f59e0b" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </section>
@@ -338,10 +344,10 @@ const VendorDashboard: React.FC = () => {
             <h3 className="text-base font-bold text-gray-900 mb-6 font-poppins">Quick Actions</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { href: '/vendor/add-loan',      icon: Briefcase,     label: 'Add New Loan',   hover: 'hover:bg-blue-50   hover:border-blue-100',   bg: 'bg-blue-100',   iconBg: 'group-hover:bg-blue-200',   color: 'text-blue-600'   },
-                { href: '/vendor/user-loans',    icon: FileText,      label: 'Review Apps',    hover: 'hover:bg-emerald-50 hover:border-emerald-100', bg: 'bg-emerald-100', iconBg: 'group-hover:bg-emerald-200', color: 'text-emerald-600' },
-                { href: '/vendor/conversations', icon: MessageSquare, label: 'Support Chat',   hover: 'hover:bg-purple-50  hover:border-purple-100',  bg: 'bg-purple-100', iconBg: 'group-hover:bg-purple-200',  color: 'text-purple-600' },
-                { href: '/vendor/analytics',     icon: TrendingUp,    label: 'View Analytics', hover: 'hover:bg-amber-50   hover:border-amber-100',   bg: 'bg-amber-100',  iconBg: 'group-hover:bg-amber-200',   color: 'text-amber-600'  },
+                { href: '/vendor/add-loan', icon: Briefcase, label: 'Add New Loan', hover: 'hover:bg-blue-50   hover:border-blue-100', bg: 'bg-blue-100', iconBg: 'group-hover:bg-blue-200', color: 'text-blue-600' },
+                { href: '/vendor/user-loans', icon: FileText, label: 'Review Apps', hover: 'hover:bg-emerald-50 hover:border-emerald-100', bg: 'bg-emerald-100', iconBg: 'group-hover:bg-emerald-200', color: 'text-emerald-600' },
+                { href: '/vendor/conversations', icon: MessageSquare, label: 'Support Chat', hover: 'hover:bg-purple-50  hover:border-purple-100', bg: 'bg-purple-100', iconBg: 'group-hover:bg-purple-200', color: 'text-purple-600' },
+                { href: '/vendor/analytics', icon: TrendingUp, label: 'View Analytics', hover: 'hover:bg-amber-50   hover:border-amber-100', bg: 'bg-amber-100', iconBg: 'group-hover:bg-amber-200', color: 'text-amber-600' },
               ].map(({ href, icon: Icon, label, hover, bg, iconBg, color }) => (
                 <a
                   key={label}

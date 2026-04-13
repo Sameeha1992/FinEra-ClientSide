@@ -68,8 +68,8 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200">
-      <div className="container mx-auto px-6 py-4">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <div className="mx-auto px-4 md:px-6 py-3 md:py-4">
         <nav className="flex items-center justify-between">
 
           {/* Logo — click to go home */}
@@ -77,21 +77,21 @@ export default function Header() {
             className="flex items-center space-x-2 cursor-pointer"
             onClick={() => navigate("/user/home")}
           >
-            <div className="flex items-center justify-center w-9 h-9 bg-teal-600 rounded-lg">
-              <span className="text-white font-bold text-sm">F</span>
+            <div className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 bg-teal-600 rounded-lg">
+              <span className="text-white font-bold text-xs md:text-sm">F</span>
             </div>
-            <span className="text-xl font-bold text-gray-800">FinEra</span>
+            <span className="text-lg md:text-xl font-bold text-gray-800">FinEra</span>
           </div>
 
           {/* Center Nav Links */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden lg:flex items-center gap-6">
             {navLinks.map((link) => (
               <button
                 key={link.path}
                 onClick={() => navigate(link.path)}
                 className={`text-sm font-medium transition-colors ${location.pathname.startsWith(link.path)
-                    ? "text-teal-600 border-b-2 border-teal-600 pb-0.5"
-                    : "text-gray-600 hover:text-teal-600"
+                  ? "text-teal-600 border-b-2 border-teal-600 pb-0.5"
+                  : "text-gray-600 hover:text-teal-600"
                   }`}
               >
                 {link.label}
@@ -100,15 +100,16 @@ export default function Header() {
           </nav>
 
           {/* Right Section: EMI Button + Avatar grouped together */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
 
             {/* EMI Calculator Nav Button */}
             <button
               onClick={() => navigate("/user/emi-check")}
-              className="flex items-center gap-2 border border-teal-600 text-teal-600 text-sm font-medium px-4 py-2 rounded-lg hover:bg-teal-50 transition-colors"
+              className="flex items-center gap-1.5 md:gap-2 border border-teal-600 text-teal-600 text-[10px] md:text-sm font-semibold px-2 md:px-4 py-1.5 md:py-2 rounded-lg hover:bg-teal-50 transition-colors"
             >
-              <Calculator size={16} />
-              EMI Calculator
+              <Calculator size={14} className="md:w-4 md:h-4" />
+              <span className="hidden xs:inline">EMI Calculator</span>
+              <span className="xs:hidden">EMI</span>
             </button>
 
             {/* Avatar */}
@@ -116,7 +117,7 @@ export default function Header() {
               {/* Avatar */}
               <button
                 onClick={() => setOpen(!open)}
-                className="w-10 h-10 rounded-full bg-teal-600 text-white font-bold flex items-center justify-center shadow hover:bg-teal-700 transition"
+                className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-teal-600 text-white text-xs md:text-sm font-bold flex items-center justify-center shadow hover:bg-teal-700 transition"
               >
                 {firstLetter}
               </button>

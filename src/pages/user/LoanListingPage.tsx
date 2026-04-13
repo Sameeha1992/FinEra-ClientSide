@@ -118,7 +118,7 @@ const LoanListingPage = () => {
   const loanLabel = loanLabels[rawType] ?? "Personal Loans"; // lowercase key lookup
   const [currentPage, setCurrentPage] = useState(1);
 
-  const {isProfileComplete} = useSelector((state:RootState)=>state.auth);
+  const { isProfileComplete } = useSelector((state: RootState) => state.auth);
 
 
   // Filter inputs (controlled separately so filter only fires on button click)
@@ -140,7 +140,7 @@ const LoanListingPage = () => {
 
   const handleApply = (loan: LoanListingItem) => {
 
-    if(!isProfileComplete){
+    if (!isProfileComplete) {
       toast.error("Please complete your profile before applying for a loan");
       navigate("/user/user-profile");
       return
@@ -331,7 +331,8 @@ const LoanListingPage = () => {
           )}
 
           {/* Table */}
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div className="border border-gray-200 rounded-lg overflow-x-auto">
+            <div className="min-w-[900px]">
             {/* Table Head */}
             <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-200 px-6 py-3">
               <span className="col-span-2 text-xs font-semibold text-gray-600 uppercase tracking-wide">
@@ -470,6 +471,7 @@ const LoanListingPage = () => {
               </div>
             )}
           </div>
+        </div>
           {/* end table */}
         </div>
       </section>

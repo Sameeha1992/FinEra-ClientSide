@@ -17,7 +17,12 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { useVendorUnreadCount } from "@/hooks/vendor/vendor.notification";
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { role } = useSelector((state: RootState) => state.auth);
@@ -39,63 +44,84 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-56 bg-gradient-to-b from-black to-gray-900 text-white h-screen flex flex-col fixed left-0 top-0 z-50">
-      {/* Logo */}
-      <div className="p-6 border-b border-slate-700">
-        <h1 className="text-2xl font-bold text-teal-400">FinanceAdmin</h1>
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 z-[60] lg:hidden transition-opacity"
+          onClick={onClose}
+        />
+      )}
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
-        <SidebarLink
-          to="/vendor/vendor-dashboard"
-          icon={<Home size={20} />}
-          label="Dashboard"
-        />
-        <SidebarLink
-          to="/vendor/vendor-profile"
-          icon={<FileText size={20} />}
-          label="Vendor Profile"
-        />
-        <SidebarLink
-          to="/vendor/loans"
-          icon={<DollarSign size={20} />}
-          label="Loan"
-        />
-        <SidebarLink to="/vendor/user-loans" icon={<Users size={20} />} label="Users Applications" />
-        <SidebarLink
-          to="/vendor/conversations"
-          icon={<MessageSquare size={20} />}
-          label="Messages"
-        />
-       
+      {/* Sidebar Container */}
+      <aside className={`w-56 bg-gradient-to-b from-black to-gray-900 text-white h-screen flex flex-col fixed left-0 top-0 z-[70] transition-transform duration-300 transform 
+        ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+        {/* Logo */}
+        <div className="p-6 border-b border-slate-700">
+          <h1 className="text-2xl font-bold text-teal-400">FinanceAdmin</h1>
+        </div>
 
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
+          <SidebarLink
+            to="/vendor/vendor-dashboard"
+            icon={<Home size={20} />}
+            label="Dashboard"
+            onClick={onClose}
+          />
+          <SidebarLink
+            to="/vendor/vendor-profile"
+            icon={<FileText size={20} />}
+            label="Vendor Profile"
+            onClick={onClose}
+          />
+          <SidebarLink
+            to="/vendor/loans"
+            icon={<DollarSign size={20} />}
+            label="Loan"
+            onClick={onClose}
+          />
+          <SidebarLink 
+            to="/vendor/user-loans" 
+            icon={<Users size={20} />} 
+            label="Users Applications" 
+            onClick={onClose}
+          />
+          <SidebarLink
+            to="/vendor/conversations"
+            icon={<MessageSquare size={20} />}
+            label="Messages"
+            onClick={onClose}
+          />
 
-        <SidebarLink
-          to="/vendor/notifications"
-          icon={<Bell size={20} />}
-          label="Notifications"
-          badge={unreadCount > 0 ? unreadCount : undefined}
-        />
+          <SidebarLink
+            to="/vendor/notifications"
+            icon={<Bell size={20} />}
+            label="Notifications"
+            onClick={onClose}
+            badge={unreadCount > 0 ? unreadCount : undefined}
+          />
 
-        <SidebarLink
-          to="/vendor/transactions"
-          icon={<ArrowRightLeft size={20} />}
-          label="Transactions"
-        />
-      </nav>
+          <SidebarLink
+            to="/vendor/transactions"
+            icon={<ArrowRightLeft size={20} />}
+            label="Transactions"
+            onClick={onClose}
+          />
+        </nav>
 
-      {/* Logout */}
-      <div className="p-4 border-t border-slate-700">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-left text-slate-300 hover:bg-slate-700 transition-all"
-        >
-          <LogOut size={20} />
-          <span className="text-sm font-medium">Logout</span>
-        </button>{" "}
-      </div>
-    </aside>
+        {/* Logout */}
+        <div className="p-4 border-t border-slate-700">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-left text-slate-300 hover:bg-slate-700 transition-all"
+          >
+            <LogOut size={20} />
+            <span className="text-sm font-medium">Logout</span>
+          </button>{" "}
+        </div>
+      </aside>
+    </>
   );
 }
 
@@ -104,15 +130,18 @@ function SidebarLink({
   icon,
   label,
   badge,
+  onClick,
 }: {
   to: string;
   icon: React.ReactNode;
   label: string;
   badge?: number | string;
+  onClick?: () => void;
 }) {
   return (
     <NavLink
       to={to}
+      onClick={onClick}
       className={({ isActive }) =>
         `flex items-center justify-between px-4 py-3 rounded-lg transition-all ${isActive
           ? "bg-teal-500 text-white"
