@@ -94,12 +94,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   }, [conversationId, scrollToBottom]);
 
   const accessToken = useAppSelector((state) => state.token.accessToken);
-  
+
   useEffect(() => {
     if (!conversationId) return;
 
     socket.auth = { token: accessToken || "" };
-    
+
     if (!socket.connected) socket.connect();
     socket.emit("join_conversation", conversationId);
 
@@ -213,8 +213,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         ) : (() => {
           const nodes: React.ReactNode[] = [];
           messages.forEach((msg, idx) => {
-            const prevMsg = messages[idx-1];
-            
+            const prevMsg = messages[idx - 1];
+
+            // Date Divider Logic (Remains unchanged)
             if (!prevMsg || !isSameDay(prevMsg.createdAt, msg.createdAt)) {
               nodes.push(
                 <div key={`date-${msg.messageId}`} className="flex items-center gap-3 my-4">
@@ -224,30 +225,41 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                 </div>
               );
             }
+            // --- SAFE IDENTITY DETECTION ---
+            // We check both senderRole and role to be 100% production-safe
+            const roleInput = msg.senderRole || msg.role;
+            const isVendor = roleInput?.toUpperCase() === "VENDOR";
 
-            const senderRole = msg.role?.toUpperCase();
-            const isVendor = senderRole === "VENDOR";
-            const isOwn = String(msg.senderId) === String(currentUser.id);
-            
+            // Robust Identity Detection: ID check + Role fallback
+            const isOwn = String(msg.senderId) === String(currentUser.id) || 
+                          roleInput?.toLowerCase() === currentUser.role?.toLowerCase();
+
             nodes.push(
-              <div key={msg.messageId} className={`flex ${isVendor ? "justify-end" : "justify-start"} mb-2`}>
-                <div className="flex flex-col max-w-[80%]">
-                  <span className={`text-[10px] font-bold mb-1 ml-1 uppercase tracking-tight ${isVendor ? "text-emerald-600 text-right mr-1" : "text-blue-600 self-start"}`}>
-                    {isVendor 
-                      ? (conversation?.vendorName || "Vendor Support") 
-                      : (conversation?.userName || "User Applicant")} {isOwn && "(You)"}
+              <div key={msg.messageId} className={`flex w-full ${isOwn ? "justify-end" : "justify-start"} mb-4 px-2`}>
+                <div className={`flex flex-col max-w-[85%] sm:max-w-[70%] ${isOwn ? "items-end" : "items-start"}`}>
+                  
+                  {/* Name Label */}
+                  <span className={`text-[10px] font-bold mb-1 uppercase tracking-wider flex items-center gap-1.5 ${
+                    isOwn ? "text-slate-500 mr-1 text-right" : "text-slate-500 ml-1"
+                  }`}>
+                    {!isOwn && (isVendor ? (conversation?.vendorName || "Vendor") : (conversation?.userName || "User"))}
+                    {isOwn && <span className="bg-slate-200 px-1.5 py-0.5 rounded text-[9px] lowercase italic font-medium text-slate-600">you</span>}
                   </span>
+
+                  {/* WhatsApp Style Bubble */}
                   <div 
-                    className={`px-4 py-2.5 rounded-2xl text-sm shadow-sm relative ${
-                      isVendor 
-                        ? "bg-emerald-50 text-emerald-900 border border-emerald-100 rounded-tr-sm" 
-                        : "bg-blue-50 text-blue-900 border border-blue-100 rounded-tl-sm"
-                    } ${isOwn ? "ring-1 ring-offset-1 ring-slate-200" : ""}`}
+                    className={`px-4 py-2.5 rounded-2xl text-[13.5px] shadow-sm relative border transition-all duration-200 hover:shadow-md ${
+                      isOwn 
+                        ? "bg-emerald-600 text-white border-emerald-500 rounded-tr-none" 
+                        : "bg-white text-slate-800 border-slate-200 rounded-tl-none"
+                    }`}
                   >
-                    <p className="whitespace-pre-wrap leading-relaxed">{msg.text}</p>
-                    <p className={`text-[9px] mt-1 text-right ${isVendor ? "text-emerald-500" : "text-blue-500"}`}>
-                      {formatTime(msg.createdAt)}
-                    </p>
+                    <p className="whitespace-pre-wrap leading-relaxed select-text">{msg.text}</p>
+                    <div className={`flex items-center gap-1.5 mt-1.5 ${isOwn ? "justify-end text-white/70" : "justify-start text-slate-400"}`}>
+                      <p className="text-[9px] font-medium uppercase tracking-tighter opacity-80">
+                        {formatTime(msg.createdAt)}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

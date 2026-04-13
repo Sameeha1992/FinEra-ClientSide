@@ -3,6 +3,7 @@ export interface ChatMessageDto {
   conversationId: string;
   senderId: string;
   role: "User" | "Vendor";
+  senderRole?:string;
   text: string;
   createdAt: string;
 }
