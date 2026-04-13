@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
-
-export const socket = io(import.meta.env.BASE_URL, {
+const socketUrl = new URL(import.meta.env.VITE_SERVER_BASEURL)
+export const socket = io(socketUrl.origin, {
   withCredentials: true,
   autoConnect: false,
 });
