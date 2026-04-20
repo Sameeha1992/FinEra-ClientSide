@@ -19,12 +19,7 @@ const UserNotifications = () => {
   });
 
   // Safely extract array regardless of API response shape
-  const notifications: Notification[] = Array.isArray(rawData)
-    ? rawData
-    : (rawData as any)?.notifications ??
-      (rawData as any)?.data ??
-      (rawData as any)?.items ??
-      [];
+  const notifications: Notification[] = Array.isArray(rawData) ? rawData : [];
 
   // ── Fetch unread count (shown in page header badge) ──────────────────────
   const { data: unreadData } = useQuery({

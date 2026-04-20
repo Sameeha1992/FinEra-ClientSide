@@ -78,12 +78,12 @@ const BusinessLoanForm = () => {
         if (!appDetail) return;
         reset({
             phoneNumber: appDetail.phoneNumber,
-            employmentType: appDetail.employmentType as any,
+            employmentType: appDetail.employmentType || "",
             monthlyIncome: appDetail.monthlyIncome,
             loanAmount: appDetail.loanAmount,
             loanTenure: appDetail.loanTenure,
-            businessName: appDetail.businessDetails?.businessName,
-            businessType: appDetail.businessDetails?.businessType as any,
+            businessName: appDetail.businessDetails?.businessName || "",
+            businessType: appDetail.businessDetails?.businessType || "",
             annualRevenue: appDetail.businessDetails?.annualRevenue,
         });
     }, [appDetail, reset]);

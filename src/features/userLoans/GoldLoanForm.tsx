@@ -66,7 +66,7 @@ const GoldLoanForm = () => {
         if (!appDetail) return;
         reset({
             phoneNumber: appDetail.phoneNumber,
-            employmentType: appDetail.employmentType as any,
+            employmentType: appDetail.employmentType || "",
             monthlyIncome: appDetail.monthlyIncome,
             loanAmount: appDetail.loanAmount,
             loanTenure: appDetail.loanTenure,

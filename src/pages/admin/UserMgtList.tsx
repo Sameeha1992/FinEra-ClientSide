@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Lock, Unlock } from "lucide-react";
 import { fetchAccounts } from "@/api/admin/AdminAccountMgt";
+import { useDebounce } from "@/hooks/useDebounce";
+import ClearSearchButton from "@/components/ui/ClearSearchButton";
 import type { Account } from "@/interfaces/admin/Account";
 import Pagination from "@/components/ui/Pagination";
 import AdminLayout from "@/components/layout/Adminlayout";
@@ -20,22 +22,21 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 
-
 const UserManagement = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
 
   const [selectedAccount, setSelectedAccount] = useState<{
     id: string;
     accountStatus: "blocked" | "unblocked";
     name: string;
-  } | null>(null)
+  } | null>(null);
 
   const itemsPerPage = 5;
   const totalPages = Math.ceil(totalResults / itemsPerPage);
-
 
   useEffect(() => {
     const loadAccounts = async () => {
@@ -43,7 +44,7 @@ const UserManagement = () => {
         const res = await fetchAccounts({
           page: currentPage,
           limit: itemsPerPage,
-          search,
+          search: debouncedSearch,
           role: "user",
         });
 
@@ -55,8 +56,7 @@ const UserManagement = () => {
     };
 
     loadAccounts();
-  }, [currentPage, search]);
-
+  }, [currentPage, debouncedSearch]);
 
   //   const handleToggleStatus = async (accountId: string, currentStatus: "active"|"blocked") => {
   //   try {
@@ -65,9 +65,8 @@ const UserManagement = () => {
   //     await updateAccountStatus(
   //       accountId,
   //       newStatus,
-  //       "user" 
+  //       "user"
   //     );
-
 
   //     setAccounts(prev =>
   //       prev.map(acc =>
@@ -81,7 +80,6 @@ const UserManagement = () => {
   //   }
   // };
 
-
   const confirmStatusChange = async (): Promise<void> => {
     if (!selectedAccount) return;
 
@@ -93,20 +91,28 @@ const UserManagement = () => {
 
       setAccounts((prev) =>
         prev.map((acc) =>
-          acc.id === selectedAccount.id ? { ...acc, accountStatus: newStatus } : acc
-        )
+          acc.id === selectedAccount.id
+            ? { ...acc, accountStatus: newStatus }
+            : acc,
+        ),
       );
 
       toast.success(
-        `${selectedAccount.name} has been ${newStatus === "blocked" ? "blocked" : "unblocked"} successfully`
+        `${selectedAccount.name} has been ${newStatus === "blocked" ? "blocked" : "unblocked"} successfully`,
       );
-    } catch (error) {
-      toast.error("Failed to update status");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update status";
+
+      toast.error(message);
     }
     setSelectedAccount(null);
-  }
+  };
 
-
+  const handleClearSearch = () => {
+    setSearch("");
+    setCurrentPage(1);
+  };
 
   return (
     <AdminLayout>
@@ -115,16 +121,22 @@ const UserManagement = () => {
 
         <div className="overflow-x-auto">
           <div className="flex items-center justify-between mb-4">
-            <input
-              type="text"
-              placeholder="Search by name or email"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-64 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-teal-500"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by name or email"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-64 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-teal-500 pr-10"
+              />
+              <ClearSearchButton
+                show={search.length > 0}
+                onClick={handleClearSearch}
+              />
+            </div>
           </div>
 
           <table className="w-full">
@@ -139,7 +151,7 @@ const UserManagement = () => {
             </thead>
 
             <tbody>
-              {accounts.map(account => (
+              {accounts.map((account) => (
                 <tr key={account.id} className="border-b">
                   <td className="px-4 py-4">{account.customerId}</td>
                   <td className="px-4 py-4">{account.name}</td>
@@ -150,8 +162,18 @@ const UserManagement = () => {
                   </td>
                   <td className="px-4 py-4">
                     <ActionButton
-                      onClick={() => setSelectedAccount({ id: account.id, accountStatus: account.accountStatus, name: account.name })}
-                      label={account.accountStatus === "unblocked" ? "Block" : "Unblock"}
+                      onClick={() =>
+                        setSelectedAccount({
+                          id: account.id,
+                          accountStatus: account.accountStatus,
+                          name: account.name,
+                        })
+                      }
+                      label={
+                        account.accountStatus === "unblocked"
+                          ? "Block"
+                          : "Unblock"
+                      }
                       icon={
                         account.accountStatus === "unblocked" ? (
                           <Lock size={14} />
@@ -159,7 +181,11 @@ const UserManagement = () => {
                           <Unlock size={14} />
                         )
                       }
-                      variant={account.accountStatus === "unblocked" ? "danger" : "success"}
+                      variant={
+                        account.accountStatus === "unblocked"
+                          ? "danger"
+                          : "success"
+                      }
                     />
                   </td>
                 </tr>
@@ -183,13 +209,13 @@ const UserManagement = () => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Confirm Action
-            </AlertDialogTitle>
+            <AlertDialogTitle>Confirm Action</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to{" "}
               <span className="font-semibold">
-                {selectedAccount?.accountStatus === "unblocked" ? "block" : "unblock"}
+                {selectedAccount?.accountStatus === "unblocked"
+                  ? "block"
+                  : "unblock"}
               </span>{" "}
               <span className="font-semibold text-teal-600">
                 {selectedAccount?.name}
@@ -214,7 +240,6 @@ const UserManagement = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
     </AdminLayout>
   );
 };

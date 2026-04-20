@@ -3,6 +3,7 @@ import axios, { AxiosError } from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 import { store } from "@/redux/store";
 import { removeToken, setAccessToken } from "@/redux/slice/tokenSlice";
+import { clearAuth } from "@/redux/slice/auth.slice";
 
 interface ErrorResponse {
   message: string;
@@ -17,10 +18,10 @@ let isRefreshing = false;
 
 let failedQueue: {
   resolve: (token: string) => void;
-  reject: (error: any) => void;
+  reject: (error: unknown) => void;
 }[] = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -60,7 +61,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest: any = error.config;
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     console.log("error",error)
     if (error.response?.status === 401 && (error.response.data as ErrorResponse)?.message !== "Invalid email or password." && !originalRequest._retry) {
       if (isRefreshing) {
@@ -113,6 +114,8 @@ axiosInstance.interceptors.response.use(
         // Optionally clear auth state if refresh fails
         // store.dispatch(clearAuth());
         store.dispatch(removeToken());
+        store.dispatch(clearAuth())
+        window.location.href = "/user/login"
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

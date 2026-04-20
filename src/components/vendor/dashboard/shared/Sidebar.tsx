@@ -18,11 +18,11 @@ import type { RootState } from "@/redux/store";
 import { useVendorUnreadCount } from "@/hooks/vendor/vendor.notification";
 
 interface SidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen = false, onClose = () => {} }: SidebarProps) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { role } = useSelector((state: RootState) => state.auth);

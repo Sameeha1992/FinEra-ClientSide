@@ -1,5 +1,6 @@
 import axiosInstance from "@/config/axiosInterceptor";
 import { AuthRoutes } from "@/constants/auth";
+import { handleApiError } from "@/utils/apiError";
 import type {
   ApiResponse,
   OtpPayload,
@@ -22,8 +23,8 @@ export const authService = {
     try {
       const response = await axiosInstance.post(AuthRoutes.GENERATE_OTP, { email });
       return response.data;
-    } catch (error: any) {
-      throw error.response?.data?.message || "Failed to generate OTP";
+    } catch (error: unknown) {
+      throw handleApiError(error, "Failed to generate OTP");
     }
   },
 
@@ -36,8 +37,8 @@ export const authService = {
         password: formData.password,
       });
       return response.data;
-    } catch (error: any) {
-      throw error.response?.data?.message || "Failed to register user";
+    } catch (error: unknown) {
+      throw handleApiError(error, "Failed to register user");
     }
   },
 
@@ -49,8 +50,8 @@ export const authService = {
       const response = await axiosInstance.post(AuthRoutes.VERIFY_OTP, data);
       console.log("verifies otp:",response.data)
       return response.data;
-    } catch (error: any) {
-      throw error.response?.data?.message || "Failed to verify OTP";
+    } catch (error: unknown) {
+      throw handleApiError(error, "Failed to verify OTP");
     }
   },
 
@@ -107,8 +108,8 @@ export const authService = {
     try {
       const response = await axiosInstance.post(AuthRoutes.VENDOR_GENERATE_OTP,{email});
       return response.data;
-    } catch (error:any) {
-      throw error.response?.data?.message || 'Failed to generate vendor OTP'
+    } catch (error: unknown) {
+      throw handleApiError(error, "Failed to generate vendor OTP");
     }
   },
 
@@ -127,8 +128,8 @@ export const authService = {
       console.log("responses for user verification",response.data)
       return response.data
       
-    } catch (error:any) {
-      throw error.response?.data?.message || "Failed to regsiter the vendor"
+    } catch (error: unknown) {
+      throw handleApiError(error, "Failed to regsiter the vendor");
     }
   },
 
@@ -138,8 +139,8 @@ export const authService = {
       const response = await axiosInstance.post(AuthRoutes.VENDOR_VERIFY_OTP,data);
       console.log("verifies vendor OTP",response.data);
       return response.data
-    } catch (error:any) {
-      throw error.response ?.data?.message || "Failed to verify vendor OTP"
+    } catch (error: unknown) {
+      throw handleApiError(error, "Failed to verify vendor OTP");
     }
   },
 

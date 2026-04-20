@@ -1,6 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/vendor/dashboard/shared/Sidebar";
-import { useVendorTransactions, useDownloadVendorReport } from "@/hooks/transactions/useTransactions";
+import { useVendorTransactions } from "@/hooks/transactions/useTransactions";
+import { TransactionsService } from "@/api/transaction/transactions";
+import { useDebounce } from "@/hooks/useDebounce";
+import type {
+  VendorReportFilters,
+  VendorTransactionDto,
+} from "@/interfaces/transaction/transaction.interface";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -16,22 +22,118 @@ import {
   Search,
   User,
 } from "lucide-react";
+import ClearSearchButton from "@/components/ui/ClearSearchButton";
 
 const VendorTransactionListing: React.FC = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
 
   const [isDownloading, setIsDownloading] = useState(false);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+
+  // Filter States
+  const [filterType, setFilterType] = useState<
+    "all" | "week" | "month" | "dateRange"
+  >("all");
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    (new Date().getMonth() + 1).toString(),
+  );
+  const [selectedYear, setSelectedYear] = useState<string>(
+    new Date().getFullYear().toString(),
+  );
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+
+  const months = [
+    { value: "1", label: "January" },
+    { value: "2", label: "February" },
+    { value: "3", label: "March" },
+    { value: "4", label: "April" },
+    { value: "5", label: "May" },
+    { value: "6", label: "June" },
+    { value: "7", label: "July" },
+    { value: "8", label: "August" },
+    { value: "9", label: "September" },
+    { value: "10", label: "October" },
+    { value: "11", label: "November" },
+    { value: "12", label: "December" },
+  ];
+
+  const currentYearInt = new Date().getFullYear();
+  const years = Array.from({ length: 5 }, (_, i) =>
+    (currentYearInt - i).toString(),
+  );
+
+  const handleClearSearch = () => {
+    setSearch("");
+    setPage(1);
+  };
+
   const { data, isLoading, isError, error } = useVendorTransactions(
     page,
     limit,
+    debouncedSearch,
   );
-  const { download } = useDownloadVendorReport();
+
+  // Reset pagination when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  const getFilterParams = (): VendorReportFilters => {
+    const params: VendorReportFilters = {
+      transactionId: debouncedSearch || undefined,
+    };
+
+    if (filterType === "week") {
+      const today = new Date();
+      const first = today.getDate() - today.getDay();
+      const start = new Date(today);
+      start.setDate(first);
+
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+
+      params.startDate = start.toISOString().split("T")[0];
+      params.endDate = end.toISOString().split("T")[0];
+    } else if (filterType === "month") {
+      params.month = Number(selectedMonth);
+      params.year = Number(selectedYear);
+    } else if (filterType === "dateRange") {
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+    }
+
+    return params;
+  };
 
   const handleDownloadReport = async () => {
     try {
       setIsDownloading(true);
-      await download();
+
+      const filters = getFilterParams();
+      const blob = await TransactionsService.exportVendorReport(filters);
+
+      if (!(blob instanceof Blob) || blob.size === 0) {
+        toast.error("No transactions found for the selected filters");
+        return;
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.setAttribute(
+        "download",
+        `vendor-transaction-report-${new Date().toISOString().split("T")[0]}.pdf`,
+      );
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
       toast.success("Transaction report downloaded successfully");
     } catch (err) {
       console.error("PDF Download Error:", err);
@@ -40,7 +142,6 @@ const VendorTransactionListing: React.FC = () => {
       setIsDownloading(false);
     }
   };
-
   const getStatusBadge = (status: string) => {
     switch (status.toUpperCase()) {
       case "SUCCESS":
@@ -67,7 +168,7 @@ const VendorTransactionListing: React.FC = () => {
     }
   };
 
-  const transactions = data?.transactions || [];
+  const transactions: VendorTransactionDto[] = data?.transactions || [];
   const totalPages = data?.totalPages || 0;
   const currentPage = data?.currentPage || 1;
 
@@ -101,11 +202,11 @@ const VendorTransactionListing: React.FC = () => {
                   className="group-hover:-translate-y-0.5 transition-transform"
                 />
               )}
-              {isDownloading ? "Generating PDF..." : "Download Report"}
+              {isDownloading ? "Generating Report..." : "Download Report"}
             </button>
           </div>
 
-          {/* Stats Summary (Optional/Hardcoded for now to match style) */}
+          {/* Stats Summary */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">
@@ -114,7 +215,11 @@ const VendorTransactionListing: React.FC = () => {
               <p className="text-2xl font-bold text-slate-900">
                 ₹
                 {transactions
-                  .reduce((acc, curr) => acc + curr.totalAmount, 0)
+                  .reduce(
+                    (acc: number, curr: VendorTransactionDto) =>
+                      acc + curr.totalAmount,
+                    0,
+                  )
                   .toLocaleString()}
               </p>
             </div>
@@ -122,23 +227,98 @@ const VendorTransactionListing: React.FC = () => {
 
           {/* Table Card */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            {/* Table Controls */}
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/30">
-              <div className="relative max-w-sm w-full">
-                <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  size={16}
-                />
-                <input
-                  type="text"
-                  placeholder="Filter by Transaction ID..."
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm"
-                />
+            {/* Table Controls & Filters */}
+            <div className="p-4 border-b border-slate-100 bg-slate-50/30 flex flex-col gap-4">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="relative max-w-sm w-full">
+                  <Search
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                    size={16}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Search by Transaction ID..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full pl-9 pr-10 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
+                  />
+                  <ClearSearchButton
+                    show={search.length > 0}
+                    onClick={handleClearSearch}
+                  />
+                </div>
+                <p className="text-xs font-medium text-slate-400 italic">
+                  Showing {transactions.length} items of {data?.total || 0}{" "}
+                  transactions
+                </p>
               </div>
-              <p className="text-xs font-medium text-slate-400 italic">
-                Showing 1 to {transactions.length} of {data?.total || 0}{" "}
-                transactions
-              </p>
+
+              {/* Filter Row */}
+              <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-2 bg-slate-100/50 p-1 rounded-lg">
+                  {(["all", "week", "month", "dateRange"] as const).map(
+                    (type) => (
+                      <button
+                        key={type}
+                        onClick={() => setFilterType(type)}
+                        className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                          filterType === type
+                            ? "bg-white text-slate-900 shadow-sm"
+                            : "text-slate-500 hover:text-slate-700"
+                        }`}
+                      >
+                        {type.charAt(0).toUpperCase() +
+                          type.slice(1).replace("Range", " Range")}
+                      </button>
+                    ),
+                  )}
+                </div>
+
+                {filterType === "month" && (
+                  <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
+                    <select
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(e.target.value)}
+                      className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+                    >
+                      {months.map((m) => (
+                        <option key={m.value} value={m.value}>
+                          {m.label}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(e.target.value)}
+                      className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+                    >
+                      {years.map((y) => (
+                        <option key={y} value={y}>
+                          {y}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {filterType === "dateRange" && (
+                  <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2">
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+                    />
+                    <span className="text-slate-400">to</span>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             {isLoading ? (
@@ -194,7 +374,6 @@ const VendorTransactionListing: React.FC = () => {
                             <span className="text-sm font-mono font-bold text-slate-800 group-hover:text-teal-600 transition-colors">
                               #{tx.transactionId}
                             </span>
-                            
                           </div>
                         </td>
                         <td className="px-6 py-5">
@@ -229,7 +408,11 @@ const VendorTransactionListing: React.FC = () => {
                                 Penalty:
                               </span>
                               <span
-                                className={`text-[11px] font-bold ${tx.penaltyAmount > 0 ? "text-rose-500" : "text-slate-300"}`}
+                                className={`text-[11px] font-bold ${
+                                  tx.penaltyAmount > 0
+                                    ? "text-rose-500"
+                                    : "text-slate-300"
+                                }`}
                               >
                                 ₹{tx.penaltyAmount.toLocaleString()}
                               </span>

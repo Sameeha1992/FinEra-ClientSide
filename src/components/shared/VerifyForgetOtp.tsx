@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import OtpInput from './OtpInput';
 import toast from 'react-hot-toast';
 import { authService } from '@/api/AuthServiceAndProfile';
+import { handleApiError } from '@/utils/apiError';
 import { Button } from '../ui/button';
 
 const VerifyForgetOtp = ({role}:{role:"user"|"vendor"}) => {
@@ -40,8 +41,8 @@ const VerifyForgetOtp = ({role}:{role:"user"|"vendor"}) => {
 
       toast.success("OTP verified successfully!");
       navigate(`/${role}/reset-password?email=${email}&role=${role}`);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "OTP verification failed");
+    } catch (err: unknown) {
+      setError(handleApiError(err, "OTP verification failed"));
     }
   };
 

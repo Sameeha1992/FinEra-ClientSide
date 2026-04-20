@@ -1,5 +1,6 @@
-import {GoogleLogin} from "@react-oauth/google";
+import {GoogleLogin, type CredentialResponse} from "@react-oauth/google";
 import { authService } from "@/api/AuthServiceAndProfile";
+import { handleApiError } from "@/utils/apiError";
 import React from 'react'
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +16,7 @@ const GoogleSignupButton:React.FC<Props> =({role}) => {
     const dispatch = useDispatch();
     const navigate = useNavigate()
 
-    const handleSuccess = async(response:any)=>{
+    const handleSuccess = async(response: CredentialResponse)=>{
         const token = response.credential;
 
         try {
@@ -32,8 +33,8 @@ const GoogleSignupButton:React.FC<Props> =({role}) => {
                 navigate("/vendor/vendor-dashboard")
             }
             
-        } catch (error:any) {
-            console.error("Google signup failed:",error.response?.data || error.message)
+        } catch (error: unknown) {
+            console.error("Google signup failed:", handleApiError(error));
         }
     }
   return (

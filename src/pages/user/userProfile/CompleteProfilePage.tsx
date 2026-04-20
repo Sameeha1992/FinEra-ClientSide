@@ -1,6 +1,6 @@
-
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import UserProfileDisplay from '@/components/user/userDashboard/CompleteProfile';
+import type { CompleteProfileData } from '@/interfaces/user/userProfile/profile.complete.interface';
 import { userProfile } from '@/api/user/userProfile';
 import { useNavigate } from 'react-router-dom';
 import type { AppDispatch } from "@/redux/store";
@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 
 
 const CompleteProfilePage = () => {
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<CompleteProfileData | null>(null);
   const [loading, setLoading] = useState(true);
  const navigate = useNavigate()
  const dispatch = useDispatch<AppDispatch>()
@@ -51,9 +51,9 @@ const CompleteProfilePage = () => {
       }}
       documentInfo={{
         aadharNumber: profile.adhaarNumber,
-        aadharDocument: profile.documents.adhaarDocUrl,
+        aadharDocument: profile.documents?.adhaarDocUrl,
         panNumber: profile.panNumber,
-        panDocument: profile.documents.panDocUrl,
+        panDocument: profile.documents?.panDocUrl,
       }}
       onEditDetails={() => navigate("/user/update-profile")}
       onChangePassword={() => navigate("/user/change-password")}

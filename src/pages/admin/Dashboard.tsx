@@ -21,7 +21,15 @@ import { useAdminDashboard } from "@/hooks/admin/useAdminDashboard";
 
 /* ─── Custom Tooltip for Chart ──────────────────────────────── */
 
-const CustomTooltip = ({ active, payload }: any) => {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+  }>;
+}
+
+const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white p-3 border border-slate-200 shadow-lg rounded-lg">

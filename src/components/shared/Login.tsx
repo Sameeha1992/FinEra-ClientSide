@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import toast from "react-hot-toast";
+import { handleApiError } from "@/utils/apiError";
 import { Eye, EyeOff } from "lucide-react";
 import { useAppDispatch } from "@/redux/hooks";
 import { authService } from "@/api/AuthServiceAndProfile";
@@ -158,11 +159,8 @@ export default function LoginForm({
           navigate("/user/home", { replace: true });
         }
       }
-    } catch (error: any) {
-      const message =
-        error.response?.data?.message ||
-        error?.response?.data?.error ||
-        "Something went wrong.Please try again";
+    } catch (error: unknown) {
+      const message = handleApiError(error, "Something went wrong. Please try again");
       setServerError(message);
       toast.error(message, { id: toastId });
     } finally {

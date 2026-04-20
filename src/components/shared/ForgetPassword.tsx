@@ -28,30 +28,26 @@ export default function ForgotPassword({role}:{role:"user"|"vendor"}) {
     }
 
     try {
-
-      if(role === "user"){
-        await authService.forgetPassword(email)
-      }else if(role === "vendor"){
-         await authService.forgetPasswordVendor(email)
+      if (role === "user") {
+        await authService.forgetPassword(email);
+      } else if (role === "vendor") {
+        await authService.forgetPasswordVendor(email);
       }
 
-      navigate(`/${role}/verify-forget-otp`,{state:{email,role}})
-      
+      setIsSubmitted(true);
+      setTimeout(() => {
+        setEmail("");
+        setIsSubmitted(false);
+      }, 3000);
+
+      navigate(`/${role}/verify-forget-otp`, { state: { email, role } });
     } catch (err) {
-      const error = err as AxiosError<{message:string}>
-      console.log(error)
+      const error = err as AxiosError<{ message: string }>;
+      console.log(error);
 
-      setError(error.response?.data?.message || "Email does not exist")
-      
+      setError(error.response?.data?.message || "An error occurred. Please try again.");
     }
-
-    // Show success message
-    setIsSubmitted(true)
-    setTimeout(() => {
-      setEmail("")
-      setIsSubmitted(false)
-    }, 3000)
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">

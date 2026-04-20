@@ -71,7 +71,15 @@ const DashboardCard: React.FC<DashboardCardProps> = ({ title, value, icon: Icon,
 
 // ─── Tooltips ─────────────────────────────────────────────────────────────────
 
-const PieTooltip = ({ active, payload }: any) => {
+interface PieTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+  }>;
+}
+
+const PieTooltip = ({ active, payload }: PieTooltipProps) => {
   if (active && payload?.length) {
     return (
       <div className="bg-white border border-gray-100 shadow-lg rounded-xl px-4 py-2.5 text-sm">
@@ -83,12 +91,23 @@ const PieTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-const BarTooltip = ({ active, payload, label }: any) => {
+interface BarTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    dataKey: string;
+    color: string;
+  }>;
+  label?: string;
+}
+
+const BarTooltip = ({ active, payload, label }: BarTooltipProps) => {
   if (active && payload?.length) {
     return (
       <div className="bg-white border border-gray-100 shadow-lg rounded-xl px-4 py-3 text-sm space-y-1">
         <p className="font-semibold text-gray-800 mb-2">{label}</p>
-        {payload.map((p: any) => (
+        {payload.map((p) => (
           <p key={p.dataKey} style={{ color: p.color }} className="font-medium">
             {p.name}: {p.value}
           </p>

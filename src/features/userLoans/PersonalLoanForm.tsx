@@ -67,13 +67,13 @@ const PersonalLoanForm = () => {
         if (!appDetail) return;
         reset({
             phoneNumber: appDetail.phoneNumber,
-            employmentType: appDetail.employmentType as any,
+            employmentType: appDetail.employmentType || "",
             monthlyIncome: appDetail.monthlyIncome,
             loanAmount: appDetail.loanAmount,
             loanTenure: appDetail.loanTenure,
-            employerName: appDetail.personalDetails?.employerName,
+            employerName: appDetail.personalDetails?.employerName || "",
             yearsOfExperience: appDetail.personalDetails?.yearsOfExperience,
-            purpose: appDetail.personalDetails?.purpose,
+            purpose: appDetail.personalDetails?.purpose || "",
         });
     }, [appDetail, reset]);
 

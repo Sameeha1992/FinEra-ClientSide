@@ -5,15 +5,23 @@ import StatusBadge from "@/components/ui/StatusBadge";
 import Pagination from "@/components/ui/Pagination";
 import AdminLayout from "@/components/layout/Adminlayout";
 import { fetchAccounts, updateAccountStatus } from "@/api/admin/AdminAccountMgt";
+import { useDebounce } from "@/hooks/useDebounce";
+import ClearSearchButton from "@/components/ui/ClearSearchButton";
 import type { Account } from "@/interfaces/admin/Account";
 
 
 
 const VendorManagement = () => {
+  const handleClearSearch = () => {
+    setSearch("");
+    setCurrentPage(1);
+  };
+
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
   const [confirmModal, setConfirmModal] = useState<{
     open: boolean;
     accountId: string;
@@ -30,7 +38,7 @@ const VendorManagement = () => {
         const res = await fetchAccounts({
           page: currentPage,
           limit: itemsPerPage,
-          search,
+          search: debouncedSearch,
           role: "vendor",
         });
 
@@ -42,7 +50,7 @@ const VendorManagement = () => {
     };
 
     loadAccounts();
-  }, [currentPage, search]);
+  }, [currentPage, debouncedSearch]);
 
 
 
@@ -79,16 +87,22 @@ const VendorManagement = () => {
 
         <div className="overflow-x-auto">
           <div className="flex items-center justify-between mb-4">
-            <input
-              type="text"
-              placeholder="Search by name or email"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-64 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-teal-500"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by name or email"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-64 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-teal-500 pr-10"
+              />
+              <ClearSearchButton 
+                show={search.length > 0} 
+                onClick={handleClearSearch} 
+              />
+            </div>
           </div>
 
           <table className="w-full">

@@ -4,6 +4,7 @@ import {  useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import toast from "react-hot-toast";
 import { authService } from "@/api/AuthServiceAndProfile";
+import { handleApiError } from "@/utils/apiError";
 
 const resetPasswordSchema = z
   .object({
@@ -20,26 +21,23 @@ export default function ResetPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // email passed from Verify OTP page
-  const email = searchParams.get("email");
-  const role= searchParams.get("role") as "user"|"vendor"
-
-  const emailValue = email
-
-  if(!emailValue){
-    toast.error("Email is missing. Cannot reset password.");
-    navigate("/user/home")
-    return
-  }
-
-  
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting,setisSubmitting] = useState(false)
+  const [isSubmitting, setisSubmitting] = useState(false);
+
+  // email passed from Verify OTP page
+  const email = searchParams.get("email");
+  const role = searchParams.get("role") as "user" | "vendor";
+
+  if (!email) {
+    toast.error("Email is missing. Cannot reset password.");
+    navigate("/user/home");
+    return null;
+  }
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +65,7 @@ export default function ResetPassword() {
 
     try {
       if(role==="user"){
-       await authService.resetPassword(emailValue,formData.password);
+       await authService.resetPassword(email,formData.password);
       }else if(role==="vendor"){
         await authService.resetVendorPassword(email,formData.password);
       }
@@ -75,8 +73,8 @@ export default function ResetPassword() {
       toast.success("Password reset successfully!");
 
       navigate(`/${role}/login`);
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Something went wrong");
+    } catch (err: unknown) {
+      toast.error(handleApiError(err));
     } finally{
       setisSubmitting(false)
     }

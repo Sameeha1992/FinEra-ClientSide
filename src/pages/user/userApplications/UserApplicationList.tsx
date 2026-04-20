@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { UserApplicationservice } from "@/api/user/user.loan.application";
+import { useDebounce } from "@/hooks/useDebounce";
 import type { UserApplicationListItem } from "@/interfaces/user/userApplications/user.application.types";
 import {
   FileText,
@@ -11,6 +12,7 @@ import {
   Eye,
   RotateCcw,
 } from "lucide-react";
+import ClearSearchButton from "@/components/ui/ClearSearchButton";
 
 // ── Status Badge ──────────────────────────────────────────────────────────────
 const STATUS_STYLES: Record<
@@ -97,6 +99,12 @@ const UserApplicationList = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+
+  const handleClearSearch = () => {
+    setSearch("");
+    setCurrentPage(1);
+  };
 
   const handleReapply = (app: UserApplicationListItem) => {
     const typeKey = app.loanType.toLowerCase();
@@ -113,9 +121,9 @@ const UserApplicationList = () => {
   };
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["userApplications", currentPage],
+    queryKey: ["userApplications", currentPage, debouncedSearch],
     queryFn: () =>
-      UserApplicationservice.getApplicationList(currentPage, LIMIT),
+      UserApplicationservice.getApplicationList(currentPage, LIMIT, debouncedSearch),
     placeholderData: (previousData) => previousData,
   });
 
@@ -123,15 +131,12 @@ const UserApplicationList = () => {
   const total = data?.total ?? 0;
   const totalPages = data?.totalPages ?? Math.ceil(total / LIMIT);
 
-  // Local search filter
-  const filtered = search
-    ? applications.filter(
-        (app) =>
-          app.applicationNumber.toLowerCase().includes(search.toLowerCase()) ||
-          app.loanType.toLowerCase().includes(search.toLowerCase()) ||
-          app.status.toLowerCase().includes(search.toLowerCase()),
-      )
-    : applications;
+  // Reset pagination when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+
+  const filtered = applications;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -165,7 +170,11 @@ const UserApplicationList = () => {
               placeholder="Search by application no, type, status…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-72 pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-72 pl-9 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            />
+            <ClearSearchButton 
+              show={search.length > 0} 
+              onClick={handleClearSearch} 
             />
           </div>
 

@@ -33,3 +33,17 @@ export interface PaginatedVendorTransactionDto {
   currentPage: number;
   totalPages: number;
 }
+
+//Transaction report generation in the vednor side:-
+
+
+export interface VendorReportFilters {
+  date?: string;
+  startDate?: string;
+  endDate?: string;
+  month?: number;
+  year?: number;
+  userId?: string;
+  loanType?: string;
+  transactionId?: string;
+}

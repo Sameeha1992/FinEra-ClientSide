@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "@/components/vendor/dashboard/shared/Sidebar";
 import { Search, Eye, ChevronLeft, ChevronRight, Users, Loader2 } from "lucide-react";
 import { userVerification } from "@/api/vendor/user.verification";
+import { useDebounce } from "@/hooks/useDebounce";
+import ClearSearchButton from "@/components/ui/ClearSearchButton";
 import type { VendorApplicationListItemDTO } from "@/interfaces/vendor/user.verification.interface";
 import toast from "react-hot-toast";
 
@@ -25,20 +27,21 @@ export default function UserList() {
     const navigate = useNavigate();
     const [applications, setApplications] = useState<VendorApplicationListItemDTO[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const debouncedSearch = useDebounce(searchTerm, 500);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
 
-    // ── Debounce search (500 ms) ──────────────────────────────────────────────
+    const handleClearSearch = () => {
+        setSearchTerm("");
+        setCurrentPage(1);
+    };
+
+    // Reset pagination when search changes
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearch(searchTerm);
-            setCurrentPage(1);
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchTerm]);
+        setCurrentPage(1);
+    }, [debouncedSearch]);
 
     // ── Fetch from API ────────────────────────────────────────────────────────
     const fetchApplications = useCallback(async () => {
@@ -109,9 +112,13 @@ export default function UserList() {
                             <input
                                 type="text"
                                 placeholder="Search by name, loan type, status..."
-                                className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-slate-600 placeholder:text-slate-400"
+                                className="w-full pl-9 pr-10 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-sm text-slate-600 placeholder:text-slate-400"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                            <ClearSearchButton 
+                                show={searchTerm.length > 0} 
+                                onClick={handleClearSearch} 
                             />
                         </div>
                         <p className="text-sm text-slate-400 whitespace-nowrap">

@@ -64,6 +64,9 @@ const UserConversationsPage = lazy(
 const TransactionListing = lazy(
   () => import("@/pages/user/TransactionListing"),
 );
+const UserDashboardPage = lazy(
+  () => import("./pages/user/UserDashboardPage"),
+);
 
 function User() {
   return (
@@ -99,6 +102,7 @@ function User() {
 
           {/* Dashboard routes (with sidebar layout) */}
           <Route element={<UserProfile />}>
+            <Route path="dashboard" element={<UserDashboardPage />} />
             <Route path="user-profile" element={<ProfilePage />} />
             <Route
               path="user-complete-form"

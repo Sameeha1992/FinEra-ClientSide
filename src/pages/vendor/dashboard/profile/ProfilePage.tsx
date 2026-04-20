@@ -40,6 +40,7 @@ const ProfilePage = () => {
                 
             } catch (error) {
                 setError("Failed to load vendor profile")
+                console.log(error)
             }finally{
                 setLoading(false)
             }

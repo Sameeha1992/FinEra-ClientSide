@@ -5,6 +5,7 @@ import OtpInput from "@/components/shared/OtpInput";
 import otpIllustration from "@/assets/logI.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { authService } from "@/api/AuthServiceAndProfile";
+import { handleApiError } from "@/utils/apiError";
 import type {
   LocationState,
   
@@ -113,11 +114,10 @@ const OtpVerification = () => {
         sonnerToast.success("Account created successfully");
         navigate("/user/login",{replace:true});
       }
-    } catch (error: any) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Invalid OTP";
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error, "Invalid OTP");
       setMessage(errorMessage);
-      sonnerToast.error((error as string) || "Failed to verify OTP ");
+      sonnerToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -136,9 +136,8 @@ const OtpVerification = () => {
       setTimeLeft(120);
       setMessage("OTP send to your email");
       sonnerToast.success("OTP send to your email");
-    } catch (error: any) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to resend OTP";
+    } catch (error: unknown) {
+      const errorMessage = handleApiError(error, "Failed to resend OTP");
       setMessage(errorMessage);
       sonnerToast.error(errorMessage);
     } finally {

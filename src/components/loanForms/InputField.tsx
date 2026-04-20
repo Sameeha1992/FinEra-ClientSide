@@ -51,6 +51,13 @@ const InputField = <T extends FieldValues>({
     inputClassName = "",
     className = "",
 }: InputFieldProps<T>) => {
+    const registerOptions: RegisterOptions<T, Path<T>> = {
+        ...rules,
+        ...(type === "number"
+            ? { setValueAs: (v: string) => (v === "" || v === undefined ? undefined : parseFloat(v)) }
+            : {}),
+    };
+
     const error = get(errors, name);
     const hasError = Boolean(error?.message);
 
@@ -93,13 +100,7 @@ const InputField = <T extends FieldValues>({
                     }
           ${inputClassName}
         `}
-                {// eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ...register(name, {
-                    ...(rules as any),
-                    ...(type === "number"
-                        ? { setValueAs: (v: string) => (v === "" || v === undefined ? undefined : parseFloat(v)) }
-                        : {}),
-                })}
+                {...register(name, registerOptions)}
             />
 
             {/* Validation error */}

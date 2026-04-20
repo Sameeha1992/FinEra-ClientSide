@@ -39,3 +39,32 @@ export interface VendorDashboardResponse {
   message: string;
   data: VendorDashboardData;
 }
+
+
+//User Transaction Report downlaod vendor side:-
+
+
+export interface VendorReportFilters {
+  startDate?: string;
+  endDate?: string;
+  month?: number;
+  year?: number;
+  userId?: string;
+  loanType?: string;
+  transactionId?: string;
+}
+
+export interface VendorDashboardExportDto {
+  transactionId: string;
+  userName: string;
+  userEmail: string;
+  loanType: string;
+  productName: string;
+  interestRate: number;
+  emiNumber: number;
+  emiAmount: number;
+  penaltyPaid: number;
+  totalPaid: number;
+  paidAt: string;
+}
+

@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { registrationSchema, type RegistrationFormData } from '@/components/pages/validation/vendorAuthSchema';
 import { authService } from '@/api/AuthServiceAndProfile';
 import toast from 'react-hot-toast';
+import { handleApiError } from '@/utils/apiError';
 
 const VendorRegistrationForm: React.FC = () => {
   const navigate = useNavigate();
@@ -59,8 +60,8 @@ const VendorRegistrationForm: React.FC = () => {
           },
         },
       });
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to generate OTP');
+    } catch (err: unknown) {
+      toast.error(handleApiError(err, 'Failed to generate OTP'));
     } finally {
       setLoading(false);
     }

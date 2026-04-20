@@ -1,5 +1,6 @@
 import axiosInstance from "@/config/axiosInterceptor";
 import { API_ENDPOINTS } from "@/constants/api.endpoints";
+import { getApiErrorData } from "@/utils/apiError";
 import type { AccountQuery } from "@/interfaces/admin/AccouuntQuery";
 
 export const fetchAccounts = async (query: AccountQuery) => {
@@ -8,8 +9,8 @@ export const fetchAccounts = async (query: AccountQuery) => {
       params: query,
     });
     return response.data;
-  } catch (error: any) {
-    throw error?.response?.data;
+  } catch (error: unknown) {
+    throw getApiErrorData(error) || error;
   }
 };
 

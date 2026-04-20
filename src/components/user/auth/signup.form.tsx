@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { authService } from "@/api/AuthServiceAndProfile";
 import { registerUserSchema,type FormData } from "../../../validations/user/user.register.validation";
+import { handleApiError } from "@/utils/apiError";
 
 
 
@@ -71,9 +72,9 @@ export function SignupForm() {
       }}})
       
        
-    } catch (error:any) {
+    } catch (error: unknown) {
       console.error('Failed to generate OTP',error);
-      setMessage(error || 'Failed to send OTP. PLease try again')
+      setMessage(handleApiError(error, 'Failed to send OTP. Please try again'));
     } finally{
       setLoading(false)
     }

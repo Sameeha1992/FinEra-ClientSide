@@ -2,6 +2,14 @@ import axiosInstance from "@/config/axiosInterceptor";
 import { API_ENDPOINTS } from "@/constants/api.endpoints";
 import type { LoanListingResponse } from "@/interfaces/user/loans/user.loan.listing";
 
+interface LoanSearchParams {
+  loanType: string;
+  page: number;
+  limit: number;
+  userSalary?: number;
+  search?: string;
+}
+
 export const loanService = {
   async getLoans(
     loanType: string,
@@ -11,7 +19,7 @@ export const loanService = {
     search?: string,
   ): Promise<LoanListingResponse> {
     try {
-      const params: any = {
+      const params: LoanSearchParams = {
         loanType,
         page,
         limit,

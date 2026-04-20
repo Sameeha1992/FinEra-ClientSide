@@ -5,13 +5,21 @@ import {
   ArrowRightLeft,
   MessageCircle,
   BellIcon,
-  LogOut
+  LogOut,
+  LayoutDashboard
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { authService } from "@/api/AuthServiceAndProfile";
 import { clearAuth } from "@/redux/slice/auth.slice";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
+
+interface SidebarItem {
+  icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  label: string;
+  route?: string;
+  action?: () => void;
+}
 
 interface SidebarProps {
   isOpen: boolean;
@@ -38,6 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   }
 
   const sidebarItems: SidebarItem[] = [
+    { icon: LayoutDashboard, label: "Dashboard", route: "/user/dashboard" },
     { icon: User, label: "User Profile", route: "/user/user-profile" },
     { icon: FileText, label: "Applications", route: "/user/applications" },
     { icon: ArrowRightLeft, label: "Transactions", route: "/user/transactions" },

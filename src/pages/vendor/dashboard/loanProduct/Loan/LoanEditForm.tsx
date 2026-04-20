@@ -76,7 +76,7 @@ export default function LoanEditForm() {
       setFormData((prev) => ({
         ...prev,
         [parent]: {
-          ...(prev as any)[parent],
+          ...(prev[parent as keyof ILoanProductDto] as object),
           [child]:
             type === "number" ? (value === "" ? "" : Number(value)) : value,
         },

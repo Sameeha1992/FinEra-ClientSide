@@ -1,4 +1,5 @@
 import axiosInstance from "@/config/axiosInterceptor";
+import axios from "axios";
 import { API_ENDPOINTS } from "@/constants/api.endpoints";
 import type {ApiResponsnes } from "@/interfaces/shared/auth/auth.interface";
 import type { CompleteProfileForm } from "@/interfaces/user/userProfile/profile.complete.interface";
@@ -62,10 +63,12 @@ async completeUserProfile(formData:CompleteProfileForm):Promise<ApiResponsnes<us
       console.log("Complete profile response", response.data);
       return response.data;
 
-  } catch (error:any) {
+  } catch (error: unknown) {
     console.error("Failed to complete user profile", error);
-    console.log("this is the issue",error.response?.data)
-      throw error;
+    if (axios.isAxiosError(error)) {
+      console.log("this is the issue", error.response?.data);
+    }
+    throw error;
   }
 },
 

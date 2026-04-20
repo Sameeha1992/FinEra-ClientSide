@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import AdminLayout from "@/components/layout/Adminlayout";
 import Pagination from "@/components/ui/Pagination";
 import { vendorVerificationList } from "@/api/admin/VendorVerification";
+import { useDebounce } from "@/hooks/useDebounce";
+import ClearSearchButton from "@/components/ui/ClearSearchButton";
 import type { VendorVerification } from "@/interfaces/admin/VendorVerification";
 
 // ── Status Badge ──────────────────────────────────────────────────────────────
@@ -50,19 +52,18 @@ const VendorVerificationList = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalResults, setTotalResults] = useState(0);
     const [search, setSearch] = useState("");
+    const debouncedSearch = useDebounce(search, 500);
     const [loading, setLoading] = useState(false);
+
+    const handleClearSearch = () => {
+        setSearch("");
+        setCurrentPage(1);
+    };
 
     const itemsPerPage = 5;
     const totalPages = Math.ceil(totalResults / itemsPerPage);
 
-    // Local search filter (API doesn't support search param)
-    const vendors = search
-        ? allVendors.filter(
-            (v) =>
-                v.vendorName.toLowerCase().includes(search.toLowerCase()) ||
-                v.email.toLowerCase().includes(search.toLowerCase())
-        )
-        : allVendors;
+    const vendors = allVendors;
 
     useEffect(() => {
         const load = async () => {
@@ -70,7 +71,8 @@ const VendorVerificationList = () => {
             try {
                 const res = await vendorVerificationList.getVendorList(
                     currentPage,
-                    itemsPerPage
+                    itemsPerPage,
+                    debouncedSearch
                 );
                 setAllVendors(res.vendors);
                 setTotalResults(res.total);
@@ -81,7 +83,7 @@ const VendorVerificationList = () => {
             }
         };
         load();
-    }, [currentPage]);
+    }, [currentPage, debouncedSearch]);
 
     return (
         <AdminLayout>
@@ -92,16 +94,22 @@ const VendorVerificationList = () => {
                 <div className="overflow-x-auto">
                     {/* Search */}
                     <div className="flex items-center justify-between mb-4">
-                        <input
-                            type="text"
-                            placeholder="Search by name or email"
-                            value={search}
-                            onChange={(e) => {
-                                setSearch(e.target.value);
-                                setCurrentPage(1);
-                            }}
-                            className="w-64 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-teal-500"
-                        />
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="Search by name or email"
+                                value={search}
+                                onChange={(e) => {
+                                    setSearch(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                                className="w-64 px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-teal-500 pr-10"
+                            />
+                            <ClearSearchButton 
+                                show={search.length > 0} 
+                                onClick={handleClearSearch} 
+                            />
+                        </div>
                     </div>
 
                     {/* Table */}

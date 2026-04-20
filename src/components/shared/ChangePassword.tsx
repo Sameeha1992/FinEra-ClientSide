@@ -5,34 +5,33 @@ import { Input } from "@/components/ui/input";
 import type { ChangePasswordProps } from "@/interfaces/shared/auth/auth.interface";
 import toast from "react-hot-toast";
 
-
-const ChangePassword = ({onSubmit}:ChangePasswordProps) => {
+const ChangePassword = ({ onSubmit }: ChangePasswordProps) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [loading, setLoading] = useState(false);
 
-
-  const handleSubmit = async()=>{
-    if(!currentPassword || !newPassword){
-        toast.error("All fields are required");
-        return 
+  const handleSubmit = async () => {
+    if (!currentPassword || !newPassword) {
+      toast.error("All fields are required");
+      return;
     }
-  
-  try {
-    setLoading(true);
-    await onSubmit(currentPassword,newPassword);
-    toast.success("Password updated successfully");
-    setCurrentPassword("");
-    setNewPassword("")
-    
-  } catch (error) {
-    toast.error("Failed to update password")
-  }finally{
-    setLoading(false)
-  }
-}
+
+    try {
+      setLoading(true);
+      await onSubmit(currentPassword, newPassword);
+      toast.success("Password updated successfully");
+      setCurrentPassword("");
+      setNewPassword("");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update password";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm border-2 border-teal-600 overflow-hidden max-w-md w-full">
@@ -57,7 +56,11 @@ const ChangePassword = ({onSubmit}:ChangePasswordProps) => {
               onClick={() => setShowCurrent(!showCurrent)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
-              {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showCurrent ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>
@@ -78,11 +81,19 @@ const ChangePassword = ({onSubmit}:ChangePasswordProps) => {
               onClick={() => setShowNew(!showNew)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
-              {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showNew ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>
-        <Button onClick={handleSubmit} disabled={loading} className="bg-teal-600 hover:bg-teal-600 text-white rounded-full px-6 w-full mt-2">
+        <Button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="bg-teal-600 hover:bg-teal-600 text-white rounded-full px-6 w-full mt-2"
+        >
           <Lock className="w-4 h-4 mr-2" />
           {loading ? "Updating..." : "Update Password"}
         </Button>

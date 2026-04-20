@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
-import { Home, CreditCard, Building2, Coins } from "lucide-react";
+import { Home, CreditCard, Building2, Coins, Search } from "lucide-react";
 import { loanService } from "@/api/user/userLoanService";
+import { useDebounce } from "@/hooks/useDebounce";
+import ClearSearchButton from "@/components/ui/ClearSearchButton";
 import type { LoanListingItem } from "@/interfaces/user/loans/user.loan.listing";
 import { useQuery } from "@tanstack/react-query";
 
@@ -124,10 +126,15 @@ const LoanListingPage = () => {
   // Filter inputs (controlled separately so filter only fires on button click)
   const [salaryInput, setSalaryInput] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const debouncedSearch = useDebounce(searchInput, 500);
 
   // Applied filter values (sent to API)
   const [appliedSalary, setAppliedSalary] = useState<number | undefined>(undefined);
-  const [appliedSearch, setAppliedSearch] = useState("");
+
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setCurrentPage(1);
+  };
 
   const handleTabChange = (typeKey: string) => {
     setSearchParams({ type: typeKey });
@@ -135,7 +142,6 @@ const LoanListingPage = () => {
     setSalaryInput("");
     setSearchInput("");
     setAppliedSalary(undefined);
-    setAppliedSearch("");
   };
 
   const handleApply = (loan: LoanListingItem) => {
@@ -218,14 +224,14 @@ const LoanListingPage = () => {
   // };
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["loans", loanType, currentPage, appliedSalary, appliedSearch],
+    queryKey: ["loans", loanType, currentPage, appliedSalary, debouncedSearch],
     queryFn: () =>
       loanService.getLoans(
         loanType,
         appliedSalary,
         currentPage,
         LIMIT,
-        appliedSearch || undefined,
+        debouncedSearch || undefined,
       ),
     placeholderData: (previousData) => previousData,
   });
@@ -237,9 +243,13 @@ const LoanListingPage = () => {
   const handleFilter = () => {
     const salary = salaryInput ? Number(salaryInput) : undefined;
     setAppliedSalary(salary);
-    setAppliedSearch(searchInput);
     setCurrentPage(1);
   };
+
+  // Reset pagination when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -307,14 +317,21 @@ const LoanListingPage = () => {
               onChange={(e) => setSalaryInput(e.target.value)}
               className="border border-gray-300 rounded-md px-4 py-2 text-sm w-52 focus:outline-none focus:ring-2 focus:ring-teal-300"
             />
-            <input
-              type="text"
-              placeholder="Search by bank name"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleFilter()}
-              className="border border-gray-300 rounded-md px-4 py-2 text-sm w-52 focus:outline-none focus:ring-2 focus:ring-teal-300"
-            />
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search by bank name"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleFilter()}
+                className="border border-gray-300 rounded-md pl-10 pr-10 py-2 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-teal-300"
+              />
+              <ClearSearchButton 
+                show={searchInput.length > 0} 
+                onClick={handleClearSearch} 
+              />
+            </div>
             <button
               onClick={handleFilter}
               className="bg-teal-600 text-white px-6 py-2 rounded-md text-sm font-medium hover:bg-teal-700 transition-colors"

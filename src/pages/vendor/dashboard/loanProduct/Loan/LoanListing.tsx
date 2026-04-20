@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Sidebar from "../../../../../components/vendor/dashboard/shared/Sidebar";
 import {
   Search,
@@ -11,6 +11,8 @@ import {
   Menu,
 } from "lucide-react";
 import { loanProduct } from "@/api/loanProduct/loanProduct.service";
+import { useDebounce } from "@/hooks/useDebounce";
+import ClearSearchButton from "@/components/ui/ClearSearchButton";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
@@ -36,8 +38,14 @@ interface ConfirmModal {
 }
 
 export default function LoanListing() {
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setPage(1);
+  };
+
   const [loans, setLoans] = useState<Loan[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
   const [page, setPage] = useState(1);
   const limit = 10;
   const [total, setTotal] = useState(0);
@@ -104,17 +112,17 @@ export default function LoanListing() {
     }
   };
 
-  const fetchLoans = async () => {
+  const fetchLoans = useCallback(async () => {
     setLoading(true);
 
     try {
       const response = await loanProduct.getVendorLoans(
-        searchTerm,
+        debouncedSearch,
         page,
         limit
       );
 
-      console.log(response, "responses of list")
+      console.log(response, "responses of list");
 
       const formattedLoans: Loan[] = response.loans.map((loan) => ({
         id: loan.loanId,
@@ -128,7 +136,7 @@ export default function LoanListing() {
         status: loan.status === "ACTIVE" ? "Active" : "Inactive",
       }));
 
-      console.log(formattedLoans, "this are the formatred loans")
+      console.log(formattedLoans, "this are the formatted loans");
       setLoans(formattedLoans);
       setTotal(response.total);
     } catch (error) {
@@ -136,20 +144,15 @@ export default function LoanListing() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [debouncedSearch, page, limit]);
 
   useEffect(() => {
     setPage(1);
-  }, [searchTerm]);
-
+  }, [debouncedSearch]);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      fetchLoans();
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [searchTerm, page, limit]);
+    fetchLoans();
+  }, [fetchLoans]);
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -170,16 +173,20 @@ export default function LoanListing() {
               </button>
               
               <div className="relative flex-1 md:max-w-md">
+                <Search
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                  size={16}
+                />
                 <input
                   type="text"
                   placeholder="Search by Loan Name"
-                  className="w-full pl-4 pr-10 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-slate-600"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-slate-600"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <Search
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
-                  size={18}
+                <ClearSearchButton 
+                  show={searchTerm.length > 0} 
+                  onClick={handleClearSearch} 
                 />
               </div>
             </div>

@@ -70,7 +70,7 @@ export default function LoanDetailPage() {
         );
     }
 
-    const DetailItem = ({ label, value, icon: Icon, className = "" }: { label: string, value: React.ReactNode, icon: any, className?: string }) => (
+    const DetailItem = ({ label, value, icon: Icon, className = "" }: { label: string, value: React.ReactNode, icon: React.ElementType, className?: string }) => (
         <div className={`p-4 bg-white rounded-xl border border-slate-100 shadow-sm flex items-start gap-4 ${className}`}>
             <div className="p-2.5 bg-slate-50 rounded-lg text-teal-600">
                 <Icon size={20} />

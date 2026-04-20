@@ -1,8 +1,9 @@
 import axiosInstance from "@/config/axiosInterceptor";
 import { API_ENDPOINTS } from "@/constants/api.endpoints";
+import type { Notification } from "@/components/notifications/NotificationCard";
 
 export const NotificationService = {
-  async getNotifications() {
+  async getNotifications(): Promise<Notification[]> {
     const response = await axiosInstance.get(
       API_ENDPOINTS.USER.GET_NOTITFICATIONS,
     );

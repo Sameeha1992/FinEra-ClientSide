@@ -99,7 +99,7 @@ export default function UpdateProfileForm() {
       }
     };
     fetchProfile();
-  },[]);
+  }, [user.email, user.name]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

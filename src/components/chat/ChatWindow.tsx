@@ -124,7 +124,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       socket.off("chat_error", handleChatError);
       socket.disconnect();
     };
-  }, [conversationId, scrollToBottom]);
+  }, [conversationId, scrollToBottom,accessToken]);
 
   const handleSend = useCallback(() => {
     const text = inputText.trim();

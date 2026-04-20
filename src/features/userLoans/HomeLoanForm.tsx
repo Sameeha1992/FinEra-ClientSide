@@ -77,13 +77,13 @@ const HomeLoanForm = () => {
         if (!appDetail) return;
         reset({
             phoneNumber: appDetail.phoneNumber,
-            employmentType: appDetail.employmentType as any,
+            employmentType: appDetail.employmentType || "",
             monthlyIncome: appDetail.monthlyIncome,
             loanAmount: appDetail.loanAmount,
             loanTenure: appDetail.loanTenure,
             propertyValue: appDetail.homeDetails?.propertyValue,
-            propertyLocation: appDetail.homeDetails?.propertyLocation,
-            propertyType: appDetail.homeDetails?.propertyType as any,
+            propertyLocation: appDetail.homeDetails?.propertyLocation || "",
+            propertyType: appDetail.homeDetails?.propertyType || "",
         });
     }, [appDetail, reset]);
 

@@ -22,7 +22,7 @@ export default function ProfilePage() {
       try {
         const res = await userProfile.getUserProfile()
         setUserData(res)
-        console.log(auth, "redux data that is stored")
+        console.log(auth.isAuthenticated, "redux auth status confirmed")
 
       } catch (error) {
         console.error("Failed to fetch profile", error)

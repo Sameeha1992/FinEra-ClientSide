@@ -23,7 +23,7 @@ export default function Header() {
   ];
 
 
-  const { name, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { name, isAuthenticated, isProfileComplete } = useSelector((state: RootState) => state.auth);
 
   if (!isAuthenticated) return null;
 
@@ -41,7 +41,6 @@ export default function Header() {
     }
   };
 
-  const { isProfileComplete } = useSelector((state: RootState) => state.auth);
   console.log("Redux profile completed:", isProfileComplete);
 
   const goToProfile = async () => {

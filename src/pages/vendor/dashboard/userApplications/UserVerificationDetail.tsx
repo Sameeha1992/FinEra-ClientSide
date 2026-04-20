@@ -638,7 +638,7 @@ export default function UserVerificationDetail() {
                       <div className="space-y-3">
                         {displayData.slice(0, 6).map((emi: EmiListByLoanIdType, index: number, arr: EmiListByLoanIdType[]) => {
                           const firstPendingIndex = arr.findIndex(
-                            (e: any) => e.status === "PENDING",
+                            (e: EmiListByLoanIdType) => e.status === "PENDING",
                           );
                           const isFirstPending = index === firstPendingIndex;
 

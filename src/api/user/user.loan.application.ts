@@ -3,8 +3,8 @@ import { API_ENDPOINTS } from "@/constants/api.endpoints";
 import type { IUserApplicationsListResponse, UserApplicationDetail } from "@/interfaces/user/userApplications/user.application.types";
 
 export const UserApplicationservice = {
-    async getApplicationList(page: number = 1, limit: number = 10): Promise<IUserApplicationsListResponse> {
-        const response = await axiosInstance.get(API_ENDPOINTS.USER.GET_APPLICATIONS, { params: { page, limit } });
+    async getApplicationList(page: number = 1, limit: number = 10, search: string = ""): Promise<IUserApplicationsListResponse> {
+        const response = await axiosInstance.get(API_ENDPOINTS.USER.GET_APPLICATIONS, { params: { page, limit, search } });
         return response.data.data;
     },
 

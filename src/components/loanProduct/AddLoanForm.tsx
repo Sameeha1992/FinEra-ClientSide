@@ -50,7 +50,7 @@ export default function AddLoanForm() {
     if (nestedField) {
       // Only allow nested update for object fields
       setFormData((prev) => {
-        const nested = prev[field] as Record<string, any>; // cast to object
+        const nested = prev[field] as Record<string, number | string | undefined>; // cast to object
         return {
           ...prev,
           [field]: {

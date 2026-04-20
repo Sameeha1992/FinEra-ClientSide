@@ -12,10 +12,11 @@ export const vendorVerificationList = {
   async getVendorList(
     page: number = 1,
     limit: number = 10,
+    search: string = "",
   ): Promise<VendorVerificationResponse> {
     try {
       const response = await axiosInstance.get(API_ENDPOINTS.ADMIN.VENDORS, {
-        params: { page, limit },
+        params: { page, limit, search },
       });
       return response.data.data;
     } catch (error) {
