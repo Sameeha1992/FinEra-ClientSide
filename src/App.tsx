@@ -1,7 +1,7 @@
 import User from "./User";
 import { Toaster } from "react-hot-toast";
 import Admin from "./Admin";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Vendor from "./Vendor";
 
 const App = () => {
@@ -10,6 +10,7 @@ const App = () => {
       <BrowserRouter>
         <Toaster />
         <Routes>
+          <Route path="/" element={<Navigate to="/user/home" replace />} />
           <Route path="/user/*" element={<User />} />
           <Route path="/admin/*" element={<Admin />} />
           <Route path="/vendor/*" element={<Vendor />} />

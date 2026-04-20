@@ -1,5 +1,5 @@
 import "./index.css";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { ClientProtectRoute } from "./protected/ProtectedRoutes";
 import { UserUnProtectRoute } from "./protected/UnprotectedRoute";
@@ -73,6 +73,7 @@ function User() {
     <Suspense fallback={<div className="text-center mt-20">Loading...</div>}>
       <Routes>
         {/* 🌍 Public page */}
+        <Route index element={<Navigate to="home" replace />} />
         <Route path="home" element={<LandingPage />} />
 
         {/* 🔓 UNPROTECTED USER ROUTES */}
