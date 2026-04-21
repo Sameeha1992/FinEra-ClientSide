@@ -22,5 +22,7 @@ export interface LoanDetailForUserDto {
     maxAge?: number;
     minSalary?: number;
     minCibilScore?: number;
+    
   };
+ 
 }

@@ -1,13 +1,11 @@
 // axiosInstance.ts
 import axios, { AxiosError } from "axios";
-import type { InternalAxiosRequestConfig } from "axios";
+import type { AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { store } from "@/redux/store";
 import { removeToken, setAccessToken } from "@/redux/slice/tokenSlice";
 import { clearAuth } from "@/redux/slice/auth.slice";
 
-interface ErrorResponse {
-  message: string;
-}
+
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_SERVER_BASEURL,
@@ -63,7 +61,7 @@ axiosInstance.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     console.log("error",error)
-    if (error.response?.status === 401 && (error.response.data as ErrorResponse)?.message !== "Invalid email or password." && !originalRequest._retry) {
+    if (error.response?.status === 401 && !["Invalid email or password.", "Invalid or expired OTP"].includes((error.response as AxiosResponse).data.message ) && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise<string>((resolve, reject) => {
           failedQueue.push({ resolve, reject });

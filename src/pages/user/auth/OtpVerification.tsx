@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { toast as sonnerToast } from "sonner";
+import { toast} from "react-hot-toast";
 import OtpInput from "@/components/shared/OtpInput";
 import otpIllustration from "@/assets/logI.png";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -33,7 +33,7 @@ const OtpVerification = () => {
 
   useEffect(() => {
     if (!userData?.email || !userData?.role) {
-      sonnerToast.error("Session expired.Please register again.");
+      toast.error("Session expired.Please register again.");
       navigate(
         userData?.role === "vendor"
           ? "/vendor/vendor-register"
@@ -71,7 +71,7 @@ const OtpVerification = () => {
     if (!result.success) {
       const errorMessage = result.error.issues[0].message; // CHANGE: Extracts first error message for user-friendly display
       setMessage(errorMessage);
-      sonnerToast.error(errorMessage); // CHANGE: Added toast for validation errors to match success/error patterns
+      toast.error(errorMessage); // CHANGE: Added toast for validation errors to match success/error patterns
       return;
     }
 
@@ -92,7 +92,7 @@ const OtpVerification = () => {
           role: "user",
         });
       }
-      sonnerToast.success("OTP verified successfully");
+      toast.success("OTP verified successfully");
 
       if (userData.role === "vendor") {
         await authService.vendorRegister({
@@ -102,7 +102,7 @@ const OtpVerification = () => {
           password: userData.password,
           confirmPassword:userData.confirmPassword,
         });
-        sonnerToast.success("Vendor account created");
+        toast.success("Vendor account created");
         navigate("/vendor/login",{replace:true});
       } else {
         await authService.register({
@@ -111,13 +111,13 @@ const OtpVerification = () => {
           phone: userData.phone,
           password: userData.password,
         });
-        sonnerToast.success("Account created successfully");
+        toast.success("Account created successfully");
         navigate("/user/login",{replace:true});
       }
     } catch (error: unknown) {
       const errorMessage = handleApiError(error, "Invalid OTP");
       setMessage(errorMessage);
-      sonnerToast.error(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -135,11 +135,11 @@ const OtpVerification = () => {
       }
       setTimeLeft(120);
       setMessage("OTP send to your email");
-      sonnerToast.success("OTP send to your email");
+      toast.success("OTP send to your email");
     } catch (error: unknown) {
       const errorMessage = handleApiError(error, "Failed to resend OTP");
       setMessage(errorMessage);
-      sonnerToast.error(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -22,6 +22,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 
+
 const UserManagement = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,10 +34,11 @@ const UserManagement = () => {
     id: string;
     accountStatus: "blocked" | "unblocked";
     name: string;
-  } | null>(null);
+  } | null>(null)
 
   const itemsPerPage = 5;
   const totalPages = Math.ceil(totalResults / itemsPerPage);
+
 
   useEffect(() => {
     const loadAccounts = async () => {
@@ -58,6 +60,7 @@ const UserManagement = () => {
     loadAccounts();
   }, [currentPage, debouncedSearch]);
 
+
   //   const handleToggleStatus = async (accountId: string, currentStatus: "active"|"blocked") => {
   //   try {
   //     const newStatus = currentStatus === "active" ? "blocked" : "active";
@@ -65,8 +68,9 @@ const UserManagement = () => {
   //     await updateAccountStatus(
   //       accountId,
   //       newStatus,
-  //       "user"
+  //       "user" 
   //     );
+
 
   //     setAccounts(prev =>
   //       prev.map(acc =>
@@ -80,6 +84,7 @@ const UserManagement = () => {
   //   }
   // };
 
+
   const confirmStatusChange = async (): Promise<void> => {
     if (!selectedAccount) return;
 
@@ -91,23 +96,20 @@ const UserManagement = () => {
 
       setAccounts((prev) =>
         prev.map((acc) =>
-          acc.id === selectedAccount.id
-            ? { ...acc, accountStatus: newStatus }
-            : acc,
-        ),
+          acc.id === selectedAccount.id ? { ...acc, accountStatus: newStatus } : acc
+        )
       );
 
       toast.success(
-        `${selectedAccount.name} has been ${newStatus === "blocked" ? "blocked" : "unblocked"} successfully`,
+        `${selectedAccount.name} has been ${newStatus === "blocked" ? "blocked" : "unblocked"} successfully`
       );
-    } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : "Failed to update status";
-
-      toast.error(message);
+    } catch (error) {
+      toast.error("Failed to update status");
+      console.log(error)
     }
     setSelectedAccount(null);
-  };
+  }
+
 
   const handleClearSearch = () => {
     setSearch("");
@@ -151,7 +153,7 @@ const UserManagement = () => {
             </thead>
 
             <tbody>
-              {accounts.map((account) => (
+              {accounts.map(account => (
                 <tr key={account.id} className="border-b">
                   <td className="px-4 py-4">{account.customerId}</td>
                   <td className="px-4 py-4">{account.name}</td>
@@ -162,18 +164,8 @@ const UserManagement = () => {
                   </td>
                   <td className="px-4 py-4">
                     <ActionButton
-                      onClick={() =>
-                        setSelectedAccount({
-                          id: account.id,
-                          accountStatus: account.accountStatus,
-                          name: account.name,
-                        })
-                      }
-                      label={
-                        account.accountStatus === "unblocked"
-                          ? "Block"
-                          : "Unblock"
-                      }
+                      onClick={() => setSelectedAccount({ id: account.id, accountStatus: account.accountStatus, name: account.name })}
+                      label={account.accountStatus === "unblocked" ? "Block" : "Unblock"}
                       icon={
                         account.accountStatus === "unblocked" ? (
                           <Lock size={14} />
@@ -181,11 +173,7 @@ const UserManagement = () => {
                           <Unlock size={14} />
                         )
                       }
-                      variant={
-                        account.accountStatus === "unblocked"
-                          ? "danger"
-                          : "success"
-                      }
+                      variant={account.accountStatus === "unblocked" ? "danger" : "success"}
                     />
                   </td>
                 </tr>
@@ -209,13 +197,13 @@ const UserManagement = () => {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Action</AlertDialogTitle>
+            <AlertDialogTitle>
+              Confirm Action
+            </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to{" "}
               <span className="font-semibold">
-                {selectedAccount?.accountStatus === "unblocked"
-                  ? "block"
-                  : "unblock"}
+                {selectedAccount?.accountStatus === "unblocked" ? "block" : "unblock"}
               </span>{" "}
               <span className="font-semibold text-teal-600">
                 {selectedAccount?.name}
@@ -240,6 +228,7 @@ const UserManagement = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
     </AdminLayout>
   );
 };

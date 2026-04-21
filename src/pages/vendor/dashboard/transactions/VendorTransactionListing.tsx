@@ -7,7 +7,7 @@ import type {
   VendorReportFilters,
   VendorTransactionDto,
 } from "@/interfaces/transaction/transaction.interface";
-import { toast } from "sonner";
+import { toast } from "react-hot-toast";
 import {
   ArrowLeft,
   ArrowRight,
@@ -23,6 +23,7 @@ import {
   User,
 } from "lucide-react";
 import ClearSearchButton from "@/components/ui/ClearSearchButton";
+import { reportFilterSchema } from "@/validations/user/user.transactionPdf";
 
 const VendorTransactionListing: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -110,6 +111,20 @@ const VendorTransactionListing: React.FC = () => {
 
   const handleDownloadReport = async () => {
     try {
+      const validationResult = reportFilterSchema.safeParse({
+        filterType,
+        selectedMonth,
+        selectedYear,
+        startDate,
+        endDate,
+      });
+
+      if (!validationResult.success) {
+        toast.error(
+          validationResult.error.issues[0]?.message || "Invalid filter",
+        );
+        return;
+      }
       setIsDownloading(true);
 
       const filters = getFilterParams();
@@ -191,7 +206,7 @@ const VendorTransactionListing: React.FC = () => {
 
             <button
               onClick={handleDownloadReport}
-              disabled={isDownloading || transactions.length === 0}
+              disabled={isDownloading}
               className="group flex items-center gap-2.5 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-sm transition-all shadow-sm shadow-slate-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
             >
               {isDownloading ? (

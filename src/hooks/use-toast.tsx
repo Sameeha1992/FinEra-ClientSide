@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Toaster, toast } from "sonner";
+import { Toaster, toast } from "react-hot-toast";
 
 export default function OTPInput({ length = 6 }) {
   const [otp, setOtp] = useState(Array(length).fill(""));
@@ -45,8 +45,8 @@ export default function OTPInput({ length = 6 }) {
         ))}
       </div>
 
-      {/* Sonner Toaster */}
-      <Toaster position="top-right" richColors />
+      {/*Toaster */}
+      <Toaster position="top-right" />
     </div>
   );
 }

@@ -38,7 +38,7 @@ const ProfilePage = () => {
                     isVerified:data.isVerified ?? false
                 })
                 
-            } catch (error) {
+            } catch (error:unknown) {
                 setError("Failed to load vendor profile")
                 console.log(error)
             }finally{
