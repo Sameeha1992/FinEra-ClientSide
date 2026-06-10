@@ -6,6 +6,7 @@ export interface UserApplicationListItem {
   status: string;
   appliedDate: string;
   rejectionReason?: string;
+  bankName?: string;
   employmentType?: string;
   monthlyIncome?: number;
   phoneNumber?: string;
@@ -50,6 +51,7 @@ export interface UserApplicationDetail {
   status: string;
   appliedDate: string;
 
+  bankName?: string;
   vendorId: string;
   loanProductId: string;
 

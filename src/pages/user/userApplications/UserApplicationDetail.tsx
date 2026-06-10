@@ -537,6 +537,10 @@ export const UserApplicationDetail = () => {
                 </div>
                 <InfoRow label="Applied Date" value={formattedDate} />
                 <InfoRow
+                  label="Bank Name"
+                  value={data.bankName || "Unknown"}
+                />
+                <InfoRow
                   label="Loan Type"
                   value={
                     <span className="capitalize font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md">

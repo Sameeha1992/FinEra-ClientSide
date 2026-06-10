@@ -196,9 +196,11 @@ const UserApplicationList = () => {
                   Loan Type
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                  Bank
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
                   Amount
                 </th>
-               
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wide">
                   Applied Date
                 </th>
@@ -217,7 +219,7 @@ const UserApplicationList = () => {
             <tbody className="divide-y divide-gray-100">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-16 text-center">
+                  <td colSpan={9} className="px-6 py-16 text-center">
                     <div className="inline-block w-6 h-6 border-2 border-teal-600 border-t-transparent rounded-full animate-spin mb-3" />
                     <p className="text-sm text-gray-400">
                       Loading applications…
@@ -226,7 +228,7 @@ const UserApplicationList = () => {
                 </tr>
               ) : isError ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-16 text-center">
+                  <td colSpan={9} className="px-6 py-16 text-center">
                     <p className="text-sm text-red-500">
                       Failed to load applications. Please try again.
                     </p>
@@ -234,7 +236,7 @@ const UserApplicationList = () => {
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-16 text-center">
+                  <td colSpan={9} className="px-6 py-16 text-center">
                     <FileText className="w-10 h-10 text-gray-300 mx-auto mb-3" />
                     <p className="text-sm text-gray-400 font-medium">
                       No applications found
@@ -265,6 +267,13 @@ const UserApplicationList = () => {
                         <span className="w-2 h-2 rounded-full bg-teal-500" />
                         {loanTypeLabels[app.loanType?.toUpperCase()] ??
                           app.loanType}
+                      </span>
+                    </td>
+
+                    {/* Bank Name */}
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-medium text-gray-800">
+                        {app.bankName || "Unknown"}
                       </span>
                     </td>
 
